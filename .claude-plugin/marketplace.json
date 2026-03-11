@@ -1,0 +1,9 @@
+{
+  "skills": [
+    {
+      "name": "sauver",
+      "description": "Sauver Inbox Assistant to strip 1x1 tracking pixels and redirect slop.",
+      "path": "skills/sauver"
+    }
+  ]
+}
