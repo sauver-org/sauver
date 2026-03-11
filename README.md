@@ -11,6 +11,17 @@ Sauver is a cyber-defense layer for your Gmail, designed to neutralize tracking 
 
 ## Installation
 
+The easiest way to install Sauver is as a **Gemini CLI Extension**. This automatically configures all tools and prompts you for consent once during setup.
+
+```bash
+# Install and trust the extension (one-line setup)
+gemini extensions install https://github.com/mszczodrak/sauver --consent
+```
+
+### Manual Installation (Development)
+
+If you're contributing to Sauver, you can clone the repository and set it up manually:
+
 ```bash
 # Clone the repository
 git clone https://github.com/mszczodrak/sauver.git
