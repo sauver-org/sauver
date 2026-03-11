@@ -64,3 +64,4 @@ uv.lock
 # Project specific: Google Auth & Secrets
 credentials.json
 token.json
+.sauver-config.json
