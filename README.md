@@ -40,6 +40,7 @@ You can interact with your config directly using the following tools:
 
 - **Get current config:** `get_sauver_config`
 - **Update a setting:** `set_sauver_config(updates={"yolo_mode": true})`
+- **Run interactive wizard:** `start_sauver_config_wizard` (Provides command to run in terminal)
 
 ## Skills Registry
 
@@ -53,6 +54,7 @@ You can interact with your config directly using the following tools:
 
 ## Usage Tips 💡
 
+- **Interactive Configuration:** You can run the color-coded configuration wizard anytime to change your preferences by running `uv run src/main.py configure` in your terminal.
 - **Triage your inbox:** "Use the sauver-inbox-assistant to triage my last 10 unread emails."
 - **Disable Job Slop Filter:** If you are actively job searching, you can tell Sauver: "Update my config to not treat job offers as slop."
 - **Manual Verification:** Even with automation, Sauver always creates **drafts** by default (unless YOLO mode is on), allowing you to review its traps before they are sprung.

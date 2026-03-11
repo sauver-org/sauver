@@ -61,6 +61,23 @@ def set_sauver_config(updates: dict) -> str:
 
 
 @mcp.tool()
+def start_sauver_config_wizard() -> str:
+    """
+    Guides the user on how to run the interactive configuration wizard.
+    The wizard must be run in the terminal for interactivity.
+
+    Returns:
+        Instructions on how to run the wizard.
+    """
+    return (
+        "To start the interactive Sauver Configuration Wizard, please run the following "
+        "command in your terminal:\n\n"
+        "uv run src/main.py configure\n\n"
+        "This will allow you to set your preferences with an interactive, color-coded flow."
+    )
+
+
+@mcp.tool()
 def tracker_shield(html_content: str) -> str:
     """
     Automated identification and stripping of 1x1 tracking pixels and spy-links.
@@ -93,5 +110,66 @@ def tracker_shield(html_content: str) -> str:
     )
 
 
+def run_configure() -> None:
+    """Runs an interactive configuration wizard in the terminal."""
+    config = load_config()
+
+    # ANSI color codes
+    BOLD = "\033[1m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RESET = "\033[0m"
+
+    print(f"\n{BOLD}{CYAN}🛡️  Sauver Configuration Wizard 🛡️{RESET}")
+    print(f"{CYAN}Follow the prompts to set your digital bouncer preferences.{RESET}\n")
+
+    def ask_bool(question: str, key: str) -> bool:
+        current = config.get(key, True)
+        d_str = "Y/n" if current else "y/N"
+        res = input(f"{BOLD}{question}{RESET} [{YELLOW}{d_str}{RESET}]: ").lower().strip()
+        if not res:
+            return current
+        return res == "y"
+
+    def ask_str(question: str, key: str) -> str:
+        current = config.get(key, "Quarantine")
+        res = input(f"{BOLD}{question}{RESET} [{YELLOW}{current}{RESET}]: ").strip()
+        return res if res else current
+
+    # 1. Auto Draft
+    print(f"{BOLD}[1/5] Automation{RESET}")
+    config["auto_draft"] = ask_bool("Should Sauver automatically create draft replies to slop?", "auto_draft")
+    
+    # 2. YOLO Mode
+    print(f"\n{BOLD}[2/5] YOLO Mode{RESET}")
+    print(f"{YELLOW}Warning: YOLO mode automatically sends replies without your review.{RESET}")
+    config["yolo_mode"] = ask_bool("Enable YOLO mode (Auto-Send)?", "yolo_mode")
+
+    # 3. Job Slop
+    print(f"\n{BOLD}[3/5] Job Offers{RESET}")
+    config["treat_job_offers_as_slop"] = ask_bool("Treat recruiter outreach as slop?", "treat_job_offers_as_slop")
+
+    # 4. Investor Slop
+    print(f"\n{BOLD}[4/5] Investor Outreach{RESET}")
+    config["treat_unsolicited_investors_as_slop"] = ask_bool("Treat unsolicited investor outreach as slop?", "treat_unsolicited_investors_as_slop")
+
+    # 5. Quarantine Folder
+    print(f"\n{BOLD}[5/5] Organization{RESET}")
+    config["quarantine_folder"] = ask_str("Gmail label for quarantined slop?", "quarantine_folder")
+
+    # Save
+    try:
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(config, f, indent=2)
+        print(f"\n{GREEN}✅ Configuration saved successfully!{RESET}\n")
+    except OSError as e:
+        print(f"\n{BOLD}\033[91mError saving configuration: {e}{RESET}\n")
+
+
 if __name__ == "__main__":
-    mcp.run()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "configure":
+        run_configure()
+    else:
+        mcp.run()
