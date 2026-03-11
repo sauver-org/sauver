@@ -13,49 +13,46 @@ Sauver is the "Bouncer" for your digital life. It runs locally on your machine, 
 Sauver is built as an **MCP Server** (Model Context Protocol) designed to run inside the **Gemini CLI**.
 
 - **Core Engine:** [Gemini CLI](https://github.com/google/gemini-cli)
-- **Language:** Python 3.10+
+- **Language:** Python 3.10+ (using `uv` and `fastmcp`)
 - **Integrations:** Gmail API (via local OAuth2)
 
 ## 🚀 Quick Start
-1. **Install Gemini CLI:**
+
+1. **Get your Google Credentials:**
+   Download your Google Workspace OAuth2 credentials and save them in the root of this project as `credentials.json`.
+
+2. **Clone & Setup Sauver:**
    ```bash
-   npm install -g @google/gemini-cli
-   ```
-
-2. **Clone Sauver:**
-
-```bash
-   git clone [https://github.com/your-username/sauver.git](https://github.com/your-username/sauver.git)
+   git clone https://github.com/mszczodrak/sauver.git
    cd sauver
-   pip install -r requirements.txt
+   
+   # This will install dependencies via uv and trigger the initial OAuth flow
+   ./scripts/setup.sh
    ```
 
-3. **Register Extension**
-
-```bash
-gemini extensions install .
-```
+3. **Register the Extension:**
+   ```bash
+   # Install the Gemini CLI if you haven't already
+   npm install -g @google/gemini-cli
+   
+   # Register the Sauver MCP server
+   gemini extensions install .
+   ```
 
 ## 🛠️ Current Skills
-- tracker_shield: Scans and cleans incoming HTML.
-- slop_detector: Classifies email intent and identifies automated templates.
-- bouncer_reply: Generates a "Time-Sink" draft to engage detected spammers.
+- `tracker_shield`: Scans and cleans incoming HTML by stripping 1x1 tracking pixels.
+- `bouncer_reply`: Generates a "Time-Sink" draft to engage detected spammers in endless loops.
+- `slop_detector`: *(Planned)* Classifies email intent and identifies automated templates.
+
+## 🧑‍💻 Development
+This project uses `uv` for dependency management and `ruff`/`mypy` for code quality.
+```bash
+make setup   # Install dependencies
+make format  # Auto-format code
+make lint    # Run linters and type checkers
+make test    # Run test suite
+make all     # Run format, lint, and test sequentially
+```
 
 ## ⚖️ License
 MIT. Go wild.
-
-### 2. `mcp.json` (The Wiring)
-Create this file in your root directory. It tells the Gemini CLI how to launch your Sauver skills.
-
-```json
-{
-  "mcpServers": {
-    "sauver": {
-      "command": "python",
-      "args": ["src/main.py"],
-      "env": {
-        "GMAIL_CREDENTIALS_PATH": "./credentials.json"
-      }
-    }
-  }
-}
