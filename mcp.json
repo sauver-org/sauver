@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "sauver": {
+      "command": "python",
+      "args": ["src/main.py"],
+      "env": {
+        "GMAIL_CREDENTIALS_PATH": "./credentials.json"
+      }
+    }
+  }
+}
