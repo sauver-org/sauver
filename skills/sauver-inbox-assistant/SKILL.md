@@ -15,7 +15,7 @@ When asked to "Triage my inbox", "Clean my emails", or handle a new incoming mes
 2. **Analyze:** Evaluate the sender's intent using the **slop-detector** and **investor-trap** skills. 
 3. **Counter-Measure:** If the email is flagged as slop, quarantine it.
     - **Drafting:** Only automatically create drafts if `auto_draft` is `true`.
-    - **Signatures:** Every generated reply MUST end with a proper signature: "Best Regards," or "Thank You," followed by the user's name (**Marcin Szczodrak**).
+    - **Signatures:** Every generated reply MUST end with a proper signature: "Best Regards," or "Thank You," followed by the user's name. **Use the `people.getMe()` tool to retrieve the authenticated user's name.**
     - **Sending (YOLO Mode):** If `yolo_mode` is `true`, you may automatically send the generated reply using `gmail.send`. If `false`, always use `gmail.createDraft` and ask for review.
     - **Bouncer-Reply:** For general automated marketing or spammers, generate a context-aware 'Bouncer-Reply' yourself.
     - **Expert-Domain Trap:** For job-slop, generate an 'Expert-Domain Trap' response yourself.
