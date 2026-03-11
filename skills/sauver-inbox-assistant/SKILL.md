@@ -25,6 +25,6 @@ When asked to "Triage my inbox", "Clean my emails", or handle a new incoming mes
 Always provide a concise summary using the following format:
 - **Email:** [Subject]
 - **Sender:** [Name/Email]
-- **Status:** [GREEN] (Legitimate) or [RED] (Slop)
+- **Status:** \033[92m[GREEN]\033[0m (Legitimate) or \033[91m[RED]\033[0m (Slop)
 - **Purification:** [Summary of trackers found/removed]
 - **Counter-Measure:** [Trap Name Only] (e.g., Expert-Domain Trap)
