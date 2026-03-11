@@ -12,7 +12,7 @@
     },
     {
       "name": "slop-detector",
-      "description": "Specialized skill to analyze email intent and identify automated, low-effort cold outreach ('slop').",
+      "description": "Specialized skill to identify automated 'slop' (recruiter pitches) and neutralize them with 'The Deep-Technical Trap'.",
       "path": "skills/slop-detector"
     },
     {

@@ -12,7 +12,9 @@ When asked to "Triage my inbox", "Clean my emails", or handle a new incoming mes
 
 1. **Purify:** Clean the email content using the **tracker-shield** skill. You must strip all spy pixels before proceeding.
 2. **Analyze:** Evaluate the sender's intent using the **slop-detector** skill. Determine if the email is legitimate or automated "slop."
-3. **Counter-Measure:** If the email is flagged as slop, quarantine it. Then, deploy the **bouncer-reply** skill to automatically generate a confusing, time-wasting draft response to the sender.
+3. **Counter-Measure:** If the email is flagged as slop, quarantine it.
+    - For general spammers, deploy the **bouncer-reply** skill.
+    - For recruiters or job-slop, deploy the "Deep-Technical Trap" by identifying a niche technical requirement and using the `technical_vetting_reply` tool.
 
 ## Core Mandates
 - **Do not skip steps:** A message must be stripped of trackers before it is analyzed for slop.

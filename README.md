@@ -57,7 +57,7 @@ Once installed, your agent has access to the following specialized capabilities.
 | :--- | :--- | :--- |
 | **`sauver-inbox-assistant`** | The main orchestrator. Instructs the agent on how to manage the complete end-to-end triage pipeline. | None |
 | **`tracker-shield`** | Scans and cleans incoming HTML by stripping 1x1 tracking pixels. | `tracker_shield` |
-| **`slop-detector`** | Classifies email intent and flags automated, low-effort cold outreach. | None |
+| **`slop-detector`** | Classifies email intent and flags automated, low-effort job slop. Deploys the "Deep-Technical Trap" for recruiters. | `technical_vetting_reply` |
 | **`bouncer-reply`** | Generates a "Time-Sink" draft to engage detected spammers in endless loops. | `bouncer_reply` |
 
 **Example Prompts:**
