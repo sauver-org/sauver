@@ -27,18 +27,28 @@ Sauver is built as an **MCP Server** (Model Context Protocol) designed to run in
    ./scripts/setup.sh
    ```
 
-2. **Register the Extension:**
+2. **Authenticate the Gemini CLI:**
+   You do **not** need an API key. You just need to trigger the initial OAuth login.
    ```bash
-   # Install the Gemini CLI if you haven't already
+   # 1. Install the Gemini CLI if you haven't already
    npm install -g @google/gemini-cli
    
-   # Login to Gemini (this avoids needing a GEMINI_API_KEY)
-   # Run this command and select "Login with Google" in your browser.
+   # 2. Launch the CLI in interactive mode
    gemini
    
-   # Register the Sauver MCP server
+   # 3. When prompted in your terminal, choose "Login with Google" 
+   #    and complete the flow in your browser.
+   
+   # 4. Once you see the Gemini chat prompt, type /exit
+   ```
+
+3. **Register the Extension:**
+   Now that you are authenticated, you can install the extension without errors:
+   ```bash
    gemini extensions install .
    ```
+
+> **Troubleshooting:** If you ever see `When using Gemini API, you must specify the GEMINI_API_KEY environment variable.`, it means you skipped Step 2! The extension installer cannot trigger the login flow on its own. You must launch the interactive `gemini` command first.
 
 ## 🛠️ Current Skills
 - `tracker_shield`: Scans and cleans incoming HTML by stripping 1x1 tracking pixels.

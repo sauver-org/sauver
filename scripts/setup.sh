@@ -11,5 +11,10 @@ cd "$(dirname "$0")/.."
 echo "Installing Python dependencies..."
 make setup
 
-echo "✅ Sauver is ready to protect your inbox!"
-echo "Next step: Install the Gemini CLI extension by running 'gemini extensions install .'"
+echo "✅ Sauver dependencies installed successfully!"
+echo ""
+echo "🔥 CRITICAL NEXT STEPS 🔥"
+echo "1. Run the command: gemini"
+echo "2. Select 'Login with Google' to authenticate (no API Key required!)."
+echo "3. Type '/exit' when the prompt appears."
+echo "4. Finally, run: gemini extensions install ."
