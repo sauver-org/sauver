@@ -1,0 +1,17 @@
+{
+    "name": "sauver",
+    "description": "Sauver Inbox Assistant to strip 1x1 tracking pixels and redirect slop.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Sauver"
+    },
+    "homepage": "https://github.com/mszczodrak/sauver",
+    "repository": "https://github.com/mszczodrak/sauver",
+    "license": "MIT",
+    "keywords": [
+        "sauver",
+        "inbox",
+        "tracker",
+        "slop"
+    ]
+}
