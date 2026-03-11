@@ -38,8 +38,8 @@ Sauver uses a local configuration file (`.sauver-config.json`) to manage its aut
 
 You can interact with your config directly using the following tools:
 
-- **Get current config:** `get_config`
-- **Update a setting:** `update_config(updates={"yolo_mode": true})`
+- **Get current config:** `get_sauver_config`
+- **Update a setting:** `set_sauver_config(updates={"yolo_mode": true})`
 
 ## Skills Registry
 

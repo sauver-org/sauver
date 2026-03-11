@@ -29,7 +29,7 @@ def load_config() -> dict:
 
 
 @mcp.tool()
-def get_config() -> str:
+def get_sauver_config() -> str:
     """
     Retrieves the current Sauver configuration.
 
@@ -40,9 +40,9 @@ def get_config() -> str:
 
 
 @mcp.tool()
-def update_config(updates: dict) -> str:
+def set_sauver_config(updates: dict) -> str:
     """
-    Updates specific configuration settings.
+    Updates specific Sauver configuration settings.
 
     Args:
         updates: A dictionary of settings to update (e.g., {"yolo_mode": True}).

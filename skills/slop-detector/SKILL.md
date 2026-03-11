@@ -8,7 +8,7 @@ description: "Specialized skill to identify automated 'slop' (low-quality outrea
 You are responsible for identifying low-quality outreach (recruiter pitches, sales emails, etc.) and deploying the "Expert-Domain Trap" to protect the user's time.
 
 ## Operational Rules
-0. **Check Configuration:** Use `get_config` to understand the user's preference for `treat_job_offers_as_slop`.
+0. **Check Configuration:** Use `get_sauver_config` to understand the user's preference for `treat_job_offers_as_slop`.
 1. **Identification:** Analyze incoming emails for "Slop" signals:
    - Generic templates ("found your profile interesting").
    - Mention of keywords the user has but without deep context.
