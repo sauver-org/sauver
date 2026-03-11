@@ -19,11 +19,13 @@ Sauver is built as an **MCP Server** (Model Context Protocol) designed to run in
 ## 🚀 Quick Start
 
 1. **Clone & Setup Sauver:**
+   The automated setup script installs dependencies and registers the `sauver` MCP server globally to the Gemini CLI, **bypassing all API Key requirements**.
+
    ```bash
    git clone https://github.com/mszczodrak/sauver.git
    cd sauver
    
-   # This will install dependencies via uv
+   # Run the unified installation script
    ./scripts/setup.sh
    ```
 
@@ -36,19 +38,10 @@ Sauver is built as an **MCP Server** (Model Context Protocol) designed to run in
    # 2. Launch the CLI in interactive mode
    gemini
    
-   # 3. When prompted in your terminal, choose "Login with Google" 
-   #    and complete the flow in your browser.
+   # 3. When prompted, choose "Login with Google" and complete the flow.
+   ```
    
-   # 4. Once you see the Gemini chat prompt, type /exit
-   ```
-
-3. **Register the Extension:**
-   Now that you are authenticated, you can install the extension without errors:
-   ```bash
-   gemini extensions install .
-   ```
-
-> **Troubleshooting:** If you ever see `When using Gemini API, you must specify the GEMINI_API_KEY environment variable.`, it means you skipped Step 2! The extension installer cannot trigger the login flow on its own. You must launch the interactive `gemini` command first.
+   🎉 **You're done! Sauver is successfully running and protecting your inbox.**
 
 ## 🛠️ Current Skills
 - `tracker_shield`: Scans and cleans incoming HTML by stripping 1x1 tracking pixels.

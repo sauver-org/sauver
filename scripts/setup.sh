@@ -11,10 +11,41 @@ cd "$(dirname "$0")/.."
 echo "Installing Python dependencies..."
 make setup
 
-echo "✅ Sauver dependencies installed successfully!"
+# 2. Register Sauver globally in Gemini CLI settings
+echo "Registering Sauver MCP server globally..."
+python3 -c "
+import json
+import os
+
+settings_dir = os.path.expanduser('~/.gemini')
+settings_file = os.path.join(settings_dir, 'settings.json')
+pwd = os.path.abspath('.')
+
+if not os.path.exists(settings_dir):
+    os.makedirs(settings_dir)
+
+data = {}
+if os.path.exists(settings_file):
+    with open(settings_file, 'r') as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError:
+            pass
+
+data.setdefault('mcpServers', {})
+data['mcpServers']['sauver'] = {
+    'command': 'uv',
+    'args': ['--directory', pwd, 'run', 'src/main.py']
+}
+
+with open(settings_file, 'w') as f:
+    json.dump(data, f, indent=2)
+"
+
+echo "✅ Sauver successfully registered!"
 echo ""
 echo "🔥 CRITICAL NEXT STEPS 🔥"
-echo "1. Run the command: gemini"
-echo "2. Select 'Login with Google' to authenticate (no API Key required!)."
-echo "3. Type '/exit' when the prompt appears."
-echo "4. Finally, run: gemini extensions install ."
+echo "1. If you haven't already, install the Gemini CLI: npm install -g @google/gemini-cli"
+echo "2. Run 'gemini' in your terminal."
+echo "3. Select 'Login with Google' (No API Key required!)."
+echo "4. You're done! Your digital bouncer is live."
