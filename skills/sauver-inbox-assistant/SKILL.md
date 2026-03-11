@@ -20,7 +20,11 @@ When asked to "Triage my inbox", "Clean my emails", or handle a new incoming mes
     - **Bouncer-Reply:** For general automated marketing or spammers, generate a context-aware 'Bouncer-Reply' yourself.
     - **Expert-Domain Trap:** For job-slop, generate an 'Expert-Domain Trap' response yourself.
     - **Due Diligence Loop:** For investor-slop, generate a bureaucratic 'Due Diligence Loop' response yourself.
-    - **Archival Mandate:** Immediately after creating a draft or sending a reply, you MUST archive the original email by removing the `INBOX` label using the `gmail.modify` tool.
+    - **Archival Mandate:** Immediately after creating a draft or sending a reply, you MUST archive the original email:
+        1. Retrieve the configured `sauver_label` from your config.
+        2. Use `gmail.listLabels()` to check if the label exists.
+        3. If it doesn't exist, create it using `gmail.createLabel(name=sauver_label)`.
+        4. Remove the `INBOX` label and ADD the `sauver_label` using the `gmail.modify` tool.
 
 ## Reporting Standards
 Always provide a concise summary using the following format:

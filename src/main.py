@@ -18,6 +18,7 @@ def load_config() -> dict:
         "treat_job_offers_as_slop": True,
         "treat_unsolicited_investors_as_slop": True,
         "quarantine_folder": "Quarantine",
+        "sauver_label": "Sauver",
     }
     if os.path.exists(CONFIG_FILE):
         try:
@@ -155,8 +156,12 @@ def run_configure() -> None:
     config["treat_unsolicited_investors_as_slop"] = ask_bool("Treat unsolicited investor outreach as slop?", "treat_unsolicited_investors_as_slop")
 
     # 5. Quarantine Folder
-    print(f"\n{BOLD}[5/5] Organization{RESET}")
+    print(f"\n{BOLD}[5/6] Organization{RESET}")
     config["quarantine_folder"] = ask_str("Gmail label for quarantined slop?", "quarantine_folder")
+
+    # 6. Sauver Label
+    print(f"\n{BOLD}[6/6] Archival Label{RESET}")
+    config["sauver_label"] = ask_str("Gmail label to apply when archiving?", "sauver_label")
 
     # Save
     try:
