@@ -18,19 +18,16 @@ Sauver is built as an **MCP Server** (Model Context Protocol) designed to run in
 
 ## 🚀 Quick Start
 
-1. **Get your Google Credentials:**
-   Download your Google Workspace OAuth2 credentials and save them in the root of this project as `credentials.json`.
-
-2. **Clone & Setup Sauver:**
+1. **Clone & Setup Sauver:**
    ```bash
    git clone https://github.com/mszczodrak/sauver.git
    cd sauver
    
-   # This will install dependencies via uv and trigger the initial OAuth flow
+   # This will install dependencies via uv
    ./scripts/setup.sh
    ```
 
-3. **Register the Extension:**
+2. **Register the Extension:**
    ```bash
    # Install the Gemini CLI if you haven't already
    npm install -g @google/gemini-cli
