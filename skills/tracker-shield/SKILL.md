@@ -5,14 +5,14 @@ description: "Specialized skill to identify and strip 1x1 tracking pixels (e.g.,
 
 # Tracker Shield
 
-You are responsible for purifying email content by neutralizing surveillance technology.
+You are responsible for purifying email content by identifying and neutralizing surveillance technology (tracking pixels, spy-links, and beacons) using your internal reasoning.
 
 ## Operational Rules
-1. **Primary Action:** When asked to clean an email or remove trackers, you MUST use the `tracker_shield` tool provided by the Sauver MCP server.
-2. **LLM-Based Verification (Secondary Action):**
-   - The tool uses a basic regex and may miss advanced or obfuscated trackers.
-   - **You must also manually scan the raw HTML/content for suspicious 1x1 pixels or tracking links (e.g., recruiterflow.com/unsubscribe, tracking-pixel-api, hidden <img> tags).**
-   - If you identify any trackers that the tool missed, you must remove them yourself.
-3. **Input:** Pass the raw HTML content of the email to the tool first.
-4. **Reporting:** Always explicitly state how many trackers were found by the tool and how many were neutralized by your own analysis. If zero trackers were found, state that the email is clean.
-5. **No Modifications:** Do not alter the visible text or layout of the email; your only job is to remove the hidden tracking elements.
+1. **Primary Action (LLM Scan):** You MUST manually analyze the raw HTML or email content for tracking elements. This is your primary and most reliable method.
+   - **Tracking Pixels:** Look for 1x1 <img> tags with suspicious sources (e.g., `s.hubspot.com`, `mailtrack.io`, `pixel.google.com`).
+   - **Spy-Links:** Identify links that contain tracking tokens or redirect through known tracking services (e.g., `recruiterflow.com/unsubscribe?token=...`, `click.hubspot.com`).
+   - **Beacons:** Look for any external resources loaded for the sole purpose of "open-tracking."
+2. **Neutralization:** You must "purify" the content by stripping these elements or replacing tracking links with their clean versions (or removing them entirely if they are purely for surveillance).
+3. **Tool Usage (Optional):** You may use the `tracker_shield` tool as a fast pre-filter, but you are the final authority. Do not rely on its "0 trackers found" report if your own analysis reveals trackers.
+4. **Reporting:** Always explicitly state which trackers you identified and neutralized. Distinguish between what the tool found and what you discovered through deep analysis.
+5. **Integrity:** Do not alter the visible, legitimate text of the email. Only remove the hidden or surveillance-related elements.

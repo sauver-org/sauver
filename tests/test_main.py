@@ -1,5 +1,5 @@
 import json
-from src.main import bouncer_reply, tracker_shield
+from src.main import tracker_shield
 
 
 def test_tracker_shield_no_trackers() -> None:
@@ -32,18 +32,3 @@ def test_tracker_shield_by_keyword() -> None:
     result = json.loads(result_str)
     assert result["trackers_neutralized"] == 1
     assert result["cleaned_html"] == "<p>Hello world</p>"
-
-
-def test_bouncer_reply_contains_inputs() -> None:
-    sender = "Chad"
-    topic = "B2B Synergy generation"
-
-    reply = bouncer_reply(sender_name=sender, topic=topic)
-
-    # Assert the generated reply is a string and contains our inputs
-    assert isinstance(reply, str)
-    assert sender in reply
-    assert topic in reply
-
-    # Assert it's long enough to be a proper time-sink
-    assert len(reply) > 50
