@@ -32,6 +32,10 @@ Sauver is built as an **MCP Server** (Model Context Protocol) designed to run in
    # Install the Gemini CLI if you haven't already
    npm install -g @google/gemini-cli
    
+   # Login to Gemini (this avoids needing a GEMINI_API_KEY)
+   # Run this command and select "Login with Google" in your browser.
+   gemini
+   
    # Register the Sauver MCP server
    gemini extensions install .
    ```
