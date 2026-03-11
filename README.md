@@ -31,6 +31,7 @@ Sauver uses a local configuration file (`.sauver-config.json`) to manage its aut
 | `auto_draft` | Automatically create draft replies to detected slop. | `true` |
 | `yolo_mode` | Automatically SEND replies (Dangerous - bypasses draft review). | `false` |
 | `treat_job_offers_as_slop` | Treat recruiter outreach as slop (triggers Expert-Domain Trap). | `true` |
+| `treat_unsolicited_investors_as_slop` | Treat unsolicited investor outreach as slop (triggers Due Diligence Loop). | `true` |
 | `quarantine_folder` | The Gmail label where slop is moved. | `Quarantine` |
 
 ### Running Config via Gemini CLI
@@ -47,6 +48,7 @@ You can interact with your config directly using the following tools:
 | **`sauver-inbox-assistant`** | Triage Orchestrator | End-to-end pipeline management. |
 | **`tracker-shield`** | Surveillance Purifier | Neutralizes tracking pixels and spy-links. |
 | **`slop-detector`** | Intent Classifier | Deploys the **Expert-Domain Trap** for recruiters. |
+| **`investor-trap`** | VC-Slop Shield | Deploys the **Due Diligence Loop** for "investors." |
 | **`bouncer-reply`** | Time-Waster | Generates context-aware, confusing drafts for spammers. |
 
 ## Usage Tips 💡

@@ -33,11 +33,17 @@ if [ ! -f "$CONFIG_FILE" ]; then
     job_slop=${job_slop:-y}
     [ "$job_slop" == "y" ] && job_slop="true" || job_slop="false"
 
+    # Investor Slop
+    read -p "Should Sauver treat unsolicited investor outreach as slop? (y/n) [y]: " investor_slop
+    investor_slop=${investor_slop:-y}
+    [ "$investor_slop" == "y" ] && investor_slop="true" || investor_slop="false"
+
     cat <<EOF > "$CONFIG_FILE"
 {
   "auto_draft": $auto_draft,
   "yolo_mode": $yolo_mode,
   "treat_job_offers_as_slop": $job_slop,
+  "treat_unsolicited_investors_as_slop": $investor_slop,
   "quarantine_folder": "Quarantine"
 }
 EOF

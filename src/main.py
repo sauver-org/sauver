@@ -16,6 +16,7 @@ def load_config() -> dict:
         "auto_draft": True,
         "yolo_mode": False,  # Auto-send
         "treat_job_offers_as_slop": True,
+        "treat_unsolicited_investors_as_slop": True,
         "quarantine_folder": "Quarantine",
     }
     if os.path.exists(CONFIG_FILE):
