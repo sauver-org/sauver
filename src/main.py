@@ -17,7 +17,6 @@ def load_config() -> dict:
         "yolo_mode": False,  # Auto-send
         "treat_job_offers_as_slop": True,
         "treat_unsolicited_investors_as_slop": True,
-        "quarantine_folder": "Quarantine",
         "sauver_label": "Sauver",
     }
     if os.path.exists(CONFIG_FILE):
@@ -133,8 +132,8 @@ def run_configure() -> None:
             return current
         return res == "y"
 
-    def ask_str(question: str, key: str) -> str:
-        current = config.get(key, "Quarantine")
+    def ask_str(question: str, key: str, default: str = "") -> str:
+        current = config.get(key, default)
         res = input(f"{BOLD}{question}{RESET} [{YELLOW}{current}{RESET}]: ").strip()
         return res if res else current
 
@@ -155,12 +154,8 @@ def run_configure() -> None:
     print(f"\n{BOLD}[4/5] Investor Outreach{RESET}")
     config["treat_unsolicited_investors_as_slop"] = ask_bool("Treat unsolicited investor outreach as slop?", "treat_unsolicited_investors_as_slop")
 
-    # 5. Quarantine Folder
-    print(f"\n{BOLD}[5/6] Organization{RESET}")
-    config["quarantine_folder"] = ask_str("Gmail label for quarantined slop?", "quarantine_folder")
-
-    # 6. Sauver Label
-    print(f"\n{BOLD}[6/6] Archival Label{RESET}")
+    # 5. Sauver Label
+    print(f"\n{BOLD}[5/5] Archival Label{RESET}")
     config["sauver_label"] = ask_str("Gmail label to apply when archiving?", "sauver_label")
 
     # Save

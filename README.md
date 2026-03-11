@@ -32,7 +32,6 @@ Sauver uses a local configuration file (`.sauver-config.json`) to manage its aut
 | `yolo_mode` | Automatically SEND replies (Dangerous - bypasses draft review). | `false` |
 | `treat_job_offers_as_slop` | Treat recruiter outreach as slop (triggers Expert-Domain Trap). | `true` |
 | `treat_unsolicited_investors_as_slop` | Treat unsolicited investor outreach as slop (triggers Due Diligence Loop). | `true` |
-| `quarantine_folder` | The Gmail label where slop is moved. | `Quarantine` |
 | `sauver_label` | The Gmail label applied when an email is archived. | `Sauver` |
 
 ### Running Config via Gemini CLI
