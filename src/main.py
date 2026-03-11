@@ -1,13 +1,14 @@
 import json
-import os
 import re
+import sys
+from pathlib import Path
 
 from fastmcp import FastMCP
 
 mcp = FastMCP("Sauver")
 
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".sauver-config.json")
+CONFIG_FILE = Path(__file__).parent.parent / ".sauver-config.json"
 
 
 def load_config() -> dict:
@@ -19,9 +20,9 @@ def load_config() -> dict:
         "treat_unsolicited_investors_as_slop": True,
         "sauver_label": "Sauver",
     }
-    if os.path.exists(CONFIG_FILE):
+    if CONFIG_FILE.exists():
         try:
-            with open(CONFIG_FILE) as f:
+            with CONFIG_FILE.open() as f:
                 return {**defaults, **json.load(f)}
         except (json.JSONDecodeError, OSError):
             pass
@@ -53,7 +54,7 @@ def set_sauver_config(updates: dict) -> str:
     config = load_config()
     config.update(updates)
     try:
-        with open(CONFIG_FILE, "w") as f:
+        with CONFIG_FILE.open("w") as f:
             json.dump(config, f, indent=2)
         return f"Configuration updated successfully:\n{json.dumps(config, indent=2)}"
     except OSError as e:
@@ -115,60 +116,53 @@ def run_configure() -> None:
     config = load_config()
 
     # ANSI color codes
-    BOLD = "\033[1m"
-    CYAN = "\033[96m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    RESET = "\033[0m"
-
-    print(f"\n{BOLD}{CYAN}🛡️  Sauver Configuration Wizard 🛡️{RESET}")
-    print(f"{CYAN}Follow the prompts to set your digital bouncer preferences.{RESET}\n")
+    bold = "\033[1m"
+    yellow = "\033[93m"
+    reset = "\033[0m"
 
     def ask_bool(question: str, key: str) -> bool:
         current = config.get(key, True)
         d_str = "Y/n" if current else "y/N"
-        res = input(f"{BOLD}{question}{RESET} [{YELLOW}{d_str}{RESET}]: ").lower().strip()
+        res = input(f"{bold}{question}{reset} [{yellow}{d_str}{reset}]: ").lower().strip()
         if not res:
-            return current
+            return bool(current)
         return res == "y"
 
     def ask_str(question: str, key: str, default: str = "") -> str:
         current = config.get(key, default)
-        res = input(f"{BOLD}{question}{RESET} [{YELLOW}{current}{RESET}]: ").strip()
+        res = input(f"{bold}{question}{reset} [{yellow}{current}{reset}]: ").strip()
         return res if res else current
 
     # 1. Auto Draft
-    print(f"{BOLD}[1/5] Automation{RESET}")
-    config["auto_draft"] = ask_bool("Should Sauver automatically create draft replies to slop?", "auto_draft")
-    
+    config["auto_draft"] = ask_bool(
+        "Should Sauver automatically create draft replies to slop?", "auto_draft"
+    )
+
     # 2. YOLO Mode
-    print(f"\n{BOLD}[2/5] YOLO Mode{RESET}")
-    print(f"{YELLOW}Warning: YOLO mode automatically sends replies without your review.{RESET}")
     config["yolo_mode"] = ask_bool("Enable YOLO mode (Auto-Send)?", "yolo_mode")
 
     # 3. Job Slop
-    print(f"\n{BOLD}[3/5] Job Offers{RESET}")
-    config["treat_job_offers_as_slop"] = ask_bool("Treat recruiter outreach as slop?", "treat_job_offers_as_slop")
+    config["treat_job_offers_as_slop"] = ask_bool(
+        "Treat recruiter outreach as slop?", "treat_job_offers_as_slop"
+    )
 
     # 4. Investor Slop
-    print(f"\n{BOLD}[4/5] Investor Outreach{RESET}")
-    config["treat_unsolicited_investors_as_slop"] = ask_bool("Treat unsolicited investor outreach as slop?", "treat_unsolicited_investors_as_slop")
+    config["treat_unsolicited_investors_as_slop"] = ask_bool(
+        "Treat unsolicited investor outreach as slop?", "treat_unsolicited_investors_as_slop"
+    )
 
     # 5. Sauver Label
-    print(f"\n{BOLD}[5/5] Archival Label{RESET}")
     config["sauver_label"] = ask_str("Gmail label to apply when archiving?", "sauver_label")
 
     # Save
     try:
-        with open(CONFIG_FILE, "w") as f:
+        with CONFIG_FILE.open("w") as f:
             json.dump(config, f, indent=2)
-        print(f"\n{GREEN}✅ Configuration saved successfully!{RESET}\n")
-    except OSError as e:
-        print(f"\n{BOLD}\033[91mError saving configuration: {e}{RESET}\n")
+    except OSError:
+        pass
 
 
 if __name__ == "__main__":
-    import sys
     if len(sys.argv) > 1 and sys.argv[1] == "configure":
         run_configure()
     else:

@@ -23,4 +23,9 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
    - **Goal:** Put the cognitive load back on the sender to verify the depth of their opportunity.
    - **Signature:** Every generated reply MUST end with a proper signature: "Best Regards," or "Thank You," followed by the user's name (retrieve using `people.getMe()`).
 3. **Justification:** Explain *why* the outreach was flagged as slop and *which* niche domain concept you are using for the trap.
-4. **Verification:** Do not send the email automatically; present the draft to the user for confirmation.
+4. **Action - Reply Creation:** 
+   - **YOLO Mode (Auto-Send):** If `yolo_mode` is `true`, immediately send the generated reply using `gmail.send`.
+   - **Draft Mode:** If `yolo_mode` is `false`, use `gmail.createDraft` to save it as a draft for the user to review.
+5. **Confirmation:** 
+   - If sent: Inform the user that the "expert-domain trap" has been triggered and the response was sent.
+   - If drafted: Inform the user that the draft is ready for their review. Briefly explain the niche concept you used for the trap.
