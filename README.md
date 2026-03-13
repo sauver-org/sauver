@@ -1,6 +1,6 @@
 # Sauver: The Digital Bouncer for your Inbox 🛡️
 
-Sauver is a cyber-defense layer for your Gmail, designed to neutralize tracking pixels, identify automated "job slop," and engage spammers in time-wasting loops. It operates as a set of specialized skills within the Gemini CLI.
+Sauver is a cyber-defense layer for your Gmail, designed to neutralize tracking pixels, identify automated "job slop," and engage spammers in time-wasting loops. It operates as a set of specialized skills within the Gemini CLI and Claude Code.
 
 ## Key Capabilities
 
@@ -71,4 +71,44 @@ You can interact with your config directly using the following tools:
 - **Manual Verification:** Even with automation, Sauver always creates **drafts** by default (unless YOLO mode is on), allowing you to review its traps before they are sprung.
 
 ---
-*Built with Gemini CLI & FastMCP.*
+
+## Using Sauver with Claude Code
+
+Sauver's skills are also available as slash commands in [Claude Code](https://claude.ai/code). Claude Code must be open inside this repository for the commands and MCP server to load automatically.
+
+### Prerequisites
+
+1. **Gmail MCP server** — Sauver uses the `mcp__claude_ai_Gmail__*` tools. Follow the [Gmail MCP setup guide](https://github.com/anthropics/claude-code/tree/main/mcp) to connect your Google account.
+2. **Clone this repo** — the sauver MCP server (`.claude/settings.json`) is registered at the project level, so Claude Code must be opened from within the repository directory.
+
+### Available Slash Commands
+
+| Command | What it does |
+| :--- | :--- |
+| `/sauver` | Full inbox triage — scans unread emails, strips trackers, classifies intent, and drafts a counter-measure for each slop email |
+| `/tracker-shield` | Strips tracking pixels and spy-links from a specific email |
+| `/slop-detector` | Analyzes an email for recruiter/sales slop and drafts an Expert-Domain Trap reply |
+| `/investor-trap` | Analyzes an email for investor slop and drafts a Due Diligence Loop reply |
+| `/bouncer-reply` | Drafts a Time-Sink Trap reply for a general spam or marketing email |
+
+### Example Usage
+
+```
+# Triage everything unread
+/sauver
+
+# Target a specific email (paste the subject or message ID after the command)
+/slop-detector "We'd love to connect about an exciting opportunity"
+/tracker-shield
+/bouncer-reply
+```
+
+### Limitations vs. Gemini
+
+The Gmail MCP server available in Claude Code does not currently expose `gmail_modify` or `gmail_send`, so:
+
+- **Archiving** (applying the `Sauver` label and removing from INBOX) must be done manually after review.
+- **YOLO mode** (auto-send) has no effect — all replies are saved as drafts regardless of the `yolo_mode` setting.
+
+---
+*Built with Gemini CLI, Claude Code & FastMCP.*
