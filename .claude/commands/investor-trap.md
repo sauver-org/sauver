@@ -1,6 +1,6 @@
 Identify unsolicited investor/fundraising outreach and deploy the Due Diligence Loop.
 
-1. **Load config** — call `mcp__sauver__get_sauver_config`. Check `treat_unsolicited_investors_as_slop` and `yolo_mode`.
+1. **Load config** — call `mcp__sauver__get_sauver_config`. Check `treat_unsolicited_investors_as_slop` and `yolo_mode`. If `treat_unsolicited_investors_as_slop` is false, stop — treat the email as legitimate.
 
 2. **Get user identity** — call `mcp__claude_ai_Gmail__gmail_get_profile` for the authenticated user's name.
 
@@ -11,7 +11,6 @@ Identify unsolicited investor/fundraising outreach and deploy the Due Diligence 
    - "Representing a family office in the UAE/Europe"
    - "My network of 500+ investors would love your project"
    - "Wanted to discuss your capital needs"
-   - If `treat_unsolicited_investors_as_slop` is false, skip this email
 
 5. **Deploy Due Diligence Loop**:
    - Express genuine excitement about their "fund"
@@ -24,3 +23,5 @@ Identify unsolicited investor/fundraising outreach and deploy the Due Diligence 
    Note: `yolo_mode` auto-send is not supported by the current Gmail MCP; the draft is ready for your review.
 
 7. **Explain** why the email was flagged and which bureaucratic requirements you introduced.
+
+Note: Archival (applying the `sauver_label` and removing from INBOX) is not available in this standalone command due to Gmail MCP limitations. Run `/sauver` for the full pipeline including archival.

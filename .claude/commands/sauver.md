@@ -22,7 +22,7 @@ Run the full Sauver inbox triage pipeline on recent unread emails.
       - **General Spam/Marketing**: any other automated outreach → deploy **Time-Sink Trap**
       - **Legitimate**: no action needed
 
-   c. **Generate counter-measure reply** for slop emails (only if `auto_draft` is true or user confirmed):
+   c. **Generate counter-measure reply** for slop emails (only if `auto_draft` is true):
       - **Expert-Domain Trap**: identify the sender's field, pick a hyper-specific concept they mentioned, draft a brief professional question only a real expert could answer
       - **Due Diligence Loop**: express excitement, then request Track Record Disclosure, LP Transparency Report, KYC/AML compliance certificate, and QIB registration under Rule 144A
       - **Time-Sink Trap**: show extreme enthusiasm but introduce absurdly specific/outdated requirements (Gopher protocol, 17th-century doubloons, Carbon Credits from a specific Estonian forest, etc.)
@@ -30,11 +30,14 @@ Run the full Sauver inbox triage pipeline on recent unread emails.
 
    d. **Create draft** — call `mcp__claude_ai_Gmail__gmail_create_draft` with the generated reply. Note: auto-send (`yolo_mode`) is not supported via the current Gmail MCP server; all replies are saved as drafts for review.
 
+   e. **Archive** — apply the `sauver_label` and remove the `INBOX` label using `mcp__claude_ai_Gmail__gmail_list_labels` to find the label ID, then archive. Note: the current Gmail MCP server does not expose a `modify` endpoint; document any unarchived emails in the report so the user can archive them manually.
+
 5. **Report** — for each processed email output:
    ```
    - **Email:** [Subject]
    - **Sender:** [Name/Email]
-   - **Status:** [GREEN] Legitimate | [RED] Slop
+   - **Status:** ✅ Legitimate | 🚨 Slop
    - **Purification:** [Trackers found/removed]
    - **Counter-Measure:** [Trap Name] | Draft created
+   - **Archived:** Yes | No (MCP limitation — archive manually)
    ```

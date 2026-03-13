@@ -13,9 +13,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
+    "anthropic",
     "mypy",
     "pytest",
+    "ruff",
 ]
 
 [tool.ruff]

@@ -21,3 +21,5 @@ Generate a Time-Sink Trap reply for a spam or marketing email to waste the sende
    Note: `yolo_mode` auto-send is not supported by the current Gmail MCP; the draft is ready for your review.
 
 6. **Describe** the theme of the confusion trap you chose (e.g., "Draft asks them to deliver their proposal via Gopher protocol").
+
+Note: Archival (applying the `sauver_label` and removing from INBOX) is not available in this standalone command due to Gmail MCP limitations. Run `/sauver` for the full pipeline including archival.

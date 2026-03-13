@@ -40,8 +40,19 @@ def get_sauver_config() -> str:
     return json.dumps(load_config(), indent=2)
 
 
+VALID_CONFIG_KEYS = frozenset(
+    {
+        "auto_draft",
+        "yolo_mode",
+        "treat_job_offers_as_slop",
+        "treat_unsolicited_investors_as_slop",
+        "sauver_label",
+    }
+)
+
+
 @mcp.tool()
-def set_sauver_config(updates: dict) -> str:
+def set_sauver_config(updates: dict[str, object]) -> str:
     """
     Updates specific Sauver configuration settings.
 
@@ -51,6 +62,9 @@ def set_sauver_config(updates: dict) -> str:
     Returns:
         A confirmation message with the updated configuration.
     """
+    unknown = set(updates) - VALID_CONFIG_KEYS
+    if unknown:
+        return f"Error: unknown configuration key(s): {', '.join(sorted(unknown))}"
     config = load_config()
     config.update(updates)
     try:
@@ -90,9 +104,19 @@ def tracker_shield(html_content: str) -> str:
         A JSON string containing the cleaned HTML and the number of trackers neutralized.
     """
     tracker_patterns = [
+        # 1x1 pixel by dimensions (width before height)
         r'<img[^>]*width=["\']?1["\']?[^>]*height=["\']?1["\']?[^>]*>',
+        # 1x1 pixel by dimensions (height before width)
         r'<img[^>]*height=["\']?1["\']?[^>]*width=["\']?1["\']?[^>]*>',
-        r'<img[^>]*src=["\'][^"\']*(?:email-tracking|tracker|pixel|open-pixel)[^"\']*["\'][^>]*>',
+        # Known tracking URL keywords in src
+        r'<img[^>]*src=["\'][^"\']*(?:email-tracking|open-pixel)[^"\']*["\'][^>]*>',
+        # Known tracking domains in src (regardless of dimensions)
+        r'<img[^>]*src=["\'][^"\']*(?:'
+        r"hubspot\.com|mailtrack\.io|sidekickopen|pixel\.google\.com"
+        r"|trk\.klick|tracking\.|open-tracking|track\.goog"
+        r"|sendgrid\.net/wf/open|list-manage\.com/track|exacttarget\.com"
+        r"|pardot\.com|marketo\.net|eloqua\.com"
+        r')[^"\']*["\'][^>]*>',
     ]
 
     trackers_neutralized = 0
@@ -158,8 +182,9 @@ def run_configure() -> None:
     try:
         with CONFIG_FILE.open("w") as f:
             json.dump(config, f, indent=2)
-    except OSError:
-        pass
+        print("\033[92mConfiguration saved.\033[0m")  # noqa: T201
+    except OSError as e:
+        print(f"\033[91mError: could not save configuration: {e}\033[0m")  # noqa: T201
 
 
 if __name__ == "__main__":

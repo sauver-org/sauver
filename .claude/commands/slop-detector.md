@@ -22,3 +22,5 @@ Analyze an email for recruiter/sales slop and deploy the Expert-Domain Trap if w
    Note: `yolo_mode` auto-send is not supported by the current Gmail MCP; the draft is ready for your review.
 
 7. **Explain** why the email was flagged and which domain concept you used for the trap.
+
+Note: Archival (applying the `sauver_label` and removing from INBOX) is not available in this standalone command due to Gmail MCP limitations. Run `/sauver` for the full pipeline including archival.

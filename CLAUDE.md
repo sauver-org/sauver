@@ -68,9 +68,23 @@ LLM instruction files that tell Gemini how to orchestrate the full pipeline usin
 ### Extension Registration
 `gemini-extension.json` defines two MCP servers: `sauver` (this repo) and `google-workspace` (`@googleworkspace/mcp-server`). `scripts/setup.sh` registers the extension in `~/.gemini/settings.json`.
 
+## Known Limitations & Sync Rules
+
+### Dual-layer sync
+The pipeline logic is implemented twice: once in `skills/` (for Gemini) and once in `.claude/commands/` (for Claude Code). Any workflow change must be applied in **both** places. When editing a skill, check whether the corresponding Claude command needs updating, and vice versa.
+
+### `yolo_mode` is Gemini-only
+The `yolo_mode` config flag triggers `gmail.send` via the Google Workspace MCP, which is only available to the Gemini extension. The Claude Code Gmail MCP (`mcp__claude_ai_Gmail__*`) does not expose a send endpoint. When `yolo_mode` is `true`, emails will auto-send in Gemini but will only be drafted in Claude Code. Document this if users configure it.
+
+### Archival is Gemini-only
+The current Claude Code Gmail MCP does not expose a `modify` endpoint, so the `/sauver`, `/slop-detector`, `/investor-trap`, and `/bouncer-reply` commands cannot archive emails. The Gemini orchestrator (`sauver-inbox-assistant`) does archive via `gmail.modify`. The `/sauver` command will note unarchived emails in its report.
+
+### `people.getMe()` vs `gmail_get_profile`
+Gemini skills use `people.getMe()` (Google People API) to retrieve the user's display name for signatures. Claude Code commands use `mcp__claude_ai_Gmail__gmail_get_profile` instead. These are different APIs — verify `people.getMe()` is accessible in your Gemini extension context if signatures are coming back empty.
+
 ## Tooling
 
 - **Runtime:** Python ≥3.10, managed with `uv`
 - **Linter/formatter:** `ruff` (line length 100, strict rule set: E, F, I, UP, N, S, B, A, C4, T20, RET, SIM, ARG, PTH, RUF)
 - **Type checker:** `mypy` in strict mode — all functions require type annotations
-- **Tests:** `pytest`; currently covers `tracker_shield` in `tests/test_main.py`
+- **Tests:** `pytest`; `tests/test_main.py` covers `tracker_shield` (pure unit); `tests/test_skill_routing.py` covers skill trigger routing via the Anthropic API (requires `ANTHROPIC_API_KEY` — skipped otherwise)
