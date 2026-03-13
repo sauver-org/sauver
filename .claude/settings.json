@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sauver": {
+      "command": "uv",
+      "args": ["run", "src/main.py"]
+    }
+  }
+}
