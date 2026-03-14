@@ -1,6 +1,6 @@
 {
   "name": "sauver",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Sauver: The digital bouncer for your inbox.",
   "mcpServers": {
     "sauver": {
@@ -8,13 +8,6 @@
       "args": [
         "run",
         "src/main.py"
-      ]
-    },
-    "google-workspace": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@googleworkspace/mcp-server"
       ]
     }
   },
