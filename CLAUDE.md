@@ -5,19 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-make setup      # Install dependencies via uv
-make format     # Auto-format with ruff
-make lint       # Run ruff check + mypy type checking
-make test       # Run pytest suite
 make sync       # Regenerate .claude/commands/ from skills/ (run after editing any SKILL.md)
-make check-sync # Verify .claude/commands/ are up to date (runs as part of `make all`)
-make all        # format + lint + test + check-sync
-
-uv run src/main.py            # Start the MCP server
-uv run src/main.py configure  # Interactive config wizard
+make check-sync # Verify .claude/commands/ are up to date
 ```
-
-To run a single test: `uv run pytest tests/test_main.py::test_name -v`
 
 ## Claude Code Skills
 
@@ -31,62 +21,46 @@ The following slash commands are available in Claude Code (`.claude/commands/`):
 | `/investor-trap` | Detect investor slop and deploy the Due Diligence Loop |
 | `/bouncer-reply` | Generate a Time-Sink Trap reply for general spam |
 
-These commands require the Gmail MCP server (`mcp__claude_ai_Gmail__*` tools) and the sauver MCP server (registered via `.claude/settings.json`).
+These commands require the Gmail MCP server (`mcp__claude_ai_Gmail__*` tools).
 
 ## Architecture
 
-Sauver is a **Gemini CLI Extension** that acts as a spam/tracker neutralizer for Gmail. It has two distinct layers:
+Sauver is a **Gemini CLI Extension** that acts as a spam/tracker neutralizer for Gmail.
 
-### 1. FastMCP Server (`src/main.py`)
-A Python MCP server exposing 4 tools to Gemini:
-- `get_sauver_config` / `set_sauver_config` — read/write `.sauver-config.json`
-- `start_sauver_config_wizard` — instructs user to run `configure` subcommand
-- `tracker_shield(html_content)` — regex-based tracking pixel/URL removal
-
-The `configure` CLI subcommand runs an interactive ANSI terminal wizard to set preferences.
-
-### 2. Gemini Skills (`skills/*/SKILL.md`)
-LLM instruction files that tell Gemini how to orchestrate the full pipeline using both the MCP tools and Google Workspace APIs directly:
+### Gemini Skills (`skills/*/SKILL.md`)
+LLM instruction files that tell Gemini how to orchestrate the full pipeline using the Google Workspace APIs:
 
 - **sauver-inbox-assistant** — top-level orchestrator; calls the other skills in sequence
-- **tracker-shield** — strips tracking pixels; prefers manual LLM analysis over the regex tool
+- **tracker-shield** — strips tracking pixels via LLM analysis
 - **slop-detector** — identifies recruiter/sales spam; responds with Expert-Domain Trap (hyper-specific technical questions)
 - **investor-trap** — identifies unsolicited VC outreach; responds with Due Diligence Loop (bureaucratic document requests)
 - **bouncer-reply** — general spam; responds with Time-Sink Trap (absurd/impossible requirements)
 - **archiver** — applies `sauver_label` and removes email from INBOX via Gmail API
 
-### Configuration (`.sauver-config.json`)
-```json
-{
-  "auto_draft": true,
-  "yolo_mode": false,
-  "treat_job_offers_as_slop": true,
-  "treat_unsolicited_investors_as_slop": true,
-  "sauver_label": "Sauver"
-}
-```
-`yolo_mode` enables auto-send (off by default); otherwise skills create drafts.
+### Configuration (`GEMINI.md`)
+User preferences live directly in `GEMINI.md`, which Gemini loads as context automatically. Skills read config values from context — no tool call needed. To change a setting, edit `GEMINI.md` directly.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `auto_draft` | `true` | Automatically create draft replies to slop |
+| `yolo_mode` | `false` | Auto-send replies instead of drafting |
+| `treat_job_offers_as_slop` | `true` | Treat recruiter outreach as slop |
+| `treat_unsolicited_investors_as_slop` | `true` | Treat investor outreach as slop |
+| `sauver_label` | `"Sauver"` | Gmail label applied when archiving |
 
 ### Extension Registration
-`gemini-extension.json` defines two MCP servers: `sauver` (this repo) and `google-workspace` (`@googleworkspace/mcp-server`). `scripts/setup.sh` registers the extension in `~/.gemini/settings.json`.
+`gemini-extension.json` declares the extension and points Gemini at `GEMINI.md` as the context file. `scripts/setup.sh` installs `@googleworkspace/cli` and prints auth instructions.
 
 ## Known Limitations & Sync Rules
 
 ### Dual-layer sync
-`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make all` includes `make check-sync` to catch forgotten syncs.
+`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make check-sync` catches forgotten syncs.
 
 ### `yolo_mode` is Gemini-only
-The `yolo_mode` config flag triggers `gmail.send` via the Google Workspace MCP, which is only available to the Gemini extension. The Claude Code Gmail MCP (`mcp__claude_ai_Gmail__*`) does not expose a send endpoint. When `yolo_mode` is `true`, emails will auto-send in Gemini but will only be drafted in Claude Code. Document this if users configure it.
+`yolo_mode: true` triggers `gmail.send` via the Google Workspace MCP, only available to the Gemini extension. Claude Code's Gmail MCP has no send endpoint — emails will always be drafted there regardless of this setting.
 
 ### Archival is Gemini-only
-The current Claude Code Gmail MCP does not expose a `modify` endpoint, so the `/sauver`, `/slop-detector`, `/investor-trap`, and `/bouncer-reply` commands cannot archive emails. The Gemini orchestrator (`sauver-inbox-assistant`) does archive via `gmail.modify`. The `/sauver` command will note unarchived emails in its report.
+The Claude Code Gmail MCP does not expose a `modify` endpoint, so Claude Code commands cannot archive emails. The Gemini orchestrator archives via `gmail.modify`. The `/sauver` command will note unarchived emails in its report.
 
 ### `people.getMe()` vs `gmail_get_profile`
-Gemini skills use `people.getMe()` (Google People API) to retrieve the user's display name for signatures. Claude Code commands use `mcp__claude_ai_Gmail__gmail_get_profile` instead. These are different APIs — verify `people.getMe()` is accessible in your Gemini extension context if signatures are coming back empty.
-
-## Tooling
-
-- **Runtime:** Python ≥3.10, managed with `uv`
-- **Linter/formatter:** `ruff` (line length 100, strict rule set: E, F, I, UP, N, S, B, A, C4, T20, RET, SIM, ARG, PTH, RUF)
-- **Type checker:** `mypy` in strict mode — all functions require type annotations
-- **Tests:** `pytest`; `tests/test_main.py` covers `tracker_shield` (pure unit); `tests/test_skill_routing.py` covers skill trigger routing via the Anthropic API (requires `ANTHROPIC_API_KEY` — skipped otherwise)
+Gemini skills use `people.getMe()` (Google People API) to retrieve the user's display name for signatures. Claude Code commands use `mcp__claude_ai_Gmail__gmail_get_profile` instead.

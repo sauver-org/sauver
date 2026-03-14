@@ -10,7 +10,7 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
 > Shared conventions (signature, YOLO mode, config keys): see `skills/PROTOCOL.md`.
 
 ## Operational Rules
-0. **Check Configuration:** Use `get_sauver_config`. If `treat_job_offers_as_slop` is `false`, treat legitimate-looking recruiter emails as normal communications and stop.
+0. **Check Configuration:** Read `treat_job_offers_as_slop` from context (`GEMINI.md`). If `false`, treat legitimate-looking recruiter emails as normal communications and stop.
 1. **Identification:** Analyze the email for "Slop" signals:
    - Generic templates ("found your profile interesting").
    - Mention of keywords the user has but without deep context.

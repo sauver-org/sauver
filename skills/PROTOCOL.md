@@ -17,7 +17,7 @@ In Claude Code, use `mcp__claude_ai_Gmail__gmail_get_profile`.
 
 ## Reply Dispatch (YOLO Mode)
 
-After generating a reply, check `yolo_mode` from the Sauver config:
+After generating a reply, check `yolo_mode` from context (`GEMINI.md`):
 
 - **`yolo_mode: true`** — Auto-Send is enabled. Immediately send the reply using `gmail.send`.
 - **`yolo_mode: false`** — Save as a draft using `gmail.createDraft` for the user to review.
@@ -30,6 +30,8 @@ Always confirm which path was taken.
 - **Drafted:** "A draft is ready for your review. [One sentence describing the trap used.]"
 
 ## Config Keys
+
+Config lives in `GEMINI.md` and is loaded automatically as context. To change a value, edit `GEMINI.md` directly — no tool call needed.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|

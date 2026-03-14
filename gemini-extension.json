@@ -1,15 +1,6 @@
 {
   "name": "sauver",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Sauver: The digital bouncer for your inbox.",
-  "mcpServers": {
-    "sauver": {
-      "command": "uv",
-      "args": [
-        "run",
-        "src/main.py"
-      ]
-    }
-  },
   "contextFileName": "GEMINI.md"
 }
