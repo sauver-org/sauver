@@ -10,6 +10,21 @@ cd "$(dirname "$0")/.."
 echo "📦 Installing Google Workspace CLI for MCP support..."
 npm install -g @googleworkspace/cli@latest
 
+echo "🔍 Checking for gcloud CLI..."
+if ! command -v gcloud &> /dev/null; then
+  echo "⚠️  gcloud CLI not found. It is required for Google Workspace authentication."
+  if command -v brew &> /dev/null; then
+    echo "📦 Installing Google Cloud SDK via Homebrew..."
+    brew install --cask google-cloud-sdk
+  else
+    echo "❌ Homebrew is not installed. Please install gcloud CLI manually from:"
+    echo "   https://cloud.google.com/sdk/docs/install"
+    exit 1
+  fi
+else
+  echo "✅ gcloud CLI is installed."
+fi
+
 echo ""
 echo "✅ Sauver ready!"
 echo ""
