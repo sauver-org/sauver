@@ -13,11 +13,17 @@ npm install -g @googleworkspace/cli@latest
 echo "🔍 Checking for gcloud CLI..."
 if ! command -v gcloud &> /dev/null; then
   echo "⚠️  gcloud CLI not found. It is required for Google Workspace authentication."
-  if command -v brew &> /dev/null; then
-    echo "📦 Installing Google Cloud SDK via Homebrew..."
+  
+  OS="$(uname -s)"
+  if [ "$OS" = "Darwin" ] && command -v brew &> /dev/null; then
+    echo "📦 macOS detected. Installing Google Cloud SDK via Homebrew..."
     brew install --cask google-cloud-sdk
+  elif [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
+    echo "📦 Linux/macOS detected. Installing gcloud CLI via curl..."
+    curl https://sdk.cloud.google.com | bash -s -- --disable-prompts
+    echo "⚠️  You may need to restart your terminal or source your profile for 'gcloud' to be in your PATH."
   else
-    echo "❌ Homebrew is not installed. Please install gcloud CLI manually from:"
+    echo "❌ Windows or unsupported OS detected. Please install gcloud CLI manually from:"
     echo "   https://cloud.google.com/sdk/docs/install"
     exit 1
   fi
