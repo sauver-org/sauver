@@ -8,7 +8,7 @@ echo "Setting up your digital bouncer..."
 cd "$(dirname "$0")/.."
 
 echo "📦 Installing Google Workspace CLI for MCP support..."
-npm install -g @googleworkspace/cli@0.6.3
+npm install -g @googleworkspace/cli@latest
 
 echo ""
 echo "✅ Sauver ready!"
