@@ -1,19 +1,23 @@
-Purify an email by finding and stripping all tracking pixels, spy-links, and beacons.
+<!-- Generated from skills/tracker-shield/SKILL.md by scripts/sync_commands.py — do not edit directly.
+     Run `make sync` to regenerate after editing the source SKILL.md. -->
 
-If a message ID or search query is provided use it; otherwise search for recent unread emails via `mcp__claude_ai_Gmail__gmail_search_messages`.
+Use your Read tool to load `skills/tracker-shield/SKILL.md` and `skills/PROTOCOL.md`, then follow the instructions in that file exactly.
 
-Read the target email with `mcp__claude_ai_Gmail__gmail_read_message` to get the raw HTML body.
+When the instructions refer to a Gemini tool, substitute the Claude Code equivalent from the table below. Where a tool is marked "not available", note the limitation in your report and skip that step.
 
-**Scan for surveillance elements:**
-- **Tracking pixels**: 1x1 `<img>` tags with suspicious sources (s.hubspot.com, mailtrack.io, pixel.google.com, t.sidekickopen.com, etc.)
-- **Spy-links**: URLs that redirect through tracking services (click.hubspot.com, recruiterflow.com/unsubscribe?token=, trk.klick.com, etc.)
-- **Beacons**: any external resource whose sole purpose is open-tracking
+## Tool Reference
 
-Optionally call `mcp__sauver__tracker_shield` on the HTML as a fast pre-filter, but treat your own analysis as authoritative — do not accept a "0 trackers found" result if you can see trackers yourself.
+| Gemini tool | Claude Code tool |
+|---|---|
+| `get_sauver_config` | `mcp__sauver__get_sauver_config` |
+| `set_sauver_config` | `mcp__sauver__set_sauver_config` |
+| `tracker_shield` | `mcp__sauver__tracker_shield` |
+| `people.getMe()` | `mcp__claude_ai_Gmail__gmail_get_profile` |
+| `gmail.search(...)` | `mcp__claude_ai_Gmail__gmail_search_messages` |
+| `gmail.get(id)` | `mcp__claude_ai_Gmail__gmail_read_message` |
+| `gmail.createDraft(...)` | `mcp__claude_ai_Gmail__gmail_create_draft` |
+| `gmail.listLabels()` | `mcp__claude_ai_Gmail__gmail_list_labels` |
+| `gmail.send(...)` | *(not available — use `mcp__claude_ai_Gmail__gmail_create_draft`)* |
+| `gmail.modify(...)` | *(not available — archive emails via Gmail manually)* |
+| `gmail.createLabel(...)` | *(not available)* |
 
-**Neutralize**: strip the identified elements or replace tracking links with their clean destination URLs. Never alter visible email text.
-
-**Report exactly**:
-- Which trackers the tool found vs. what you found manually
-- What was removed or cleaned
-- The purified email body (or a summary of changes if the email is long)

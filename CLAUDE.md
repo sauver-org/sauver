@@ -5,11 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-make setup     # Install dependencies via uv
-make format    # Auto-format with ruff
-make lint      # Run ruff check + mypy type checking
-make test      # Run pytest suite
-make all       # format + lint + test
+make setup      # Install dependencies via uv
+make format     # Auto-format with ruff
+make lint       # Run ruff check + mypy type checking
+make test       # Run pytest suite
+make sync       # Regenerate .claude/commands/ from skills/ (run after editing any SKILL.md)
+make check-sync # Verify .claude/commands/ are up to date (runs as part of `make all`)
+make all        # format + lint + test + check-sync
 
 uv run src/main.py            # Start the MCP server
 uv run src/main.py configure  # Interactive config wizard
@@ -71,7 +73,7 @@ LLM instruction files that tell Gemini how to orchestrate the full pipeline usin
 ## Known Limitations & Sync Rules
 
 ### Dual-layer sync
-The pipeline logic is implemented twice: once in `skills/` (for Gemini) and once in `.claude/commands/` (for Claude Code). Any workflow change must be applied in **both** places. When editing a skill, check whether the corresponding Claude command needs updating, and vice versa.
+`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make all` includes `make check-sync` to catch forgotten syncs.
 
 ### `yolo_mode` is Gemini-only
 The `yolo_mode` config flag triggers `gmail.send` via the Google Workspace MCP, which is only available to the Gemini extension. The Claude Code Gmail MCP (`mcp__claude_ai_Gmail__*`) does not expose a send endpoint. When `yolo_mode` is `true`, emails will auto-send in Gemini but will only be drafted in Claude Code. Document this if users configure it.

@@ -1,25 +1,23 @@
-Generate a Time-Sink Trap reply for a spam or marketing email to waste the sender's resources.
+<!-- Generated from skills/bouncer-reply/SKILL.md by scripts/sync_commands.py — do not edit directly.
+     Run `make sync` to regenerate after editing the source SKILL.md. -->
 
-1. **Load config** — call `mcp__sauver__get_sauver_config`. Check `yolo_mode`.
+Use your Read tool to load `skills/bouncer-reply/SKILL.md` and `skills/PROTOCOL.md`, then follow the instructions in that file exactly.
 
-2. **Get user identity** — call `mcp__claude_ai_Gmail__gmail_get_profile` for the authenticated user's name.
+When the instructions refer to a Gemini tool, substitute the Claude Code equivalent from the table below. Where a tool is marked "not available", note the limitation in your report and skip that step.
 
-3. **Fetch email** — if a message ID or subject is provided use `mcp__claude_ai_Gmail__gmail_read_message`; otherwise search recent unread with `mcp__claude_ai_Gmail__gmail_search_messages`.
+## Tool Reference
 
-4. **Generate Time-Sink Trap reply**:
-   - Use specific details from their pitch (product name, "value prop") to sound like a real, engaged lead
-   - Express extreme enthusiasm
-   - Introduce absurdly specific, bureaucratic, or technically outdated requirements — for example:
-     - "Can you deliver the whitepaper via Gopher protocol?"
-     - "We only authorize payments in 17th-century doubloons"
-     - "We require Carbon Credits certified by a specific forest cooperative in Estonia"
-     - "Our security team requires a SOC2 audit submitted by carrier pigeon"
-   - Keep the tone professional but earnest — the goal is to make them believe they have a live lead
-   - Sign: "Best Regards," + user's name
+| Gemini tool | Claude Code tool |
+|---|---|
+| `get_sauver_config` | `mcp__sauver__get_sauver_config` |
+| `set_sauver_config` | `mcp__sauver__set_sauver_config` |
+| `tracker_shield` | `mcp__sauver__tracker_shield` |
+| `people.getMe()` | `mcp__claude_ai_Gmail__gmail_get_profile` |
+| `gmail.search(...)` | `mcp__claude_ai_Gmail__gmail_search_messages` |
+| `gmail.get(id)` | `mcp__claude_ai_Gmail__gmail_read_message` |
+| `gmail.createDraft(...)` | `mcp__claude_ai_Gmail__gmail_create_draft` |
+| `gmail.listLabels()` | `mcp__claude_ai_Gmail__gmail_list_labels` |
+| `gmail.send(...)` | *(not available — use `mcp__claude_ai_Gmail__gmail_create_draft`)* |
+| `gmail.modify(...)` | *(not available — archive emails via Gmail manually)* |
+| `gmail.createLabel(...)` | *(not available)* |
 
-5. **Create draft** via `mcp__claude_ai_Gmail__gmail_create_draft`.
-   Note: `yolo_mode` auto-send is not supported by the current Gmail MCP; the draft is ready for your review.
-
-6. **Describe** the theme of the confusion trap you chose (e.g., "Draft asks them to deliver their proposal via Gopher protocol").
-
-Note: Archival (applying the `sauver_label` and removing from INBOX) is not available in this standalone command due to Gmail MCP limitations. Run `/sauver` for the full pipeline including archival.

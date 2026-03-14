@@ -1,26 +1,23 @@
-Analyze an email for recruiter/sales slop and deploy the Expert-Domain Trap if warranted.
+<!-- Generated from skills/slop-detector/SKILL.md by scripts/sync_commands.py — do not edit directly.
+     Run `make sync` to regenerate after editing the source SKILL.md. -->
 
-1. **Load config** — call `mcp__sauver__get_sauver_config`. Check `treat_job_offers_as_slop` and `yolo_mode`.
+Use your Read tool to load `skills/slop-detector/SKILL.md` and `skills/PROTOCOL.md`, then follow the instructions in that file exactly.
 
-2. **Get user identity** — call `mcp__claude_ai_Gmail__gmail_get_profile` for the authenticated user's name.
+When the instructions refer to a Gemini tool, substitute the Claude Code equivalent from the table below. Where a tool is marked "not available", note the limitation in your report and skip that step.
 
-3. **Fetch email** — if a message ID or subject is provided use `mcp__claude_ai_Gmail__gmail_read_message`; otherwise search recent unread with `mcp__claude_ai_Gmail__gmail_search_messages`.
+## Tool Reference
 
-4. **Identify slop signals**:
-   - Generic templates ("found your profile interesting", "came across your background")
-   - Mentions keywords from the user's profile without deep understanding
-   - Sudden interest in a role or "partnership opportunity"
-   - If `treat_job_offers_as_slop` is false, skip legitimate-looking recruiter emails unless clearly automated
+| Gemini tool | Claude Code tool |
+|---|---|
+| `get_sauver_config` | `mcp__sauver__get_sauver_config` |
+| `set_sauver_config` | `mcp__sauver__set_sauver_config` |
+| `tracker_shield` | `mcp__sauver__tracker_shield` |
+| `people.getMe()` | `mcp__claude_ai_Gmail__gmail_get_profile` |
+| `gmail.search(...)` | `mcp__claude_ai_Gmail__gmail_search_messages` |
+| `gmail.get(id)` | `mcp__claude_ai_Gmail__gmail_read_message` |
+| `gmail.createDraft(...)` | `mcp__claude_ai_Gmail__gmail_create_draft` |
+| `gmail.listLabels()` | `mcp__claude_ai_Gmail__gmail_list_labels` |
+| `gmail.send(...)` | *(not available — use `mcp__claude_ai_Gmail__gmail_create_draft`)* |
+| `gmail.modify(...)` | *(not available — archive emails via Gmail manually)* |
+| `gmail.createLabel(...)` | *(not available)* |
 
-5. **Deploy Expert-Domain Trap** for any slop:
-   a. Identify the sender's professional field
-   b. Pick a specific, complex concept they mentioned (or implied)
-   c. Draft a short, professional but hyper-specific question only a genuine expert could answer
-   d. Sign: "Best Regards," + user's name
-
-6. **Create draft** via `mcp__claude_ai_Gmail__gmail_create_draft`.
-   Note: `yolo_mode` auto-send is not supported by the current Gmail MCP; the draft is ready for your review.
-
-7. **Explain** why the email was flagged and which domain concept you used for the trap.
-
-Note: Archival (applying the `sauver_label` and removing from INBOX) is not available in this standalone command due to Gmail MCP limitations. Run `/sauver` for the full pipeline including archival.

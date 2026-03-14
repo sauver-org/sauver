@@ -1,4 +1,4 @@
-.PHONY: setup format lint test all
+.PHONY: setup format lint test sync check-sync all
 
 setup:
 	@echo "Installing dependencies using uv..."
@@ -16,4 +16,12 @@ lint:
 test:
 	uv run pytest tests -v
 
-all: format lint test
+sync:
+	@echo "Regenerating .claude/commands/ from skills/..."
+	python3 scripts/sync_commands.py
+
+check-sync:
+	@echo "Checking .claude/commands/ are up to date..."
+	python3 scripts/sync_commands.py --check
+
+all: format lint test check-sync

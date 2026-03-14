@@ -7,25 +7,22 @@ description: "Specialized skill to identify automated 'slop' (low-quality outrea
 
 You are responsible for identifying low-quality outreach (recruiter pitches, sales emails, etc.) and deploying the "Expert-Domain Trap" to protect the user's time.
 
+> Shared conventions (signature, YOLO mode, config keys): see `skills/PROTOCOL.md`.
+
 ## Operational Rules
-0. **Check Configuration:** Use `get_sauver_config` to understand the user's preference for `treat_job_offers_as_slop`.
-1. **Identification:** Analyze incoming emails for "Slop" signals:
+0. **Check Configuration:** Use `get_sauver_config`. If `treat_job_offers_as_slop` is `false`, treat legitimate-looking recruiter emails as normal communications and stop.
+1. **Identification:** Analyze the email for "Slop" signals:
    - Generic templates ("found your profile interesting").
    - Mention of keywords the user has but without deep context.
    - Sudden interest in a specific role or partnership.
-   - **Job Offer Policy:** If `treat_job_offers_as_slop` is `false`, ignore legitimate-looking recruiter outreaches and treat them as legitimate communications unless they are clearly automated spam.
 2. **The Expert-Domain Trap (Primary Action):**
-   - For any low-quality outreach, **you must generate a hyper-specific and extremely difficult domain-related question yourself.**
-   - **Internal Generation Process:**
+   - For any low-quality outreach, generate a hyper-specific and extremely difficult domain-related question.
+   - **Process:**
      a. Identify the sender's professional field (e.g., Marketing, Legal, Backend Engineering).
      b. Identify a specific, complex concept they mentioned.
      c. Draft a brief, professional, but hyper-specific question about that concept that only a deep expert could answer.
    - **Goal:** Put the cognitive load back on the sender to verify the depth of their opportunity.
-   - **Signature:** Every generated reply MUST end with a proper signature: "Best Regards," or "Thank You," followed by the user's name (retrieve using `people.getMe()`).
-3. **Justification:** Explain *why* the outreach was flagged as slop and *which* niche domain concept you are using for the trap.
-4. **Action - Reply Creation:** 
-   - **YOLO Mode (Auto-Send):** If `yolo_mode` is `true`, immediately send the generated reply using `gmail.send`.
-   - **Draft Mode:** If `yolo_mode` is `false`, use `gmail.createDraft` to save it as a draft for the user to review.
-5. **Confirmation:** 
-   - If sent: Inform the user that the "expert-domain trap" has been triggered and the response was sent.
-   - If drafted: Inform the user that the draft is ready for their review. Briefly explain the niche concept you used for the trap.
+   - Apply the standard **Signature** from `skills/PROTOCOL.md`.
+3. **Justification:** Explain *why* the outreach was flagged and *which* niche domain concept you used.
+4. **Reply Dispatch:** Follow the **Reply Dispatch (YOLO Mode)** rules in `skills/PROTOCOL.md`.
+5. **Confirmation:** Follow the **Confirmation Messages** convention in `skills/PROTOCOL.md`.
