@@ -23,6 +23,35 @@ run_install() {
   echo "$fake_home"   # caller captures this to inspect output
 }
 
+# ── test: AI assistant check ────────────────────────────────────────────────
+
+echo ""
+echo "AI assistant check"
+
+VALID_URL_FOR_CHECK="https://script.google.com/macros/s/AKfycbxFAKEIDforTesting1234567890/exec"
+
+# Build a fake PATH that has node/npm/curl/bash but not claude/gemini
+_fake_bin=$(mktemp -d)
+for _cmd in node npm curl bash grep sed stat mktemp; do
+  _src=$(command -v "$_cmd" 2>/dev/null) && ln -s "$_src" "$_fake_bin/$_cmd" 2>/dev/null || true
+done
+
+# When neither claude nor gemini is in PATH, warn but don't fail
+_tmp_home=$(mktemp -d)
+output=$(PATH="$_fake_bin:/usr/bin:/bin" SAUVER_APPS_SCRIPT_URL="$VALID_URL_FOR_CHECK" HOME="$_tmp_home" bash "$INSTALL_SCRIPT" 2>/dev/null)
+if echo "$output" | grep -q "Neither 'claude' nor 'gemini' found"; then
+  pass "warns when no AI assistant found"
+else
+  fail "expected warning about missing AI assistant"
+fi
+
+# Install still completes despite the warning
+if echo "$output" | grep -q "Sauver is ready"; then
+  pass "install completes despite missing AI assistant"
+else
+  fail "install did not complete when AI assistant missing"
+fi
+
 # ── test: URL validation rejects bad input ───────────────────────────────────
 
 echo ""

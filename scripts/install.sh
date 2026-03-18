@@ -24,7 +24,14 @@ echo ""
 # ── Prerequisites ───────────────────────────────────────────────────────────
 
 if ! command -v node &>/dev/null; then
-  echo -e "${RED}❌ Node.js is required (v18+). Install it from: https://nodejs.org${NC}"
+  echo -e "${RED}❌ Node.js not found.${NC}"
+  echo ""
+  echo "  Sauver runs alongside Claude Code and Gemini CLI, both of which require Node.js."
+  echo "  If either is already installed, try opening a new terminal."
+  echo "  Otherwise, install your AI assistant first:"
+  echo "    Claude Code: https://claude.ai/code"
+  echo "    Gemini CLI:  https://github.com/google-gemini/gemini-cli"
+  echo ""
   exit 1
 fi
 
@@ -35,6 +42,15 @@ if [ "$NODE_MAJOR" -lt 18 ]; then
 fi
 
 echo -e "${GREEN}✅ Node.js $(node --version)${NC}"
+
+if ! command -v claude &>/dev/null && ! command -v gemini &>/dev/null; then
+  echo -e "${YELLOW}⚠️  Neither 'claude' nor 'gemini' found in PATH.${NC}"
+  echo "  Sauver requires one of these to work:"
+  echo "    Claude Code: https://claude.ai/code"
+  echo "    Gemini CLI:  https://github.com/google-gemini/gemini-cli"
+  echo "  Continuing install anyway..."
+  echo ""
+fi
 
 # ── Generate secret key ─────────────────────────────────────────────────────
 
