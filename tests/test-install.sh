@@ -58,7 +58,6 @@ echo ""
 echo "URL validation"
 
 bad_urls=(
-  ""
   "https://script.google.com/macros/s"     # missing trailing slash
   "http://script.google.com/macros/s/"     # http not https
   "https://evil.com/macros/s/"

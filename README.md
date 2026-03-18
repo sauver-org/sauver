@@ -18,11 +18,11 @@ Run this one command in your terminal:
 curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/install.sh | bash
 ```
 
-The installer walks you through three steps (~3 minutes total):
+The installer automates the setup process (~2 minutes total) using `clasp`:
 
-1. **Create the Gmail backend** — paste one file into Google Apps Script (no coding needed)
-2. **Deploy it** — click Deploy in the browser, authorize with your Google account
-3. **Connect it** — the installer wires everything up automatically
+1. **Enable Apps Script API** — a one-time toggle in your Google account settings
+2. **Authenticate** — the installer opens a browser to securely log in
+3. **Auto-Deploy** — the installer creates, configures, and deploys the backend automatically
 
 **Requirement:** [Node.js v18+](https://nodejs.org). That's it — no OAuth setup, no API keys, no gcloud.
 
@@ -140,7 +140,7 @@ No. Google Apps Script runs inside your Google account for free. The installer r
 **Is my email data sent to Anthropic or Google?**
 Email content is read by the AI model (Claude or Gemini) running on your machine as part of the conversation. It is subject to the same privacy terms as any other message you send to your AI assistant — not to any additional service.
 
-**What does "Who has access: Anyone" mean in the deployment step?**
+**What does "Who has access: Anyone" mean in the automated deployment configuration?**
 It means the Apps Script Web App URL is publicly reachable — but the secret key acts as a password. Any request without the correct key is immediately rejected. The URL alone is useless without the key.
 
 **Can I revoke access?**
@@ -150,7 +150,7 @@ Yes. In the Apps Script editor, click **Deploy → Manage deployments**, then de
 The key lives in `~/.sauver/config.json` on your machine. The installer creates this file with permissions `600` (readable and writable only by you — no other user on the same machine can read it). It is listed in `.gitignore` so it can never be accidentally committed to a repository. The key is transmitted only once per tool call, over HTTPS, directly to your own Apps Script — it is never sent to Anthropic, Google, or any other third party. The Apps Script itself stores the key as a constant in your private script project, which is not visible to anyone who doesn't have access to your Google account.
 
 **What if I lose my secret key?**
-Run the installer again. It generates a new key, redeploys, and updates your local config. The old key stops working as soon as you save the new one in the Apps Script editor.
+Run the installer again. It generates a new key, redeploys the backend, and updates your local config automatically.
 
 **Does `yolo_mode` work in Claude Code?**
 Yes — with this architecture, `send_message` is fully available in Claude Code. The old limitation is gone.
@@ -162,7 +162,7 @@ Yes. Run the installer on each machine. Use the same Apps Script Web App URL, bu
 Yes, as long as your organization allows Apps Script Web Apps. Some Workspace admins restrict external deployments — check with your IT team if the deployment step fails.
 
 **How do I update Sauver?**
-Re-run the installer. It downloads the latest MCP server and updates your local config. To update the Apps Script backend, paste the latest `Code.gs` into the editor and redeploy.
+Re-run the installer. It will automatically download the latest MCP server, fetch the newest `Code.gs`, and redeploy your Apps Script backend.
 
 **Where is my data stored?**
 - `~/.sauver/config.json` — your Web App URL and secret key (local, never committed)

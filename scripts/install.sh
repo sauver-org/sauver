@@ -56,61 +56,92 @@ fi
 
 SECRET_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
 
-# ── Step 1: Apps Script code ────────────────────────────────────────────────
+# ── Step 1: Apps Script Backend ───────────────────────────────────────────────
 
-echo ""
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BOLD}  Step 1 of 3 — Create the Gmail backend (2 min)${NC}"
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo "  a) Open a new Google Apps Script project:"
-echo ""
-echo -e "     ${BLUE}https://script.google.com/create${NC}"
-echo ""
-echo "  b) Delete all existing code in the editor."
-echo ""
-echo "  c) Paste the Sauver backend code from:"
-echo ""
-echo -e "     ${BLUE}https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs${NC}"
-echo ""
-echo "  d) Find this line near the top:"
-echo ""
-echo -e "     ${YELLOW}const SECRET_KEY = \"CHANGE_ME\";${NC}"
-echo ""
-echo "     Replace it with your generated key:"
-echo ""
-echo -e "     ${GREEN}const SECRET_KEY = \"${SECRET_KEY}\";${NC}"
-echo ""
-echo "  e) Save the file (Ctrl+S / Cmd+S or click the 💾 icon)."
-echo ""
-if [ -z "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
-  read -rp "  ↵  Press Enter when done with Step 1..." < /dev/tty
-fi
-
-# ── Step 2: Deploy as Web App ───────────────────────────────────────────────
-
-echo ""
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BOLD}  Step 2 of 3 — Deploy as a Web App (1 min)${NC}"
-echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo "  In the Apps Script editor:"
-echo ""
-echo -e "  a) Click ${BOLD}Deploy${NC} → ${BOLD}New Deployment${NC}"
-echo -e "  b) Click the gear icon ⚙️  next to 'Type' → select ${BOLD}Web app${NC}"
-echo "  c) Description: anything (e.g. 'Sauver')"
-echo -e "  d) Execute as:   ${BOLD}Me${NC}"
-echo -e "  e) Who has access: ${BOLD}Anyone${NC}  ← (the secret key keeps it private)"
-echo -e "  f) Click ${BOLD}Deploy${NC}"
-echo -e "  g) Click ${BOLD}Authorize access${NC} → sign in with your Google account"
-echo -e "  h) Copy the ${BOLD}Web App URL${NC}"
-echo "     (it looks like: https://script.google.com/macros/s/ABC.../exec)"
-echo ""
 if [ -n "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
+  echo ""
+  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BOLD}  Step 1 of 2 — Apps Script (Skipped)${NC}"
+  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+  echo "  Using SAUVER_APPS_SCRIPT_URL from environment:"
+  echo "  $SAUVER_APPS_SCRIPT_URL"
   APPS_SCRIPT_URL="$SAUVER_APPS_SCRIPT_URL"
-  echo "  Using SAUVER_APPS_SCRIPT_URL from environment."
 else
-  read -rp "  Paste your Web App URL: " APPS_SCRIPT_URL < /dev/tty
+  echo ""
+  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BOLD}  Step 1 of 2 — Create the Gmail backend (2 min)${NC}"
+  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+  echo "  We will now securely and automatically deploy your Gmail backend."
+  echo ""
+  echo "  a) First, you must enable the Google Apps Script API:"
+  echo "     Open ${BLUE}https://script.google.com/home/usersettings${NC}"
+  echo "     and toggle 'Google Apps Script API' to ON."
+  echo ""
+  read -rp "  ↵  Press Enter when you have done this..." < /dev/tty
+  echo ""
+  echo "  b) Logging into Google via clasp (a browser window will open)..."
+  npx --yes @google/clasp login
+
+  echo ""
+  echo "  c) Generating and deploying the project..."
+  
+  CLASP_WORK_DIR=$(mktemp -d)
+  (
+    cd "$CLASP_WORK_DIR" || exit 1
+    
+    # Create the project
+    npx --yes @google/clasp create --type webapp --title "Sauver Backend" >/dev/null
+
+    # Download source
+    curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
+    
+    # Inject user's unique secret key
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
+    else
+      sed -i "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
+    fi
+
+    # Create appsscript.json required for 'Anyone' access webapp
+    cat > appsscript.json <<EOF
+{
+  "timeZone": "America/New_York",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE"
+  }
+}
+EOF
+
+    # Push and deploy
+    npx --yes @google/clasp push -f >/dev/null
+    DEPLOY_OUTPUT=$(npx --yes @google/clasp deploy --description "Auto-deployed by Sauver")
+    
+    # Extract deployment ID (clasp outputs: "- <deploymentId> @1.")
+    DEPLOYMENT_ID=$(echo "$DEPLOY_OUTPUT" | grep -oE -- '- [a-zA-Z0-9_-]+ @' | awk '{print $2}')
+    
+    if [ -z "$DEPLOYMENT_ID" ]; then
+      echo -e "${RED}❌ Failed to extract Deployment ID from clasp output.${NC}"
+      echo "Output was: $DEPLOY_OUTPUT"
+      exit 1
+    fi
+    
+    # Export it out of the subshell by writing to a temp file
+    echo "$DEPLOYMENT_ID" > "$CLASP_WORK_DIR/deployment_id"
+  )
+  
+  DEPLOYMENT_ID=$(cat "$CLASP_WORK_DIR/deployment_id")
+  APPS_SCRIPT_URL="https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec"
+  rm -rf "$CLASP_WORK_DIR"
+  
+  echo -e "  ✅ ${GREEN}Deployed successfully to:${NC}"
+  echo "     $APPS_SCRIPT_URL"
+  echo ""
 fi
 
 # Validate
@@ -148,7 +179,7 @@ echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
 
 echo ""
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BOLD}  Step 3 of 3 — Installing the local bridge${NC}"
+echo -e "${BOLD}  Step 2 of 2 — Installing the local bridge${NC}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
