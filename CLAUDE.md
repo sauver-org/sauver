@@ -21,7 +21,11 @@ The following slash commands are available in Claude Code (`.claude/commands/`):
 | `/investor-trap` | Detect investor slop and deploy the Due Diligence Loop |
 | `/bouncer-reply` | Generate a Time-Sink Trap reply for general spam |
 
-These commands use the Sauver MCP server (`mcp__sauver__*` tools).
+These commands use the Sauver MCP server (`mcp__sauver__*` tools). See `skills/PROTOCOL.md` for the full tool reference and operational protocol.
+
+## Autonomous Operation
+
+When running any Sauver skill, do not wait for manual confirmation for individual tool calls once the primary directive is issued. Use `get_preferences` to load user config at the start of each skill, then proceed autonomously.
 
 ## Architecture
 
@@ -53,13 +57,7 @@ LLM instruction files for the pipeline:
 ### Configuration (`~/.sauver/config.json`)
 User preferences live in the `preferences` key of `~/.sauver/config.json`. Read them via the `get_preferences` MCP tool; update them via `set_preference`. Works from any working directory with both Claude Code and Gemini CLI.
 
-| Key | Default | Meaning |
-|---|---|---|
-| `auto_draft` | `true` | Automatically create draft replies to slop |
-| `yolo_mode` | `false` | Auto-send replies instead of drafting |
-| `treat_job_offers_as_slop` | `true` | Treat recruiter outreach as slop |
-| `treat_unsolicited_investors_as_slop` | `true` | Treat investor outreach as slop |
-| `sauver_label` | `"Sauver"` | Gmail label applied when archiving |
+See `skills/PROTOCOL.md` for the full config key reference.
 
 ## Versioning
 

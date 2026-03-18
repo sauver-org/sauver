@@ -70,8 +70,15 @@ Gemini CLI discovers Sauver through several layers:
 
 1.  **MCP Server Registration:** Gemini reads the MCP server definition from `~/.claude/settings.json` and uses `~/.gemini/mcp-server-enablement.json` to toggle it on.
 2.  **Project Indexing:** Sauver is a **Gemini Extension**. When you are inside the repository, Gemini CLI sees `gemini-extension.json` and loads `GEMINI.md` as its primary instruction set.
-3.  **Skills & Workflows:** Gemini automatically indexes the `skills/` directory for role-play instructions and the `.agent/workflows/` directory for slash commands (shmanaged by `make sync`).
+3.  **Skills & Workflows:** Gemini automatically indexes the `skills/` directory for role-play instructions and the `.agent/workflows/` directory for slash commands (managed by `make sync`).
 4.  **Global Access:** As long as your `README.md` or home directory is indexed in `~/.gemini/projects.json`, Gemini can find and use Sauver from any terminal session.
+
+### How Claude finds Sauver
+
+Claude Code discovers Sauver through two layers:
+
+1.  **MCP Server Registration:** The installer writes the MCP server entry directly into `~/.claude/settings.json`. Claude Code reads this global config at startup, so the `mcp__sauver__*` tools are available in every Claude Code session, from any directory — no project context required.
+2.  **Slash Commands & Instructions:** When you open Claude Code inside the Sauver repository, it automatically loads `.claude/commands/*.md` as slash commands (`/sauver`, `/tracker-shield`, etc.) and `CLAUDE.md` as its primary instruction set for the project.
 
 ## How it works
 
