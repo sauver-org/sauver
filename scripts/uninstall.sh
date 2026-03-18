@@ -85,6 +85,15 @@ fi
 
 # ── 4 & 5. Remove mcpServers.sauver from Claude & Gemini settings ────────────
 
+if command -v claude &>/dev/null; then
+  if claude mcp remove --scope user sauver 2>/dev/null; then
+    echo -e "${GREEN}✅ Removed Sauver MCP from Claude Code (user scope)${NC}"
+  else
+    echo -e "${YELLOW}⚠️  Sauver MCP not found in Claude Code config — skipping${NC}"
+  fi
+fi
+
+GEMINI_SETTINGS="$HOME/.gemini/settings.json"
 node -e "
   const fs = require('fs');
 
@@ -102,18 +111,9 @@ node -e "
     return 'removed';
   }
 
-  const claudeResult = removeSauverMcp(require('os').homedir() + '/.claude/settings.json');
-  const geminiResult = removeSauverMcp(require('os').homedir() + '/.gemini/settings.json');
-
-  // Print results as space-separated tokens for the shell to read
-  process.stdout.write(claudeResult + ' ' + geminiResult + '\n');
-" | read -r claude_result gemini_result
-
-case "$claude_result" in
-  removed)       echo -e "${GREEN}✅ Removed Sauver MCP from ~/.claude/settings.json${NC}" ;;
-  not-configured) echo -e "${YELLOW}⚠️  Sauver MCP not found in ~/.claude/settings.json — skipping${NC}" ;;
-  not-found)     echo -e "${YELLOW}⚠️  ~/.claude/settings.json not found — skipping${NC}" ;;
-esac
+  const geminiResult = removeSauverMcp('$GEMINI_SETTINGS');
+  process.stdout.write(geminiResult + '\n');
+" | read -r gemini_result
 
 case "$gemini_result" in
   removed)       echo -e "${GREEN}✅ Removed Sauver MCP from ~/.gemini/settings.json${NC}" ;;

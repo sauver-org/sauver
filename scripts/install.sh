@@ -6,7 +6,6 @@ set -e
 REPO="mszczodrak/sauver"
 INSTALL_DIR="$HOME/.sauver/mcp-server"
 CONFIG_FILE="$HOME/.sauver/config.json"
-CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 
 BOLD=$(printf '\033[1m')
 GREEN=$(printf '\033[0;32m')
@@ -130,7 +129,7 @@ else
   "runtimeVersion": "V8",
   "webapp": {
     "executeAs": "USER_DEPLOYING",
-    "access": "ANYONE"
+    "access": "ANYONE_ANONYMOUS"
   }
 }
 EOF
@@ -301,16 +300,9 @@ echo -e "${GREEN}✅ Skills installed${NC}"
 
 # ── Register with Claude Code & Gemini CLI ──────────────────────────────────
 
-node -e "
-  const fs = require('fs');
-  const path = '$CLAUDE_SETTINGS';
-  let s = {};
-  try { s = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
-  s.mcpServers = s.mcpServers || {};
-  s.mcpServers.sauver = { command: 'node', args: ['$INSTALL_DIR/index.js'] };
-  fs.mkdirSync(require('path').dirname(path), { recursive: true });
-  fs.writeFileSync(path, JSON.stringify(s, null, 2));
-"
+if command -v claude &>/dev/null; then
+  claude mcp add --scope user sauver node "$INSTALL_DIR/index.js" 2>/dev/null || true
+fi
 
 echo -e "${GREEN}✅ Claude Code configured${NC}"
 
