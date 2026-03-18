@@ -95,13 +95,23 @@ function isNewerVersion(latest, current) {
   return la > ca || (la === ca && lb > cb) || (la === ca && lb === cb && lc > cc);
 }
 
+async function fetchWithTimeout(url, timeoutMs = 10_000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function downloadSkills() {
   const base = `https://raw.githubusercontent.com/${REPO}/main`;
 
   mkdirSync(SKILLS_DIR, { recursive: true });
   mkdirSync(CLAUDE_COMMANDS_DIR, { recursive: true });
 
-  const protocolRes = await fetch(`${base}/skills/PROTOCOL.md`);
+  const protocolRes = await fetchWithTimeout(`${base}/skills/PROTOCOL.md`, 15_000);
   if (!protocolRes.ok) throw new Error(`HTTP ${protocolRes.status} fetching PROTOCOL.md`);
   writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), await protocolRes.text());
 
@@ -109,7 +119,7 @@ async function downloadSkills() {
     const skillDir = join(SKILLS_DIR, skillName);
     mkdirSync(skillDir, { recursive: true });
 
-    const res = await fetch(`${base}/skills/${skillName}/SKILL.md`);
+    const res = await fetchWithTimeout(`${base}/skills/${skillName}/SKILL.md`, 15_000);
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${skillName}/SKILL.md`);
     writeFileSync(join(skillDir, "SKILL.md"), await res.text());
 
@@ -132,7 +142,7 @@ async function checkForUpdates() {
     config.last_update_check = Date.now();
     writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 
-    const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/mcp-server/package.json`);
+    const res = await fetchWithTimeout(`https://raw.githubusercontent.com/${REPO}/main/mcp-server/package.json`);
     if (!res.ok) return;
     const { version: latestVersion } = await res.json();
 

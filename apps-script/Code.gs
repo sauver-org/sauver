@@ -49,16 +49,19 @@ function scanInbox(maxResults) {
 function searchMessages(query, maxResults) {
   const threads = GmailApp.search(query, 0, maxResults);
   return threads.map(thread => {
-    const msg = thread.getMessages()[0];
+    const msg    = thread.getMessages()[0];
+    const plain  = msg.getPlainBody();
+    const html   = msg.getBody();
     return {
-      threadId:  thread.getId(),
-      messageId: msg.getId(),
-      from:      msg.getFrom(),
-      to:        msg.getTo(),
-      subject:   msg.getSubject(),
-      date:      msg.getDate().toISOString(),
-      body:      msg.getPlainBody().substring(0, 3000),
-      htmlBody:  msg.getBody().substring(0, 6000),
+      threadId:      thread.getId(),
+      messageId:     msg.getId(),
+      from:          msg.getFrom(),
+      to:            msg.getTo(),
+      subject:       msg.getSubject(),
+      date:          msg.getDate().toISOString(),
+      body:          plain.substring(0, 3000),
+      htmlBody:      html.substring(0, 6000),
+      bodyTruncated: plain.length > 3000 || html.length > 6000,
     };
   });
 }

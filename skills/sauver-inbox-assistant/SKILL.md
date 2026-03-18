@@ -19,16 +19,15 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 3. **Fetch emails:** Call `scan_inbox` (or `search_messages` with a custom query). For each result, call `get_message` to load the full body and HTML before analysis.
 
-4. **Purify:** Delegate to the **tracker-shield** skill to identify and neutralize tracking pixels and spy-links in each email's HTML body.
+4. **Purify:** Apply the tracker-shield analysis inline: inspect each email's HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found per email.
 
-5. **Classify:** Delegate to **slop-detector** and **investor-trap** to determine intent.
+5. **Classify:** Apply slop-detector and investor-trap analysis inline to determine intent. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag.
 
-6. **Counter-measure:** For each email flagged as slop:
-   - If `auto_draft` is `true`: generate a trap reply and call `create_draft`.
-   - If `yolo_mode` is `true`: call `send_message` instead of drafting.
-   - Select the right trap: **bouncer-reply** for generic spam, **slop-detector** for recruiter/sales slop, **investor-trap** for VC/fundraising slop.
+6. **Counter-measure:** For each email flagged as slop, first select the right trap, then dispatch:
+   - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
+   - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
 
-7. **Archive:** After drafting or sending, call `apply_label` with the `sauver_label` value, then call `archive_thread` to remove it from the inbox.
+7. **Archive:** After dispatching (or if flagged but dispatch was skipped), call `apply_label` with the `sauver_label` value, then call `archive_thread` to remove it from the inbox.
 
 ## Reporting Format
 

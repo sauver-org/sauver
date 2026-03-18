@@ -17,9 +17,10 @@ The following slash commands are available in Claude Code (`.claude/commands/`):
 |---|---|
 | `/sauver` | Full inbox triage pipeline — classify, trap, and draft replies for all unread emails |
 | `/tracker-shield` | Strip tracking pixels and spy-links from a specific email |
-| `/slop-detector` | Detect recruiter/sales slop and deploy the Expert-Domain Trap |
+| `/slop-detector` | Detect recruiter/sales slop and deploy the Expert-Domain Trap or Info Vacuum |
 | `/investor-trap` | Detect investor slop and deploy the Due Diligence Loop |
 | `/bouncer-reply` | Generate a Time-Sink Trap reply for general spam |
+| `/archiver` | Label and archive a specific thread on demand, without full triage |
 
 These commands use the Sauver MCP server (`mcp__sauver__*` tools). See `skills/PROTOCOL.md` for the full tool reference and operational protocol.
 
@@ -40,9 +41,9 @@ Claude Code / Gemini CLI    ←  runs the skills
 ```
 
 ### MCP Tools (`mcp-server/index.js`)
-The local MCP server exposes 9 tools that both Claude and Gemini can call:
+The local MCP server exposes 11 tools that both Claude and Gemini can call:
 
-`scan_inbox` · `search_messages` · `get_message` · `create_draft` · `send_message` · `archive_thread` · `apply_label` · `get_profile` · `list_labels`
+`scan_inbox` · `search_messages` · `get_message` · `create_draft` · `send_message` · `archive_thread` · `apply_label` · `get_profile` · `list_labels` · `get_preferences` · `set_preference`
 
 ### Skills (`skills/*/SKILL.md`)
 LLM instruction files for the pipeline:

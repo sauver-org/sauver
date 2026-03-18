@@ -18,7 +18,7 @@ Run this one command in your terminal:
 curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/install.sh | bash
 ```
 
-The installer automates the setup process (~2 minutes total) using `clasp`:
+The installer automates the setup process (~3 minutes total) using `clasp`:
 
 1. **Enable Apps Script API** — a one-time toggle in your Google account settings
 2. **Authenticate** — the installer opens a browser to securely log in
@@ -42,27 +42,31 @@ Settings live in `~/.sauver/config.json` under the `preferences` key. You can ed
 
 ### Claude Code
 
-Open Claude Code inside this repository and use slash commands:
+The installer writes slash commands to `~/.claude/commands/`, so they are available globally in every Claude Code session:
 
 | Command | What it does |
 | :--- | :--- |
-| `/sauver` | Full triage — strips trackers, classifies intent, drafts counter-measures for all unread slop |
-| `/tracker-shield` | Strip tracking pixels from a specific email |
-| `/slop-detector` | Draft an Expert-Domain Trap reply for recruiter/sales slop |
-| `/investor-trap` | Draft a Due Diligence Loop reply for investor slop |
-| `/bouncer-reply` | Draft a Time-Sink Trap reply for generic spam |
+| `/sauver` | Full triage — scans inbox, strips trackers, classifies intent, and drafts or sends counter-measures (depends on `auto_draft` / `yolo_mode`) |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email |
+| `/slop-detector` | Classify recruiter/sales slop and reply with the Expert-Domain Trap or Info Vacuum |
+| `/investor-trap` | Classify investor slop and reply with the Due Diligence Loop |
+| `/bouncer-reply` | Reply to generic spam with the Time-Sink Trap |
+| `/archiver` | Label and archive a specific thread on demand, without full triage |
 
 ### Gemini CLI
 
-The installer automatically configures Gemini CLI. Like Claude Code, Gemini supports slash commands and direct natural language requests.
+The installer automatically configures Gemini CLI. Gemini reads commands from `.agent/workflows/` inside the Sauver repository, so you need to be in (or have indexed) the repo directory.
 
 | Command | What it does |
 | :--- | :--- |
 | `/sauver` | Full triage — runs the orchestrator skill |
 | `/tracker-shield` | Strip tracking pixels via the LLM |
-| `/slop-detector` | Identify recruiter/sales slop |
+| `/slop-detector` | Classify recruiter/sales slop and deploy a trap |
+| `/investor-trap` | Classify investor slop and deploy the Due Diligence Loop |
+| `/bouncer-reply` | Deploy the Time-Sink Trap for generic spam |
+| `/archiver` | Label and archive a specific thread on demand |
 
-You can also just ask Gemini in plain English: *"Sauver, triage my last 10 unread emails"* or *"Run tracker-shield on this email"*.
+You can also ask Gemini in plain English: *"Sauver, triage my last 10 unread emails"* or *"Archive this thread under the Sauver label"*.
 
 ### How Gemini finds Sauver
 
@@ -136,13 +140,13 @@ Every request must include a secret key that was randomly generated during insta
 
 `mcp-server/index.js` is a small Node.js process that runs on your machine. It speaks the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) over stdio, which is how Claude Code and Gemini CLI discover and call tools.
 
-When Claude or Gemini calls a tool (e.g. `scan_inbox`), the MCP server forwards it as an HTTPS POST to your Apps Script Web App, then returns the result. The config file at `~/.sauver/config.json` holds the Web App URL, secret key, and update metadata — written by the installer and updated in place by the auto-updater.
+When Claude or Gemini calls a tool, the MCP server either handles it locally (for `get_preferences` and `set_preference`, which read/write `~/.sauver/config.json`) or forwards it as an HTTPS POST to the Apps Script Web App and returns the result. The config file at `~/.sauver/config.json` holds the Web App URL, secret key, user preferences, and update metadata.
 
 On each startup the MCP server also fires a background update check (see [Skill auto-updates](#skill-auto-updates) above).
 
 ### Layer 3 — AI Clients
 
-Both Claude Code and Gemini CLI connect to the same local MCP server and see the same nine tools. The defense logic — tracker detection, slop classification, trap generation — runs entirely inside the AI model, guided by the skill files installed to `~/.sauver/skills/`. No defense logic lives in the MCP server or the Apps Script; they are pure data pipes.
+Both Claude Code and Gemini CLI connect to the same local MCP server and see the same 11 tools. The defense logic — tracker detection, slop classification, trap generation — runs entirely inside the AI model, guided by the skill files installed to `~/.sauver/skills/`. No defense logic lives in the MCP server or the Apps Script; they are pure data pipes.
 
 ### Security model
 

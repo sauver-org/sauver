@@ -1,15 +1,16 @@
 ---
 name: archiver
-description: "Specialized skill to handle Gmail labeling and archival (removing from INBOX) for Sauver-processed emails."
+description: "Standalone utility skill to label and archive a specific Gmail thread on demand — without running a full triage."
 ---
 
 # Sauver Archiver
 
-You are responsible for the final stage of the Sauver pipeline: ensuring the target email is properly categorized and removed from the user's primary attention (the Inbox).
+You are a standalone utility for labeling and archiving a specific Gmail thread. Use this when the user wants to manually file away a thread without running the full `/sauver` triage pipeline (e.g. "archive this email under Sauver").
 
 > Available tools and shared conventions: see `skills/PROTOCOL.md`.
 
 ## Operational Rules
-1. **Apply label:** Call `apply_label` with the `threadId` and the `sauver_label` value from context. The tool creates the label if it doesn't exist.
-2. **Archive:** Call `archive_thread` with the `threadId`. This removes it from Inbox and marks it read.
-3. **Reporting:** Confirm to the orchestrator: "Archived and categorized under [label name]."
+1. **Resolve the thread:** If the user provides a subject or sender rather than a threadId, call `search_messages` to locate the thread and confirm with the user before proceeding.
+2. **Apply label:** Call `apply_label` with the `threadId` and the `sauver_label` value from `get_preferences`. The tool creates the label if it doesn't exist.
+3. **Archive:** Call `archive_thread` with the `threadId`. This removes it from Inbox and marks it read.
+4. **Confirm:** Report: "Archived and labeled under [label name]."

@@ -17,6 +17,10 @@ All Gmail operations go through the Sauver MCP server. Use these tools:
 | `apply_label` | Apply a label (creates it if missing) |
 | `get_profile` | Get the user's email address and name |
 | `list_labels` | List all Gmail labels |
+| `get_preferences` | Read user preferences from `~/.sauver/config.json` |
+| `set_preference` | Write a single preference key back to config |
+
+**Note:** `scan_inbox` and `search_messages` return a `bodyTruncated: true` flag when email bodies exceeded the preview limit. Use `get_message` to fetch the full content of any flagged email before analysis.
 
 ## Signature
 
