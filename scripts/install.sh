@@ -214,6 +214,47 @@ chmod 600 "$CONFIG_FILE"
 echo ""
 echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
 
+# ── Verify backend (trigger OAuth consent if needed) ────────────────────────
+
+echo ""
+echo "  Verifying Gmail backend..."
+
+check_backend() {
+  curl -s --max-time 15 -X POST "$APPS_SCRIPT_URL" \
+    -H "Content-Type: application/json" \
+    -d "{\"action\":\"get_profile\",\"key\":\"${SECRET_KEY}\"}"
+}
+
+RESPONSE=$(check_backend)
+
+if echo "$RESPONSE" | grep -q '"email"'; then
+  echo -e "${GREEN}✅ Backend connected — Gmail access confirmed${NC}"
+else
+  echo ""
+  echo -e "  ${YELLOW}⚠️  One more step required: authorize Gmail access in your browser.${NC}"
+  echo ""
+  echo "  Google Apps Script needs your permission to access Gmail before it can"
+  echo "  accept requests from the local MCP server. This is a one-time step."
+  echo ""
+  echo "  1. Open this URL in your browser:"
+  printf "     %s\n" "$(link "$APPS_SCRIPT_URL")"
+  echo ""
+  echo "  2. If prompted, sign in with the Google account you want Sauver to manage."
+  echo "  3. Click 'Review Permissions' → 'Allow' to grant Gmail access."
+  echo "  4. Once the page loads (even if it shows an error), return here."
+  echo ""
+  read -rp "  ↵  Press Enter once you have authorized in the browser..." < /dev/tty
+  echo ""
+
+  RESPONSE=$(check_backend)
+  if echo "$RESPONSE" | grep -q '"email"'; then
+    echo -e "${GREEN}✅ Backend authorized — Gmail access confirmed${NC}"
+  else
+    echo -e "${YELLOW}⚠️  Could not confirm backend connectivity. Proceeding anyway.${NC}"
+    echo "   If Sauver fails later, re-open the URL above in your browser and allow access."
+  fi
+fi
+
 # ── Step 3: Install MCP server ──────────────────────────────────────────────
 
 echo ""
