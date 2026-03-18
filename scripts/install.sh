@@ -139,8 +139,9 @@ EOF
     npx --yes @google/clasp push -f >/dev/null
     DEPLOY_OUTPUT=$(npx --yes @google/clasp deploy --description "Auto-deployed by Sauver")
     
-    # Extract deployment ID (clasp outputs: "- <deploymentId> @1.")
-    DEPLOYMENT_ID=$(echo "$DEPLOY_OUTPUT" | grep -oE -- '- [a-zA-Z0-9_-]+ @' | awk '{print $2}')
+    # Extract deployment ID — clasp outputs either "- <id> @1" or "Deployed <id> @1"
+    # The deployment ID is always a long alphanumeric string (40+ chars)
+    DEPLOYMENT_ID=$(echo "$DEPLOY_OUTPUT" | grep -oE '[A-Za-z0-9_-]{40,}')
     
     if [ -z "$DEPLOYMENT_ID" ]; then
       echo -e "${RED}❌ Failed to extract Deployment ID from clasp output.${NC}"
