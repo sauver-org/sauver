@@ -76,7 +76,7 @@ else
   echo "  We will now securely and automatically deploy your Gmail backend."
   echo ""
   echo "  a) First, you must enable the Google Apps Script API:"
-  echo "     Open ${BLUE}https://script.google.com/home/usersettings${NC}"
+  echo -e "     Open ${BLUE}https://script.google.com/home/usersettings${NC}"
   echo "     and toggle 'Google Apps Script API' to ON."
   echo ""
   read -rp "  ↵  Press Enter when you have done this..." < /dev/tty
