@@ -93,32 +93,67 @@ if command -v claude &>/dev/null; then
   fi
 fi
 
-GEMINI_SETTINGS="$HOME/.gemini/settings.json"
+# Remove mcp__sauver__* permission entries from ~/.claude/settings.local.json
+CLAUDE_LOCAL_SETTINGS="$HOME/.claude/settings.local.json"
+if [ -f "$CLAUDE_LOCAL_SETTINGS" ]; then
+  node -e "
+    const fs = require('fs');
+    const path = '$CLAUDE_LOCAL_SETTINGS';
+    const s = JSON.parse(fs.readFileSync(path, 'utf8'));
+    if (s.permissions?.allow) {
+      const before = s.permissions.allow.length;
+      s.permissions.allow = s.permissions.allow.filter(r => !r.startsWith('mcp__sauver__'));
+      if (s.permissions.allow.length < before) {
+        fs.writeFileSync(path, JSON.stringify(s, null, 2) + '\n');
+        process.stdout.write('removed\n');
+      } else {
+        process.stdout.write('not-configured\n');
+      }
+    } else {
+      process.stdout.write('not-configured\n');
+    }
+  " | read -r claude_local_result
+  case "$claude_local_result" in
+    removed) echo -e "${GREEN}✅ Removed Sauver permissions from ~/.claude/settings.local.json${NC}" ;;
+  esac
+fi
+
 node -e "
   const fs = require('fs');
 
-  function removeSauverMcp(filePath) {
+  function removeKey(filePath, ...keyPath) {
     let s;
     try {
       s = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     } catch {
       return 'not-found';
     }
-    if (!s.mcpServers || !s.mcpServers.sauver) return 'not-configured';
-    delete s.mcpServers.sauver;
-    if (Object.keys(s.mcpServers).length === 0) delete s.mcpServers;
+    let obj = s;
+    for (let i = 0; i < keyPath.length - 1; i++) {
+      if (!obj[keyPath[i]]) return 'not-configured';
+      obj = obj[keyPath[i]];
+    }
+    const last = keyPath[keyPath.length - 1];
+    if (!obj[last]) return 'not-configured';
+    delete obj[last];
     fs.writeFileSync(filePath, JSON.stringify(s, null, 2) + '\n');
     return 'removed';
   }
 
-  const geminiResult = removeSauverMcp('$GEMINI_SETTINGS');
-  process.stdout.write(geminiResult + '\n');
-" | read -r gemini_result
+  const base = require('os').homedir() + '/.gemini/';
+  const r1 = removeKey(base + 'settings.json', 'mcpServers', 'sauver');
+  const r2 = removeKey(base + 'mcp-server-enablement.json', 'sauver');
+  process.stdout.write(r1 + ' ' + r2 + '\n');
+" | read -r gemini_settings_result gemini_enablement_result
 
-case "$gemini_result" in
+case "$gemini_settings_result" in
   removed)       echo -e "${GREEN}✅ Removed Sauver MCP from ~/.gemini/settings.json${NC}" ;;
   not-configured) echo -e "${YELLOW}⚠️  Sauver MCP not found in ~/.gemini/settings.json — skipping${NC}" ;;
   not-found)     echo -e "${YELLOW}⚠️  ~/.gemini/settings.json not found — skipping${NC}" ;;
+esac
+
+case "$gemini_enablement_result" in
+  removed)       echo -e "${GREEN}✅ Removed Sauver entry from ~/.gemini/mcp-server-enablement.json${NC}" ;;
 esac
 
 # ── 6. Delete the Apps Script backend ───────────────────────────────────────
