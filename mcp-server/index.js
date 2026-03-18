@@ -123,17 +123,26 @@ async function downloadSkills() {
 
     const res = await fetchWithTimeout(`${base}/skills/${skillName}/SKILL.md`, 15_000);
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${skillName}/SKILL.md`);
-    writeFileSync(join(skillDir, "SKILL.md"), await res.text());
+    const skillContent = await res.text();
+    writeFileSync(join(skillDir, "SKILL.md"), skillContent);
 
-    const shim = [
-      `Use your Read tool to load \`${join(skillDir, "SKILL.md")}\` and \`${join(SKILLS_DIR, "PROTOCOL.md")}\`, then follow the instructions in that file exactly.`,
+    // Extract description from SKILL.md YAML frontmatter for Gemini workflows
+    const descMatch = skillContent.match(/^description:\s*"?([^"\n]+)"?/m);
+    const description = descMatch ? descMatch[1].trim() : `Sauver ${commandName} skill`;
+
+    const body = [
+      `Use your Read tool to load \`${join(skillDir, "SKILL.md")}\` and \`${join(SKILLS_DIR, "PROTOCOL.md")}\`, then follow the instructions in those files exactly.`,
       ``,
-      `All tools listed in \`${join(SKILLS_DIR, "PROTOCOL.md")}\` are available via the Sauver MCP server (\`mcp__sauver__*\`). No substitution needed.`,
+      `All Gmail tools are available via the Sauver MCP server. Call them as \`mcp__sauver__<tool_name>\` (e.g. \`mcp__sauver__get_preferences\`, \`mcp__sauver__scan_inbox\`, \`mcp__sauver__get_message\`). Do not substitute with any other tools.`,
       ``,
     ].join("\n");
-    
-    writeFileSync(join(CLAUDE_COMMANDS_DIR, `${commandName}.md`), shim);
-    writeFileSync(join(GEMINI_WORKFLOWS_DIR, `${commandName}.md`), shim);
+
+    // Claude: plain markdown (no frontmatter needed)
+    writeFileSync(join(CLAUDE_COMMANDS_DIR, `${commandName}.md`), body);
+
+    // Gemini: requires YAML frontmatter with description for slash command discovery
+    const geminiShim = `---\ndescription: ${description}\n---\n\n${body}`;
+    writeFileSync(join(GEMINI_WORKFLOWS_DIR, `${commandName}.md`), geminiShim);
   }
 }
 
