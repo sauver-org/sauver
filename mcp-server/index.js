@@ -5,7 +5,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
 import { fileURLToPath } from "url";
@@ -70,6 +70,85 @@ function setPreference(key, value) {
   config.preferences = { ...getPreferences(), [key]: value };
   writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
   return config.preferences;
+}
+
+// ── Auto-update ─────────────────────────────────────────────────────────────
+
+const REPO = "mszczodrak/sauver";
+const SAUVER_DIR = join(homedir(), ".sauver");
+const SKILLS_DIR = join(SAUVER_DIR, "skills");
+const CLAUDE_COMMANDS_DIR = join(homedir(), ".claude", "commands");
+
+const SKILL_MAP = [
+  ["sauver-inbox-assistant", "sauver"],
+  ["slop-detector",          "slop-detector"],
+  ["investor-trap",          "investor-trap"],
+  ["bouncer-reply",          "bouncer-reply"],
+  ["tracker-shield",         "tracker-shield"],
+  ["archiver",               "archiver"],
+];
+
+function isNewerVersion(latest, current) {
+  const parse = v => v.split(".").map(Number);
+  const [la, lb, lc] = parse(latest);
+  const [ca, cb, cc] = parse(current);
+  return la > ca || (la === ca && lb > cb) || (la === ca && lb === cb && lc > cc);
+}
+
+async function downloadSkills() {
+  const base = `https://raw.githubusercontent.com/${REPO}/main`;
+
+  mkdirSync(SKILLS_DIR, { recursive: true });
+  mkdirSync(CLAUDE_COMMANDS_DIR, { recursive: true });
+
+  const protocolRes = await fetch(`${base}/skills/PROTOCOL.md`);
+  if (!protocolRes.ok) throw new Error(`HTTP ${protocolRes.status} fetching PROTOCOL.md`);
+  writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), await protocolRes.text());
+
+  for (const [skillName, commandName] of SKILL_MAP) {
+    const skillDir = join(SKILLS_DIR, skillName);
+    mkdirSync(skillDir, { recursive: true });
+
+    const res = await fetch(`${base}/skills/${skillName}/SKILL.md`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${skillName}/SKILL.md`);
+    writeFileSync(join(skillDir, "SKILL.md"), await res.text());
+
+    const shim = [
+      `Use your Read tool to load \`${join(skillDir, "SKILL.md")}\` and \`${join(SKILLS_DIR, "PROTOCOL.md")}\`, then follow the instructions in that file exactly.`,
+      ``,
+      `All tools listed in \`${join(SKILLS_DIR, "PROTOCOL.md")}\` are available via the Sauver MCP server (\`mcp__sauver__*\`). No substitution needed.`,
+      ``,
+    ].join("\n");
+    writeFileSync(join(CLAUDE_COMMANDS_DIR, `${commandName}.md`), shim);
+  }
+}
+
+async function checkForUpdates() {
+  try {
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    if (Date.now() - (config.last_update_check ?? 0) < ONE_DAY) return;
+
+    // Record check time immediately to prevent concurrent checks on same day
+    config.last_update_check = Date.now();
+    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+
+    const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/mcp-server/package.json`);
+    if (!res.ok) return;
+    const { version: latestVersion } = await res.json();
+
+    if (!isNewerVersion(latestVersion, version)) return;
+
+    await downloadSkills();
+
+    config.installed_skills_version = latestVersion;
+    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+
+    process.stderr.write(
+      `\nSauver: skills updated v${version} → v${latestVersion}. Restart your AI client to use the latest skills.\n\n`
+    );
+  } catch {
+    // Silent — updates are best-effort, never block the MCP server
+  }
 }
 
 // ── Tool definitions ────────────────────────────────────────────────────────
@@ -225,6 +304,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     return { content: [{ type: "text", text: `Error: ${err.message}` }], isError: true };
   }
 });
+
+checkForUpdates(); // fire-and-forget background check
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

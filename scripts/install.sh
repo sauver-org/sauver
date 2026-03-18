@@ -212,6 +212,58 @@ echo "  Installing dependencies..."
 
 echo -e "${GREEN}✅ MCP server installed${NC}"
 
+# ── Install skills ────────────────────────────────────────────────────────────
+
+echo "  Downloading skills..."
+node --input-type=module << 'NODEEOF'
+import { mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
+import { homedir } from "os";
+
+const REPO = "mszczodrak/sauver";
+const SKILLS_DIR = join(homedir(), ".sauver", "skills");
+const CLAUDE_COMMANDS = join(homedir(), ".claude", "commands");
+const SKILL_MAP = [
+  ["sauver-inbox-assistant", "sauver"],
+  ["slop-detector",          "slop-detector"],
+  ["investor-trap",          "investor-trap"],
+  ["bouncer-reply",          "bouncer-reply"],
+  ["tracker-shield",         "tracker-shield"],
+  ["archiver",               "archiver"],
+];
+
+mkdirSync(SKILLS_DIR, { recursive: true });
+mkdirSync(CLAUDE_COMMANDS, { recursive: true });
+
+const base = `https://raw.githubusercontent.com/${REPO}/main`;
+
+async function fetchText(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
+  return res.text();
+}
+
+const protocol = await fetchText(`${base}/skills/PROTOCOL.md`);
+writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), protocol);
+
+for (const [skillName, commandName] of SKILL_MAP) {
+  const skillDir = join(SKILLS_DIR, skillName);
+  mkdirSync(skillDir, { recursive: true });
+  const content = await fetchText(`${base}/skills/${skillName}/SKILL.md`);
+  writeFileSync(join(skillDir, "SKILL.md"), content);
+
+  const shim = [
+    `Use your Read tool to load \`${join(skillDir, "SKILL.md")}\` and \`${join(SKILLS_DIR, "PROTOCOL.md")}\`, then follow the instructions in that file exactly.`,
+    ``,
+    `All tools listed in \`${join(SKILLS_DIR, "PROTOCOL.md")}\` are available via the Sauver MCP server (\`mcp__sauver__*\`). No substitution needed.`,
+    ``,
+  ].join("\n");
+  writeFileSync(join(CLAUDE_COMMANDS, `${commandName}.md`), shim);
+}
+NODEEOF
+
+echo -e "${GREEN}✅ Skills installed${NC}"
+
 # ── Register with Claude Code & Gemini CLI ──────────────────────────────────
 
 node -e "
