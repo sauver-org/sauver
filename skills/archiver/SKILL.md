@@ -7,17 +7,9 @@ description: "Specialized skill to handle Gmail labeling and archival (removing 
 
 You are responsible for the final stage of the Sauver pipeline: ensuring the target email is properly categorized and removed from the user's primary attention (the Inbox).
 
+> Available tools and shared conventions: see `skills/PROTOCOL.md`.
+
 ## Operational Rules
-1. **Identify Label:**
-   - Read the `sauver_label` name from context (`GEMINI.md`).
-   - Use `gmail.listLabels()` to find the corresponding `labelId` for that name.
-   - If the label does not exist, create it using `gmail.createLabel(name=sauver_label)` and capture the new `id`.
-2. **Archive (The Atomic Move):**
-   - Use the `gmail.modify` tool to "move" the email by performing two actions on the specific `messageId` you were given:
-     - **Add:** The `labelId` found/created in step 1.
-     - **Remove:** The `INBOX` label ID (this archives the email without deleting it).
-   - **Thread Consistency:** If the email is part of a thread (`threadId`), only remove `INBOX` from the specific messages that have already been processed by Sauver — do not bulk-archive the entire thread, as other messages in the thread may be legitimate.
-3. **Status Check:**
-   - Verify that the message no longer has the `INBOX` label in its `labelIds` list.
-4. **Reporting:**
-   - Confirm to the orchestrator that the email has been "Archived and categorized under [Label Name]."
+1. **Apply label:** Call `apply_label` with the `threadId` and the `sauver_label` value from context. The tool creates the label if it doesn't exist.
+2. **Archive:** Call `archive_thread` with the `threadId`. This removes it from Inbox and marks it read.
+3. **Reporting:** Confirm to the orchestrator: "Archived and categorized under [label name]."

@@ -3,9 +3,8 @@
 Generate .claude/commands/*.md from skills/*/SKILL.md.
 
 Each generated command is a thin shim that tells Claude to read the source SKILL.md
-(using its Read tool) and follow the instructions with Claude-specific tool names.
-This keeps the Gemini skills as the single source of truth — editing a SKILL.md and
-running `make sync` is all that is needed to keep both environments in sync.
+and follow its instructions. Both Claude Code and Gemini use the same Sauver MCP
+server tools, so no tool-name substitution is needed.
 
 Usage:
     python scripts/sync_commands.py          # regenerate all
@@ -13,6 +12,7 @@ Usage:
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Optional
@@ -20,34 +20,18 @@ from typing import Optional
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
 COMMANDS_DIR = ROOT / ".claude" / "commands"
+VERSION_SOURCE = ROOT / "mcp-server" / "package.json"
+GEMINI_EXTENSION = ROOT / "gemini-extension.json"
 
-# Gemini skill directory name → Claude command filename (None = no Claude command)
+# Skill directory name → Claude command filename (None = skip)
 SKILL_TO_COMMAND: dict[str, Optional[str]] = {
     "sauver-inbox-assistant": "sauver",
     "slop-detector": "slop-detector",
     "investor-trap": "investor-trap",
     "bouncer-reply": "bouncer-reply",
     "tracker-shield": "tracker-shield",
-    "archiver": None,  # Archival is Gemini-only (no gmail.modify in Claude Code MCP)
+    "archiver": "archiver",
 }
-
-# Tool name mapping shown inside every generated shim.
-# LLM reads this table and substitutes names as it follows the SKILL.md instructions.
-TOOL_TABLE = """\
-| Gemini tool | Claude Code tool |
-|---|---|
-| `get_sauver_config` | `mcp__sauver__get_sauver_config` |
-| `set_sauver_config` | `mcp__sauver__set_sauver_config` |
-| `tracker_shield` | `mcp__sauver__tracker_shield` |
-| `people.getMe()` | `mcp__claude_ai_Gmail__gmail_get_profile` |
-| `gmail.search(...)` | `mcp__claude_ai_Gmail__gmail_search_messages` |
-| `gmail.get(id)` | `mcp__claude_ai_Gmail__gmail_read_message` |
-| `gmail.createDraft(...)` | `mcp__claude_ai_Gmail__gmail_create_draft` |
-| `gmail.listLabels()` | `mcp__claude_ai_Gmail__gmail_list_labels` |
-| `gmail.send(...)` | *(not available — use `mcp__claude_ai_Gmail__gmail_create_draft`)* |
-| `gmail.modify(...)` | *(not available — archive emails via Gmail manually)* |
-| `gmail.createLabel(...)` | *(not available)* |
-"""
 
 SHIM_TEMPLATE = """\
 <!-- Generated from {skill_rel} by scripts/sync_commands.py — do not edit directly.
@@ -56,25 +40,39 @@ SHIM_TEMPLATE = """\
 Use your Read tool to load `{skill_rel}` and `skills/PROTOCOL.md`, then follow \
 the instructions in that file exactly.
 
-When the instructions refer to a Gemini tool, substitute the Claude Code equivalent \
-from the table below. Where a tool is marked "not available", note the limitation \
-in your report and skip that step.
-
-## Tool Reference
-
-{tool_table}
+All tools listed in `skills/PROTOCOL.md` are available via the Sauver MCP server \
+(`mcp__sauver__*`). No substitution needed.
 """
 
 
 def render_shim(skill_name: str) -> str:
     skill_rel = f"skills/{skill_name}/SKILL.md"
-    return SHIM_TEMPLATE.format(skill_rel=skill_rel, tool_table=TOOL_TABLE)
+    return SHIM_TEMPLATE.format(skill_rel=skill_rel)
+
+
+def sync_version(check_only: bool = False) -> int:
+    """Sync version from mcp-server/package.json → gemini-extension.json. Returns 1 if stale."""
+    version = json.loads(VERSION_SOURCE.read_text())["version"]
+    ext = json.loads(GEMINI_EXTENSION.read_text())
+
+    if ext.get("version") == version:
+        print(f"  ok       gemini-extension.json  (v{version})")
+        return 0
+
+    if check_only:
+        print(f"  STALE    gemini-extension.json  (has v{ext.get('version')}, want v{version})")
+        return 1
+
+    ext["version"] = version
+    GEMINI_EXTENSION.write_text(json.dumps(ext, indent=2) + "\n")
+    print(f"  updated  gemini-extension.json  (v{version})")
+    return 1
 
 
 def sync(check_only: bool = False) -> int:
     """Regenerate all shim files. Returns the number of stale/changed files."""
     COMMANDS_DIR.mkdir(parents=True, exist_ok=True)
-    stale = 0
+    stale = sync_version(check_only)
 
     for skill_name, command_name in SKILL_TO_COMMAND.items():
         if command_name is None:

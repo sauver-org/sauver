@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "sauver": {
-      "command": "uv",
-      "args": ["run", "src/main.py"]
+      "command": "node",
+      "args": ["mcp-server/index.js"]
     }
   }
 }

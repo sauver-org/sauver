@@ -1,0 +1,13 @@
+{
+  "name": "sauver-mcp",
+  "version": "1.6.0",
+  "description": "Sauver local MCP server — bridges Claude/Gemini to the Gmail Apps Script backend",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
