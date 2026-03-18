@@ -5,7 +5,7 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
 import { fileURLToPath } from "url";
@@ -45,6 +45,31 @@ async function callAppsScript(action, params = {}) {
   } catch {
     throw new Error(`Non-JSON response from Apps Script: ${text.substring(0, 200)}`);
   }
+}
+
+// ── Default preferences ─────────────────────────────────────────────────────
+
+const PREFERENCE_KEYS = ["auto_draft", "yolo_mode", "treat_job_offers_as_slop", "treat_unsolicited_investors_as_slop", "sauver_label"];
+
+const DEFAULT_PREFERENCES = {
+  auto_draft: true,
+  yolo_mode: false,
+  treat_job_offers_as_slop: true,
+  treat_unsolicited_investors_as_slop: true,
+  sauver_label: "Sauver",
+};
+
+function getPreferences() {
+  return { ...DEFAULT_PREFERENCES, ...(config.preferences ?? {}) };
+}
+
+function setPreference(key, value) {
+  if (!PREFERENCE_KEYS.includes(key)) {
+    throw new Error(`Unknown preference key: "${key}". Valid keys: ${PREFERENCE_KEYS.join(", ")}`);
+  }
+  config.preferences = { ...getPreferences(), [key]: value };
+  writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+  return config.preferences;
 }
 
 // ── Tool definitions ────────────────────────────────────────────────────────
@@ -144,6 +169,26 @@ const TOOLS = [
     description: "List all Gmail labels for the authenticated user.",
     inputSchema: { type: "object" },
   },
+  {
+    name: "get_preferences",
+    description: "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, sauver_label). Always call this at the start of any Sauver skill.",
+    inputSchema: { type: "object" },
+  },
+  {
+    name: "set_preference",
+    description: "Update a single Sauver preference and persist it to ~/.sauver/config.json.",
+    inputSchema: {
+      type: "object",
+      required: ["key", "value"],
+      properties: {
+        key: {
+          type: "string",
+          description: "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | sauver_label",
+        },
+        value: { description: "New value (boolean or string depending on the key)" },
+      },
+    },
+  },
 ];
 
 // ── MCP server ──────────────────────────────────────────────────────────────
@@ -159,6 +204,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args = {} } = request.params;
 
   try {
+    // Local tools — handled without calling Apps Script
+    if (name === "get_preferences") {
+      return { content: [{ type: "text", text: JSON.stringify(getPreferences(), null, 2) }] };
+    }
+
+    if (name === "set_preference") {
+      const updated = setPreference(args.key, args.value);
+      return { content: [{ type: "text", text: JSON.stringify(updated, null, 2) }] };
+    }
+
     const result = await callAppsScript(name, args);
 
     if (result?.error) {

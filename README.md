@@ -28,7 +28,7 @@ The installer walks you through three steps (~3 minutes total):
 
 ## Configuration
 
-Settings live in `GEMINI.md` — edit that file directly to change behavior.
+Settings live in `~/.sauver/config.json` under the `preferences` key. You can edit that file directly, or ask Claude/Gemini to change a setting for you (e.g. "turn on yolo mode").
 
 | Option | Default | Meaning |
 | :--- | :--- | :--- |

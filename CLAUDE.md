@@ -50,8 +50,8 @@ LLM instruction files for the pipeline:
 - **bouncer-reply** — Time-Sink Trap for generic spam
 - **archiver** — applies label and archives via `apply_label` + `archive_thread`
 
-### Configuration (`GEMINI.md`)
-User preferences live in `GEMINI.md`. Edit it directly — no tool call needed.
+### Configuration (`~/.sauver/config.json`)
+User preferences live in the `preferences` key of `~/.sauver/config.json`. Read them via the `get_preferences` MCP tool; update them via `set_preference`. Works from any working directory with both Claude Code and Gemini CLI.
 
 | Key | Default | Meaning |
 |---|---|---|

@@ -31,7 +31,7 @@ Retrieve the user's name with the `get_profile` tool before drafting any reply.
 
 ## Reply Dispatch (YOLO Mode)
 
-After generating a reply, check `yolo_mode` from context (`GEMINI.md`):
+After generating a reply, check `yolo_mode` from the result of `get_preferences`:
 
 - **`yolo_mode: true`** — Call `send_message` to send immediately.
 - **`yolo_mode: false`** — Call `create_draft` to save for review.
@@ -45,7 +45,7 @@ Always confirm which path was taken.
 
 ## Config Keys
 
-Config lives in `GEMINI.md` and is loaded automatically as context. Edit it directly to change settings.
+Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; update a value by calling `set_preference`.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|

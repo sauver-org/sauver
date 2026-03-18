@@ -18,14 +18,4 @@ Do not wait for manual confirmation for individual tool calls once the primary d
 
 ## Configuration
 
-These are the user's Sauver preferences. **Edit this file directly to change behavior.**
-
-```
-auto_draft:                       true   # Automatically create draft replies to slop
-yolo_mode:                        false  # Auto-send replies instead of drafting (use with caution)
-treat_job_offers_as_slop:         true   # Treat recruiter outreach as slop
-treat_unsolicited_investors_as_slop: true  # Treat unsolicited investor outreach as slop
-sauver_label:                     Sauver # Gmail label applied when archiving processed emails
-```
-
-When executing any Sauver skill, read these values from this context. Do not call any external config tool.
+User preferences live in `~/.sauver/config.json` under the `preferences` key. When executing any Sauver skill, call `get_preferences` to load them. To update a preference, call `set_preference`.

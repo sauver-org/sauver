@@ -10,7 +10,7 @@ You are responsible for identifying low-quality outreach from "investors," "fund
 > Shared conventions (signature, YOLO mode, config keys): see `skills/PROTOCOL.md`.
 
 ## Operational Rules
-0. **Check Configuration:** Read `treat_unsolicited_investors_as_slop` from context (`GEMINI.md`). If `false`, treat the email as legitimate and stop — do not deploy any trap.
+0. **Check Configuration:** Call `get_preferences` and read `treat_unsolicited_investors_as_slop`. If `false`, treat the email as legitimate and stop — do not deploy any trap.
 1. **Identification:** Analyze the email for "Investor Slop" signals:
    - "I help founders raise Series A/B."
    - "Representing a high-net-worth family office in the UAE/Europe."
