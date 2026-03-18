@@ -78,6 +78,7 @@ const REPO = "mszczodrak/sauver";
 const SAUVER_DIR = join(homedir(), ".sauver");
 const SKILLS_DIR = join(SAUVER_DIR, "skills");
 const CLAUDE_COMMANDS_DIR = join(homedir(), ".claude", "commands");
+const GEMINI_WORKFLOWS_DIR = join(homedir(), ".agent", "workflows");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
@@ -110,6 +111,7 @@ async function downloadSkills() {
 
   mkdirSync(SKILLS_DIR, { recursive: true });
   mkdirSync(CLAUDE_COMMANDS_DIR, { recursive: true });
+  mkdirSync(GEMINI_WORKFLOWS_DIR, { recursive: true });
 
   const protocolRes = await fetchWithTimeout(`${base}/skills/PROTOCOL.md`, 15_000);
   if (!protocolRes.ok) throw new Error(`HTTP ${protocolRes.status} fetching PROTOCOL.md`);
@@ -129,7 +131,9 @@ async function downloadSkills() {
       `All tools listed in \`${join(SKILLS_DIR, "PROTOCOL.md")}\` are available via the Sauver MCP server (\`mcp__sauver__*\`). No substitution needed.`,
       ``,
     ].join("\n");
+    
     writeFileSync(join(CLAUDE_COMMANDS_DIR, `${commandName}.md`), shim);
+    writeFileSync(join(GEMINI_WORKFLOWS_DIR, `${commandName}.md`), shim);
   }
 }
 

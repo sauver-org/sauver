@@ -1,11 +1,11 @@
 .PHONY: sync check-sync version test
 
 sync:
-	@echo "Regenerating .claude/commands/ from skills/..."
+	@echo "Regenerating extension shims (.claude/ & .agent/) from skills/..."
 	python3 scripts/sync_commands.py
 
 check-sync:
-	@echo "Checking .claude/commands/ are up to date..."
+	@echo "Checking extension shims are up to date..."
 	python3 scripts/sync_commands.py --check
 
 test:

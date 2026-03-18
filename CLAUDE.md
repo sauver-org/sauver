@@ -5,13 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-make sync       # Regenerate .claude/commands/ from skills/ (run after editing any SKILL.md)
-make check-sync # Verify .claude/commands/ are up to date
+make sync       # Regenerate .claude/ and .agent/ shims (run after editing any SKILL.md)
+make check-sync # Verify shims are up to date
 ```
 
 ## Claude Code Skills
 
-The following slash commands are available in Claude Code (`.claude/commands/`):
+The following slash commands are available in Claude Code (`.claude/commands/`) and Gemini CLI (`.agent/workflows/`):
 
 | Command | Description |
 |---|---|
@@ -68,14 +68,14 @@ See `skills/PROTOCOL.md` for the full config key reference.
 To bump the version:
 
 ```bash
-make version V=1.7.0
+make version V=1.8.0
 ```
 
 Never edit the version in `gemini-extension.json` or `index.js` directly.
 
 ## Sync Rules
 
-`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make check-sync` catches forgotten syncs.
+`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` and `.agent/workflows/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make check-sync` catches forgotten syncs.
 
 ## Dev Setup
 

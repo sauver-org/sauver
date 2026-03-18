@@ -223,6 +223,8 @@ import { homedir } from "os";
 const REPO = "mszczodrak/sauver";
 const SKILLS_DIR = join(homedir(), ".sauver", "skills");
 const CLAUDE_COMMANDS = join(homedir(), ".claude", "commands");
+const GEMINI_WORKFLOWS = join(homedir(), ".agent", "workflows");
+
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
   ["slop-detector",          "slop-detector"],
@@ -234,6 +236,7 @@ const SKILL_MAP = [
 
 mkdirSync(SKILLS_DIR, { recursive: true });
 mkdirSync(CLAUDE_COMMANDS, { recursive: true });
+mkdirSync(GEMINI_WORKFLOWS, { recursive: true });
 
 const base = `https://raw.githubusercontent.com/${REPO}/main`;
 
@@ -258,7 +261,9 @@ for (const [skillName, commandName] of SKILL_MAP) {
     `All tools listed in \`${join(SKILLS_DIR, "PROTOCOL.md")}\` are available via the Sauver MCP server (\`mcp__sauver__*\`). No substitution needed.`,
     ``,
   ].join("\n");
+  
   writeFileSync(join(CLAUDE_COMMANDS, `${commandName}.md`), shim);
+  writeFileSync(join(GEMINI_WORKFLOWS, `${commandName}.md`), shim);
 }
 NODEEOF
 

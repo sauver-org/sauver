@@ -73,9 +73,8 @@ You can also ask Gemini in plain English: *"Sauver, triage my last 10 unread ema
 Gemini CLI discovers Sauver through several layers:
 
 1.  **MCP Server Registration:** Gemini reads the MCP server definition from `~/.claude/settings.json` and uses `~/.gemini/mcp-server-enablement.json` to toggle it on.
-2.  **Project Indexing:** Sauver is a **Gemini Extension**. When you are inside the repository, Gemini CLI sees `gemini-extension.json` and loads `GEMINI.md` as its primary instruction set.
-3.  **Skills & Workflows:** Gemini automatically indexes the `skills/` directory for role-play instructions and the `.agent/workflows/` directory for slash commands (managed by `make sync`).
-4.  **Global Access:** As long as your `README.md` or home directory is indexed in `~/.gemini/projects.json`, Gemini can find and use Sauver from any terminal session.
+2.  **Global Slash Commands:** The installer populates `~/.agent/workflows/` with shims that point to Sauver's core skills. This makes `/sauver` and other commands available in every session, from any directory.
+3.  **Project Context:** When you are inside the Sauver repository, Gemini CLI additionally sees `gemini-extension.json` and loads `GEMINI.md` as its primary instruction set.
 
 ### How Claude finds Sauver
 
@@ -195,4 +194,6 @@ To update the MCP server itself or the Apps Script backend, re-run the installer
 - `~/.sauver/mcp-server/` — the MCP server code (downloaded from this repo)
 - `~/.sauver/skills/` — skill instruction files (downloaded and auto-updated by the MCP server)
 - `~/.claude/settings.json` — Claude Code MCP server registration
-- `~/.claude/commands/` — global Claude Code slash command shims (written by the installer and auto-updater)
+- `~/.gemini/mcp-server-enablement.json` — Gemini CLI MCP server toggle
+- `~/.claude/commands/` — global Claude Code slash command shims (managed by the installer/auto-updater)
+- `~/.agent/workflows/` — global Gemini CLI slash command shims (managed by the installer/auto-updater)
