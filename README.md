@@ -77,8 +77,14 @@ Gemini CLI discovers Sauver through several layers:
 
 Claude Code discovers Sauver through two layers:
 
-1.  **MCP Server Registration:** The installer writes the MCP server entry directly into `~/.claude/settings.json`. Claude Code reads this global config at startup, so the `mcp__sauver__*` tools are available in every Claude Code session, from any directory — no project context required.
-2.  **Slash Commands & Instructions:** When you open Claude Code inside the Sauver repository, it automatically loads `.claude/commands/*.md` as slash commands (`/sauver`, `/tracker-shield`, etc.) and `CLAUDE.md` as its primary instruction set for the project.
+1.  **MCP Server Registration:** The installer writes the MCP server entry into `~/.claude/settings.json`. Claude Code reads this global config at startup, so the `mcp__sauver__*` tools are available in every session, from any directory — no project context required.
+2.  **Slash Commands:** The installer downloads all skill files to `~/.sauver/skills/` and writes global command shims to `~/.claude/commands/`. Each shim points to the corresponding skill file using its absolute path, so `/sauver`, `/slop-detector`, and the other commands work from any working directory.
+
+### Skill auto-updates
+
+The MCP server checks for updates automatically in the background on each startup, at most once per day. It fetches the latest version number from GitHub and compares it to the installed version. If a newer version is available, it silently downloads the updated skill files to `~/.sauver/skills/` and rewrites the `~/.claude/commands/` shims, then prints a one-line prompt to restart your AI client. The check is fire-and-forget — it never delays MCP server startup, and any network failure is ignored. The last-check timestamp and installed skills version are stored in `~/.sauver/config.json`.
+
+To update the MCP server itself or the Apps Script backend, re-run the installer.
 
 ## How it works
 
@@ -130,11 +136,13 @@ Every request must include a secret key that was randomly generated during insta
 
 `mcp-server/index.js` is a small Node.js process that runs on your machine. It speaks the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) over stdio, which is how Claude Code and Gemini CLI discover and call tools.
 
-When Claude or Gemini calls a tool (e.g. `scan_inbox`), the MCP server forwards it as an HTTPS POST to your Apps Script Web App, then returns the result. The config file at `~/.sauver/config.json` holds the Web App URL and secret key — written once by the installer, never changed.
+When Claude or Gemini calls a tool (e.g. `scan_inbox`), the MCP server forwards it as an HTTPS POST to your Apps Script Web App, then returns the result. The config file at `~/.sauver/config.json` holds the Web App URL, secret key, and update metadata — written by the installer and updated in place by the auto-updater.
+
+On each startup the MCP server also fires a background update check (see [Skill auto-updates](#skill-auto-updates) above).
 
 ### Layer 3 — AI Clients
 
-Both Claude Code and Gemini CLI connect to the same local MCP server and see the same nine tools. The defense logic — tracker detection, slop classification, trap generation — runs entirely inside the AI model, guided by the skill files in `skills/`. No defense logic lives in the MCP server or the Apps Script; they are pure data pipes.
+Both Claude Code and Gemini CLI connect to the same local MCP server and see the same nine tools. The defense logic — tracker detection, slop classification, trap generation — runs entirely inside the AI model, guided by the skill files installed to `~/.sauver/skills/`. No defense logic lives in the MCP server or the Apps Script; they are pure data pipes.
 
 ### Security model
 
@@ -174,9 +182,13 @@ Yes. Run the installer on each machine. Use the same Apps Script Web App URL, bu
 Yes, as long as your organization allows Apps Script Web Apps. Some Workspace admins restrict external deployments — check with your IT team if the deployment step fails.
 
 **How do I update Sauver?**
-Re-run the installer. It will automatically download the latest MCP server, fetch the newest `Code.gs`, and redeploy your Apps Script backend.
+Skill files update automatically — the MCP server checks GitHub once a day at startup and silently installs any newer version. A one-line message appears in your AI client when an update is applied; restart the client to pick it up.
+
+To update the MCP server itself or the Apps Script backend, re-run the installer. It downloads the latest `index.js`, fetches the newest `Code.gs`, and redeploys your Apps Script backend.
 
 **Where is my data stored?**
-- `~/.sauver/config.json` — your Web App URL and secret key (local, never committed)
+- `~/.sauver/config.json` — your Web App URL, secret key, and update metadata (local, never committed)
 - `~/.sauver/mcp-server/` — the MCP server code (downloaded from this repo)
+- `~/.sauver/skills/` — skill instruction files (downloaded and auto-updated by the MCP server)
 - `~/.claude/settings.json` — Claude Code MCP server registration
+- `~/.claude/commands/` — global Claude Code slash command shims (written by the installer and auto-updater)
