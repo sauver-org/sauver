@@ -8,12 +8,29 @@ INSTALL_DIR="$HOME/.sauver/mcp-server"
 CONFIG_FILE="$HOME/.sauver/config.json"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 
-BOLD='\033[1m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-NC='\033[0m'
+BOLD=$(printf '\033[1m')
+GREEN=$(printf '\033[0;32m')
+YELLOW=$(printf '\033[1;33m')
+BLUE=$(printf '\033[0;34m')
+RED=$(printf '\033[0;31m')
+NC=$(printf '\033[0m')
+
+# Terminal Hyperlinks (OSC 8)
+link() {
+  local url=$1
+  local text=$2
+  if [ -z "$text" ]; then text=$url; fi
+
+  # Detect modern terminals that support OSC 8
+  if [[ "$TERM_PROGRAM" == "iTerm.app" || "$TERM_PROGRAM" == "vscode" || -n "$VSCODE_PID" || -n "$ITERM_SESSION_ID" ]]; then
+    printf "${BLUE}\033]8;;%s\a%s\033]8;;\a${NC}" "$url" "$text"
+  else
+    # For Terminal.app and others: 
+    # We MUST have a space before the URL and NO color codes immediately touching it,
+    # otherwise Terminal.app's regex-based detection fails.
+    printf " %s" "$url"
+  fi
+}
 
 echo ""
 echo -e "${BOLD}🛡️  Sauver Installer${NC}"
@@ -29,15 +46,15 @@ if ! command -v node &>/dev/null; then
   echo "  Sauver runs alongside Claude Code and Gemini CLI, both of which require Node.js."
   echo "  If either is already installed, try opening a new terminal."
   echo "  Otherwise, install your AI assistant first:"
-  echo "    Claude Code: https://claude.ai/code"
-  echo "    Gemini CLI:  https://github.com/google-gemini/gemini-cli"
+  echo -e "    Claude Code: $(link 'https://claude.ai/code')"
+  echo -e "    Gemini CLI:  $(link 'https://github.com/google-gemini/gemini-cli')"
   echo ""
   exit 1
 fi
 
 NODE_MAJOR=$(node -e "console.log(process.versions.node.split('.')[0])")
 if [ "$NODE_MAJOR" -lt 18 ]; then
-  echo -e "${RED}❌ Node.js v18+ required (you have v$(node --version)). Upgrade at: https://nodejs.org${NC}"
+  echo -e "${RED}❌ Node.js v18+ required (you have v$(node --version)). Upgrade at: $(link 'https://nodejs.org')${NC}"
   exit 1
 fi
 
@@ -46,8 +63,8 @@ echo -e "${GREEN}✅ Node.js $(node --version)${NC}"
 if ! command -v claude &>/dev/null && ! command -v gemini &>/dev/null; then
   echo -e "${YELLOW}⚠️  Neither 'claude' nor 'gemini' found in PATH.${NC}"
   echo "  Sauver requires one of these to work:"
-  echo "    Claude Code: https://claude.ai/code"
-  echo "    Gemini CLI:  https://github.com/google-gemini/gemini-cli"
+  echo -e "    Claude Code: $(link 'https://claude.ai/code')"
+  echo -e "    Gemini CLI:  $(link 'https://github.com/google-gemini/gemini-cli')"
   echo "  Continuing install anyway..."
   echo ""
 fi
@@ -76,7 +93,7 @@ else
   echo "  We will now securely and automatically deploy your Gmail backend."
   echo ""
   echo "  a) First, you must enable the Google Apps Script API:"
-  echo -e "     Open ${BLUE}https://script.google.com/home/usersettings${NC}"
+  printf "     Open %s\n" "$(link 'https://script.google.com/home/usersettings')"
   echo "     and toggle 'Google Apps Script API' to ON."
   echo ""
   read -rp "  ↵  Press Enter when you have done this..." < /dev/tty
@@ -92,7 +109,7 @@ else
     cd "$CLASP_WORK_DIR" || exit 1
     
     # Create the project
-    npx --yes @google/clasp create --type webapp --title "Sauver Backend" >/dev/null
+    npx --yes @google/clasp create --type standalone --title "Sauver Backend" >/dev/null
 
     # Download source
     curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
@@ -140,7 +157,7 @@ EOF
   rm -rf "$CLASP_WORK_DIR"
   
   echo -e "  ✅ ${GREEN}Deployed successfully to:${NC}"
-  echo "     $APPS_SCRIPT_URL"
+  echo -e "     $(link "$APPS_SCRIPT_URL")"
   echo ""
 fi
 
