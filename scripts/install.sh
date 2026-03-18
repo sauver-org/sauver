@@ -234,7 +234,7 @@ echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BOLD}🎉 Sauver is ready!${NC}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo -e "  → Restart ${BOLD}Claude Code${NC} and run: ${BOLD}/sauver${NC}"
+echo -e "  → Restart ${BOLD}Gemini${NC} or ${BOLD}Claude${NC} CLI and run: ${BOLD}/sauver${NC}"
 echo ""
 echo "  Config file: ${CONFIG_FILE}"
 echo "  To change behavior (auto-draft, yolo mode, label name),"
