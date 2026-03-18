@@ -212,7 +212,7 @@ echo "  Installing dependencies..."
 
 echo -e "${GREEN}✅ MCP server installed${NC}"
 
-# ── Register with Claude Code ───────────────────────────────────────────────
+# ── Register with Claude Code & Gemini CLI ──────────────────────────────────
 
 node -e "
   const fs = require('fs');
@@ -226,6 +226,19 @@ node -e "
 "
 
 echo -e "${GREEN}✅ Claude Code configured${NC}"
+
+GEMINI_ENABLEMENT=\"\$HOME/.gemini/mcp-server-enablement.json\"
+node -e "
+  const fs = require('fs');
+  const path = '$GEMINI_ENABLEMENT';
+  let s = {};
+  try { s = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
+  s.sauver = { enabled: true };
+  fs.mkdirSync(require('path').dirname(path), { recursive: true });
+  fs.writeFileSync(path, JSON.stringify(s, null, 2));
+"
+
+echo -e "${GREEN}✅ Gemini CLI configured${NC}"
 
 # ── Done ─────────────────────────────────────────────────────────────────────
 

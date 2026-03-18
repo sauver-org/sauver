@@ -19,11 +19,16 @@ from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
-COMMANDS_DIR = ROOT / ".claude" / "commands"
 VERSION_SOURCE = ROOT / "mcp-server" / "package.json"
 GEMINI_EXTENSION = ROOT / "gemini-extension.json"
 
-# Skill directory name → Claude command filename (None = skip)
+# Both Claude and Gemini/Antigravity need these shims, but in different locations
+COMMANDS_DIRS = [
+    ROOT / ".claude" / "commands",
+    ROOT / ".agent" / "workflows",
+]
+
+# Skill directory name → command filename (None = skip)
 SKILL_TO_COMMAND: dict[str, Optional[str]] = {
     "sauver-inbox-assistant": "sauver",
     "slop-detector": "slop-detector",
@@ -71,7 +76,9 @@ def sync_version(check_only: bool = False) -> int:
 
 def sync(check_only: bool = False) -> int:
     """Regenerate all shim files. Returns the number of stale/changed files."""
-    COMMANDS_DIR.mkdir(parents=True, exist_ok=True)
+    for d in COMMANDS_DIRS:
+        d.mkdir(parents=True, exist_ok=True)
+    
     stale = sync_version(check_only)
 
     for skill_name, command_name in SKILL_TO_COMMAND.items():
@@ -83,18 +90,20 @@ def sync(check_only: bool = False) -> int:
             print(f"  WARNING  skills/{skill_name}/SKILL.md not found — skipped", file=sys.stderr)
             continue
 
-        command_path = COMMANDS_DIR / f"{command_name}.md"
         new_content = render_shim(skill_name)
 
-        if command_path.exists() and command_path.read_text() == new_content:
-            print(f"  ok       .claude/commands/{command_name}.md")
-        else:
-            stale += 1
-            if check_only:
-                print(f"  STALE    .claude/commands/{command_name}.md")
+        for d in COMMANDS_DIRS:
+            command_path = d / f"{command_name}.md"
+            rel_path = command_path.relative_to(ROOT)
+            if command_path.exists() and command_path.read_text() == new_content:
+                print(f"  ok       {rel_path}")
             else:
-                command_path.write_text(new_content)
-                print(f"  updated  .claude/commands/{command_name}.md")
+                stale += 1
+                if check_only:
+                    print(f"  STALE    {rel_path}")
+                else:
+                    command_path.write_text(new_content)
+                    print(f"  updated  {rel_path}")
 
     return stale
 

@@ -54,19 +54,24 @@ Open Claude Code inside this repository and use slash commands:
 
 ### Gemini CLI
 
-Install the extension:
+The installer automatically configures Gemini CLI. Like Claude Code, Gemini supports slash commands and direct natural language requests.
 
-```bash
-gemini extensions install https://github.com/mszczodrak/sauver
-```
+| Command | What it does |
+| :--- | :--- |
+| `/sauver` | Full triage — runs the orchestrator skill |
+| `/tracker-shield` | Strip tracking pixels via the LLM |
+| `/slop-detector` | Identify recruiter/sales slop |
 
-Then ask Gemini directly:
+You can also just ask Gemini in plain English: *"Sauver, triage my last 10 unread emails"* or *"Run tracker-shield on this email"*.
 
-```
-Triage my last 10 unread emails
-```
+### How Gemini finds Sauver
 
-Or invoke a specific skill: *"Run tracker-shield on this email"*.
+Gemini CLI discovers Sauver through several layers:
+
+1.  **MCP Server Registration:** Gemini reads the MCP server definition from `~/.claude/settings.json` and uses `~/.gemini/mcp-server-enablement.json` to toggle it on.
+2.  **Project Indexing:** Sauver is a **Gemini Extension**. When you are inside the repository, Gemini CLI sees `gemini-extension.json` and loads `GEMINI.md` as its primary instruction set.
+3.  **Skills & Workflows:** Gemini automatically indexes the `skills/` directory for role-play instructions and the `.agent/workflows/` directory for slash commands (shmanaged by `make sync`).
+4.  **Global Access:** As long as your `README.md` or home directory is indexed in `~/.gemini/projects.json`, Gemini can find and use Sauver from any terminal session.
 
 ## How it works
 
