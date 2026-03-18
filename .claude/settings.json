@@ -1,8 +1,1 @@
-{
-  "mcpServers": {
-    "sauver": {
-      "command": "node",
-      "args": ["mcp-server/index.js"]
-    }
-  }
-}
+{}

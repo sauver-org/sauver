@@ -22,6 +22,19 @@ if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
   exit 0
 fi
 
+# ── 0. Read config before removal ───────────────────────────────────────────
+
+SCRIPT_ID=""
+CONFIG_FILE="$HOME/.sauver/config.json"
+if [ -f "$CONFIG_FILE" ]; then
+  SCRIPT_ID=$(node -e "
+    try {
+      const c = JSON.parse(require('fs').readFileSync('$CONFIG_FILE', 'utf8'));
+      console.log(c.script_id || '');
+    } catch { console.log(''); }
+  " 2>/dev/null)
+fi
+
 # ── 1. Remove ~/.sauver (config, MCP server, skills) ────────────────────────
 
 if [ -d "$HOME/.sauver" ]; then
@@ -107,6 +120,50 @@ case "$gemini_result" in
   not-configured) echo -e "${YELLOW}⚠️  Sauver MCP not found in ~/.gemini/settings.json — skipping${NC}" ;;
   not-found)     echo -e "${YELLOW}⚠️  ~/.gemini/settings.json not found — skipping${NC}" ;;
 esac
+
+# ── 6. Delete the Apps Script backend ───────────────────────────────────────
+
+if [ -n "$SCRIPT_ID" ]; then
+  delete_result=$(node -e "
+    const https = require('https');
+    const fs = require('fs');
+    const os = require('os');
+
+    let token;
+    try {
+      const rc = JSON.parse(fs.readFileSync(os.homedir() + '/.clasprc.json', 'utf8'));
+      token = rc.token?.access_token;
+    } catch { }
+
+    if (!token) { process.stdout.write('no-token\n'); process.exit(0); }
+
+    const req = https.request({
+      hostname: 'script.googleapis.com',
+      path: '/v1/projects/$SCRIPT_ID',
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + token }
+    }, res => {
+      process.stdout.write(res.statusCode === 200 || res.statusCode === 204 ? 'deleted' : 'api-error-' + res.statusCode);
+      process.stdout.write('\n');
+    });
+    req.on('error', () => { process.stdout.write('network-error\n'); });
+    req.end();
+  " 2>/dev/null)
+
+  case "$delete_result" in
+    deleted)
+      echo -e "${GREEN}✅ Removed Apps Script backend from Google${NC}"
+      ;;
+    no-token|api-error-*|network-error)
+      echo -e "${YELLOW}⚠️  Could not auto-remove the Apps Script backend.${NC}"
+      echo "   Delete it manually at:"
+      echo "   https://script.google.com/home/projects/${SCRIPT_ID}"
+      ;;
+  esac
+else
+  echo -e "${YELLOW}⚠️  No Apps Script project ID on record — remove 'Sauver Backend' manually at:${NC}"
+  echo "   https://script.google.com/home"
+fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────
 

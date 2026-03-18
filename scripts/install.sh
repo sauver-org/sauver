@@ -149,11 +149,14 @@ EOF
       exit 1
     fi
     
-    # Export it out of the subshell by writing to a temp file
+    # Export it out of the subshell by writing to temp files
     echo "$DEPLOYMENT_ID" > "$CLASP_WORK_DIR/deployment_id"
+    node -e "console.log(JSON.parse(require('fs').readFileSync('.clasp.json','utf8')).scriptId)" \
+      > "$CLASP_WORK_DIR/script_id"
   )
   
   DEPLOYMENT_ID=$(cat "$CLASP_WORK_DIR/deployment_id")
+  SCRIPT_ID=$(cat "$CLASP_WORK_DIR/script_id")
   APPS_SCRIPT_URL="https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec"
   rm -rf "$CLASP_WORK_DIR"
   
@@ -175,6 +178,24 @@ fi
 # ── Write config ────────────────────────────────────────────────────────────
 
 mkdir -p "$(dirname "$CONFIG_FILE")"
+
+# Build config — include script_id only when we have it (auto-deploy path)
+if [ -n "${SCRIPT_ID:-}" ]; then
+cat > "$CONFIG_FILE" <<EOF
+{
+  "apps_script_url": "${APPS_SCRIPT_URL}",
+  "script_id": "${SCRIPT_ID}",
+  "secret_key": "${SECRET_KEY}",
+  "preferences": {
+    "auto_draft": true,
+    "yolo_mode": false,
+    "treat_job_offers_as_slop": true,
+    "treat_unsolicited_investors_as_slop": true,
+    "sauver_label": "Sauver"
+  }
+}
+EOF
+else
 cat > "$CONFIG_FILE" <<EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
@@ -188,6 +209,7 @@ cat > "$CONFIG_FILE" <<EOF
   }
 }
 EOF
+fi
 chmod 600 "$CONFIG_FILE"
 
 echo ""
