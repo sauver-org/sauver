@@ -67,7 +67,9 @@ echo -e "     ${GREEN}const SECRET_KEY = \"${SECRET_KEY}\";${NC}"
 echo ""
 echo "  e) Save the file (Ctrl+S / Cmd+S or click the 💾 icon)."
 echo ""
-read -rp "  ↵  Press Enter when done with Step 1..."
+if [ -z "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
+  read -rp "  ↵  Press Enter when done with Step 1..." < /dev/tty
+fi
 
 # ── Step 2: Deploy as Web App ───────────────────────────────────────────────
 
@@ -88,7 +90,12 @@ echo "  g) Click ${BOLD}Authorize access${NC} → sign in with your Google accou
 echo "  h) Copy the ${BOLD}Web App URL${NC}"
 echo "     (it looks like: https://script.google.com/macros/s/ABC.../exec)"
 echo ""
-read -rp "  Paste your Web App URL: " APPS_SCRIPT_URL
+if [ -n "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
+  APPS_SCRIPT_URL="$SAUVER_APPS_SCRIPT_URL"
+  echo "  Using SAUVER_APPS_SCRIPT_URL from environment."
+else
+  read -rp "  Paste your Web App URL: " APPS_SCRIPT_URL < /dev/tty
+fi
 
 # Validate
 if [[ ! "$APPS_SCRIPT_URL" =~ ^https://script\.google\.com/macros/s/ ]]; then

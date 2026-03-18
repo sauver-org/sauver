@@ -1,4 +1,4 @@
-.PHONY: sync check-sync version
+.PHONY: sync check-sync version test
 
 sync:
 	@echo "Regenerating .claude/commands/ from skills/..."
@@ -7,6 +7,9 @@ sync:
 check-sync:
 	@echo "Checking .claude/commands/ are up to date..."
 	python3 scripts/sync_commands.py --check
+
+test:
+	bash tests/test-install.sh
 
 version:
 	@test -n "$(V)" || (echo "Usage: make version V=x.y.z" && exit 1)
