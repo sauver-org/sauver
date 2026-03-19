@@ -146,32 +146,37 @@ async function downloadSkills() {
   }
 }
 
-async function checkForUpdates() {
-  try {
-    const ONE_DAY = 24 * 60 * 60 * 1000;
-    if (Date.now() - (config.last_update_check ?? 0) < ONE_DAY) return;
+async function checkForUpdates({ force = false } = {}) {
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  const timeSinceCheck = Date.now() - (config.last_update_check ?? 0);
 
-    // Record check time immediately to prevent concurrent checks on same day
-    config.last_update_check = Date.now();
-    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-
-    const res = await fetchWithTimeout(`https://raw.githubusercontent.com/${REPO}/main/mcp-server/package.json`);
-    if (!res.ok) return;
-    const { version: latestVersion } = await res.json();
-
-    if (!isNewerVersion(latestVersion, version)) return;
-
-    await downloadSkills();
-
-    config.installed_skills_version = latestVersion;
-    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-
-    process.stderr.write(
-      `\nSauver: skills updated v${version} → v${latestVersion}. Restart your AI client to use the latest skills.\n\n`
-    );
-  } catch {
-    // Silent — updates are best-effort, never block the MCP server
+  if (!force && timeSinceCheck < ONE_DAY) {
+    return { checked: false, skipped_reason: "checked within last 24h", current_version: version };
   }
+
+  config.last_update_check = Date.now();
+  writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+
+  const res = await fetchWithTimeout(`https://raw.githubusercontent.com/${REPO}/main/mcp-server/package.json`);
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching remote version`);
+  const { version: latestVersion } = await res.json();
+
+  if (!isNewerVersion(latestVersion, version)) {
+    return { checked: true, current_version: version, latest_version: latestVersion, updated: false };
+  }
+
+  await downloadSkills();
+
+  config.installed_skills_version = latestVersion;
+  writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+
+  return {
+    checked: true,
+    current_version: version,
+    latest_version: latestVersion,
+    updated: true,
+    note: "Skill files updated. Restart your AI client to pick up any MCP server changes.",
+  };
 }
 
 // ── Tool definitions ────────────────────────────────────────────────────────
@@ -272,6 +277,11 @@ const TOOLS = [
     inputSchema: { type: "object" },
   },
   {
+    name: "check_update",
+    description: "Check whether a newer version of Sauver is available and, if so, download the latest skill files. Always call this at the start of any Sauver skill before get_preferences.",
+    inputSchema: { type: "object" },
+  },
+  {
     name: "get_preferences",
     description: "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, sauver_label). Always call this at the start of any Sauver skill.",
     inputSchema: { type: "object" },
@@ -307,6 +317,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     // Local tools — handled without calling Apps Script
+    if (name === "check_update") {
+      const result = await checkForUpdates({ force: true });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+
     if (name === "get_preferences") {
       return { content: [{ type: "text", text: JSON.stringify(getPreferences(), null, 2) }] };
     }
@@ -328,7 +343,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-checkForUpdates(); // fire-and-forget background check
+checkForUpdates().catch(() => {}); // fire-and-forget background check
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
