@@ -38,13 +38,13 @@ This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.
 
 Settings live in `~/.sauver/config.json` under the `preferences` key. You can edit that file directly, or ask Claude/Gemini to change a setting for you (e.g. "turn on yolo mode").
 
-| Option | Default | Meaning |
-| :--- | :--- | :--- |
-| `auto_draft` | `true` | Automatically create draft replies to slop |
-| `yolo_mode` | `false` | Auto-send replies (use with caution) |
-| `treat_job_offers_as_slop` | `true` | Trigger Expert-Domain Trap for recruiters |
-| `treat_unsolicited_investors_as_slop` | `true` | Trigger Due Diligence Loop for investors |
-| `sauver_label` | `Sauver` | Gmail label applied when archiving |
+| Option.                               | Default | Meaning                                    |
+|---------------------------------------|---------|--------------------------------------------|
+| `auto_draft`                          | `true`  | Automatically create draft replies to slop |
+| `yolo_mode`                           | `false` | Auto-send replies (use with caution)       |
+| `treat_job_offers_as_slop`            | `true`  | Trigger Expert-Domain Trap for recruiters  |
+| `treat_unsolicited_investors_as_slop` | `true`  | Trigger Due Diligence Loop for investors   |
+| `sauver_label`                        | `Sauver`| Gmail label applied when archiving         |
 
 ## Usage
 
@@ -52,27 +52,27 @@ Settings live in `~/.sauver/config.json` under the `preferences` key. You can ed
 
 The installer writes slash commands to `~/.claude/commands/`, so they are available globally in every Claude Code session:
 
-| Command | What it does |
-| :--- | :--- |
-| `/sauver` | Full triage — scans inbox, strips trackers, classifies intent, and drafts or sends counter-measures |
-| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email |
-| `/slop-detector` | Classify recruiter/sales slop and reply with the Expert-Domain Trap |
-| `/investor-trap` | Classify investor slop and reply with the Due Diligence Loop |
-| `/bouncer-reply` | Reply to generic spam with the Time-Sink Trap |
-| `/archiver` | Label and archive a specific thread on demand, without full triage |
+| Command           | What it does                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| `/sauver`         | Full triage — scans inbox, strips trackers, classifies intent, and drafts or sends counter-measures |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.                                          |
+| `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap                                 |
+| `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop                                        |
+| `/bouncer-reply`  | Reply to generic spam with the Time-Sink Trap                                                       |
+| `/archiver`       | Label and archive a specific thread on demand, without full triage                                  |
 
 ### Gemini CLI
 
 The installer writes workflows to `~/.agent/workflows/` and registers the MCP server in `~/.gemini/settings.json`, so all slash commands are available globally:
 
-| Command | What it does |
-| :--- | :--- |
-| `/sauver` | Full triage — runs the orchestrator skill |
-| `/tracker-shield` | Strip tracking pixels via the LLM |
-| `/slop-detector` | Classify recruiter/sales slop and deploy a trap |
-| `/investor-trap` | Classify investor slop and deploy the Due Diligence Loop |
-| `/bouncer-reply` | Deploy the Time-Sink Trap for generic spam |
-| `/archiver` | Label and archive a specific thread on demand |
+| Command           | What it does                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| `/sauver`         | Full triage — runs the orchestrator skill                                                           |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.                                          |
+| `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap                                 |
+| `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop                                        |
+| `/bouncer-reply`  | Reply to generic spam with the Time-Sink Trap                                                       |
+| `/archiver`       | Label and archive a specific thread on demand, without full triage                                  |
 
 You can also ask Gemini in plain English: *"Sauver, triage my last 10 unread emails"* or *"Archive this thread under the Sauver label"*.
 
@@ -128,17 +128,17 @@ Sauver has three layers:
 
 The Web App accepts HTTPS POST requests and routes them to one of nine Gmail actions:
 
-| Action | What it does |
-| :--- | :--- |
-| `scan_inbox` | List unread inbox emails |
-| `search_messages` | Search with a Gmail query string |
-| `get_message` | Fetch full email content by ID |
-| `create_draft` | Create a new draft or a reply draft |
-| `send_message` | Send a reply immediately |
-| `archive_thread` | Remove from Inbox and mark read |
-| `apply_label` | Apply a label (creates it if missing) |
-| `get_profile` | Get the user's email and display name |
-| `list_labels` | List all Gmail labels |
+| Action            | What it does                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| `scan_inbox`      | List unread inbox emails                                                                            |
+| `search_messages` | Search with a Gmail query string                                                                    |
+| `get_message`     | Fetch full email content by ID                                                                      |
+| `create_draft`    | Create a new draft or a reply draft                                                                 |
+| `send_message`    | Send a reply immediately                                                                            |
+| `archive_thread`  | Remove from Inbox and mark read                                                                     |
+| `apply_label`     | Apply a label (creates it if missing)                                                               |
+| `get_profile`     | Get the user's email and display name                                                               |
+| `list_labels`     | List all Gmail labels                                                                               |
 
 Every request must include a secret key that was randomly generated during installation. Requests without the correct key are rejected.
 

@@ -13,14 +13,14 @@ make check-sync # Verify shims are up to date
 
 The following slash commands are available in Claude Code (`.claude/commands/`) and Gemini CLI (`.agent/workflows/`):
 
-| Command | Description |
-|---|---|
-| `/sauver` | Full inbox triage pipeline — classify, trap, and draft replies for all unread emails |
-| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email |
-| `/slop-detector` | Detect recruiter/sales slop and deploy the Expert-Domain Trap or Info Vacuum |
-| `/investor-trap` | Detect investor slop and deploy the Due Diligence Loop |
-| `/bouncer-reply` | Generate a Time-Sink Trap reply for general spam |
-| `/archiver` | Label and archive a specific thread on demand, without full triage |
+|      Command      |                                  Description                                         |
+|-------------------|--------------------------------------------------------------------------------------|
+| `/sauver`         | Full inbox triage pipeline — classify, trap, and draft replies for all unread emails |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email                            |
+| `/slop-detector`  | Detect recruiter/sales slop and deploy the Expert-Domain Trap or Info Vacuum         |
+| `/investor-trap`  | Detect investor slop and deploy the Due Diligence Loop                               |
+| `/bouncer-reply`  | Generate a Time-Sink Trap reply for general spam                                     |
+| `/archiver`       | Label and archive a specific thread on demand, without full triage                   |
 
 These commands use the Sauver MCP server (`mcp__sauver__*` tools). See `skills/PROTOCOL.md` for the full tool reference and operational protocol.
 
