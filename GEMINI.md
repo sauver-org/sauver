@@ -11,3 +11,7 @@ See `skills/PROTOCOL.md` for the full tool reference and operational protocol.
 ## Configuration
 
 User preferences live in `~/.sauver/config.json` under the `preferences` key. Read them by calling `get_preferences`; update a single value by calling `set_preference`.
+
+## Source of Truth
+
+Always edit files in the repo (`skills/*/SKILL.md`, `mcp-server/index.js`, etc.), never in `~/.sauver/`. The installer copies files there for runtime use; `~/.sauver/` is a deployment target, not a source of truth. Changes made there will be lost on the next install.

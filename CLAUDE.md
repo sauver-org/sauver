@@ -77,6 +77,8 @@ Never edit the version in `gemini-extension.json` or `index.js` directly.
 
 `skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` and `.agent/workflows/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make check-sync` catches forgotten syncs.
 
+**Always edit files in this repo, never in `~/.sauver/`.** The installer copies files there for runtime use; `~/.sauver/` is a deployment target, not a source of truth. Changes made there will be lost on the next install.
+
 ## Dev Setup
 
 ```bash
