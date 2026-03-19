@@ -47,8 +47,12 @@ function scanInbox(maxResults) {
 }
 
 function searchMessages(query, maxResults) {
-  const threads = GmailApp.search(query, 0, maxResults);
-  return threads.map(thread => {
+  // Fetch a small buffer beyond maxResults so we can sort client-side.
+  // GmailApp.search ordering sometimes diverges from Gmail's visual inbox order
+  // (e.g. threads with pending drafts or cross-category activity).
+  const buffer = Math.min(maxResults + 10, maxResults * 2);
+  const threads = GmailApp.search(query, 0, buffer);
+  const results = threads.map(thread => {
     const messages = thread.getMessages();
     const msg      = messages[messages.length - 1];
     const plain  = msg.getPlainBody();
@@ -65,6 +69,8 @@ function searchMessages(query, maxResults) {
       bodyTruncated: plain.length > 3000 || html.length > 6000,
     };
   });
+  results.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return results.slice(0, maxResults);
 }
 
 function getMessage(messageId) {
