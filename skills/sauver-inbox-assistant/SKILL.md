@@ -26,8 +26,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 6. **Counter-measure:** For each email flagged as slop, first select the right trap, then dispatch:
    - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
-
-7. **Archive:** After dispatching (or if flagged but dispatch was skipped), call `apply_label` with the `sauver_label` value, then call `archive_thread` to remove it from the inbox.
+   - **Archive:** call `apply_label` with the `sauver_label` value, then call `archive_thread` to remove it from the inbox.
 
 ## Reporting Format
 
