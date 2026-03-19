@@ -72,9 +72,27 @@ fi
 
 SECRET_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
 
+# ── Detect existing install ──────────────────────────────────────────────────
+
+UPGRADE_MODE=false
+if [ -f "$CONFIG_FILE" ]; then
+  EXISTING_URL=$(node -e "try{const c=require('$CONFIG_FILE');if(c.apps_script_url)console.log(c.apps_script_url)}catch(e){}" 2>/dev/null || true)
+  EXISTING_KEY=$(node -e "try{const c=require('$CONFIG_FILE');if(c.secret_key)console.log(c.secret_key)}catch(e){}" 2>/dev/null || true)
+  if [ -n "$EXISTING_URL" ] && [ -n "$EXISTING_KEY" ]; then
+    APPS_SCRIPT_URL="$EXISTING_URL"
+    SECRET_KEY="$EXISTING_KEY"
+    UPGRADE_MODE=true
+    echo ""
+    echo -e "${GREEN}✅ Existing install detected — upgrading MCP server and skills${NC}"
+    echo "   (Apps Script backend and config preserved)"
+  fi
+fi
+
 # ── Step 1: Apps Script Backend ───────────────────────────────────────────────
 
-if [ -n "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
+if [ "$UPGRADE_MODE" = true ]; then
+  : # skip — existing backend preserved
+elif [ -n "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
   echo ""
   echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   echo -e "${BOLD}  Step 1 of 2 — Apps Script (Skipped)${NC}"
@@ -176,11 +194,12 @@ fi
 
 # ── Write config ────────────────────────────────────────────────────────────
 
-mkdir -p "$(dirname "$CONFIG_FILE")"
+if [ "$UPGRADE_MODE" = false ]; then
+  mkdir -p "$(dirname "$CONFIG_FILE")"
 
-# Build config — include script_id only when we have it (auto-deploy path)
-if [ -n "${SCRIPT_ID:-}" ]; then
-cat > "$CONFIG_FILE" <<EOF
+  # Build config — include script_id only when we have it (auto-deploy path)
+  if [ -n "${SCRIPT_ID:-}" ]; then
+  cat > "$CONFIG_FILE" <<EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "script_id": "${SCRIPT_ID}",
@@ -194,8 +213,8 @@ cat > "$CONFIG_FILE" <<EOF
   }
 }
 EOF
-else
-cat > "$CONFIG_FILE" <<EOF
+  else
+  cat > "$CONFIG_FILE" <<EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "secret_key": "${SECRET_KEY}",
@@ -208,11 +227,12 @@ cat > "$CONFIG_FILE" <<EOF
   }
 }
 EOF
-fi
-chmod 600 "$CONFIG_FILE"
+  fi
 
-echo ""
-echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
+  chmod 600 "$CONFIG_FILE"
+  echo ""
+  echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
+fi
 
 # ── Verify backend (trigger OAuth consent if needed) ────────────────────────
 
