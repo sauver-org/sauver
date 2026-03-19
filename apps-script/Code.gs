@@ -42,35 +42,37 @@ function json(obj) {
 
 // ── Actions ────────────────────────────────────────────────────────────────
 
+function threadToResult(thread) {
+  const messages = thread.getMessages();
+  const msg      = messages[messages.length - 1];
+  const plain    = msg.getPlainBody();
+  const html     = msg.getBody();
+  return {
+    threadId:      thread.getId(),
+    messageId:     msg.getId(),
+    from:          msg.getFrom(),
+    to:            msg.getTo(),
+    subject:       msg.getSubject(),
+    date:          msg.getDate().toISOString(),
+    body:          plain.substring(0, 3000),
+    htmlBody:      html.substring(0, 6000),
+    bodyTruncated: plain.length > 3000 || html.length > 6000,
+  };
+}
+
 function scanInbox(maxResults) {
-  return searchMessages("in:inbox is:unread", maxResults);
+  // Fetch from the native inbox API (correct visual order), then filter unread.
+  const threads = GmailApp.getInboxThreads(0, maxResults * 3);
+  return threads.filter(t => t.isUnread()).slice(0, maxResults).map(threadToResult);
 }
 
 function searchMessages(query, maxResults) {
-  // Fetch a small buffer beyond maxResults so we can sort client-side.
-  // GmailApp.search ordering sometimes diverges from Gmail's visual inbox order
-  // (e.g. threads with pending drafts or cross-category activity).
-  const buffer = Math.min(maxResults + 10, maxResults * 2);
-  const threads = GmailApp.search(query, 0, buffer);
-  const results = threads.map(thread => {
-    const messages = thread.getMessages();
-    const msg      = messages[messages.length - 1];
-    const plain  = msg.getPlainBody();
-    const html   = msg.getBody();
-    return {
-      threadId:      thread.getId(),
-      messageId:     msg.getId(),
-      from:          msg.getFrom(),
-      to:            msg.getTo(),
-      subject:       msg.getSubject(),
-      date:          msg.getDate().toISOString(),
-      body:          plain.substring(0, 3000),
-      htmlBody:      html.substring(0, 6000),
-      bodyTruncated: plain.length > 3000 || html.length > 6000,
-    };
-  });
-  results.sort((a, b) => new Date(b.date) - new Date(a.date));
-  return results.slice(0, maxResults);
+  // Use the native inbox API when possible — it returns threads in Gmail's
+  // exact visual order, unlike GmailApp.search which can diverge.
+  const threads = query.trim() === "in:inbox"
+    ? GmailApp.getInboxThreads(0, maxResults)
+    : GmailApp.search(query, 0, maxResults);
+  return threads.map(threadToResult);
 }
 
 function getMessage(messageId) {
