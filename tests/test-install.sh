@@ -153,28 +153,34 @@ fi
 echo ""
 echo "Claude Code settings"
 
-CLAUDE_SETTINGS="$FAKE_HOME/.claude/settings.json"
+# `claude mcp add --scope user` writes to ~/.claude.json (not ~/.claude/settings.json).
+# Only verify this when the claude CLI is available; skip in CI where it is not installed.
+if command -v claude &>/dev/null; then
+  CLAUDE_SETTINGS="$FAKE_HOME/.claude.json"
 
-if [ -f "$CLAUDE_SETTINGS" ]; then
-  pass "settings.json exists at ~/.claude/settings.json"
+  if [ -f "$CLAUDE_SETTINGS" ]; then
+    pass ".claude.json exists at ~/.claude.json"
+  else
+    fail ".claude.json not found at $CLAUDE_SETTINGS"
+  fi
+
+  if [ -f "$CLAUDE_SETTINGS" ]; then
+    cmd=$(node -e "const s=require('$CLAUDE_SETTINGS'); console.log(s.mcpServers?.sauver?.command ?? '')")
+    if [ "$cmd" = "node" ]; then
+      pass "mcpServers.sauver.command = 'node'"
+    else
+      fail "mcpServers.sauver.command unexpected: '$cmd'"
+    fi
+
+    args=$(node -e "const s=require('$CLAUDE_SETTINGS'); console.log((s.mcpServers?.sauver?.args ?? []).join(','))")
+    if [[ "$args" == *"index.js"* ]]; then
+      pass "mcpServers.sauver.args contains index.js path"
+    else
+      fail "mcpServers.sauver.args unexpected: '$args'"
+    fi
+  fi
 else
-  fail "settings.json not found at $CLAUDE_SETTINGS"
-fi
-
-if [ -f "$CLAUDE_SETTINGS" ]; then
-  cmd=$(node -e "const s=require('$CLAUDE_SETTINGS'); console.log(s.mcpServers?.sauver?.command ?? '')")
-  if [ "$cmd" = "node" ]; then
-    pass "mcpServers.sauver.command = 'node'"
-  else
-    fail "mcpServers.sauver.command unexpected: '$cmd'"
-  fi
-
-  args=$(node -e "const s=require('$CLAUDE_SETTINGS'); console.log((s.mcpServers?.sauver?.args ?? []).join(','))")
-  if [[ "$args" == *"index.js"* ]]; then
-    pass "mcpServers.sauver.args contains index.js path"
-  else
-    fail "mcpServers.sauver.args unexpected: '$args'"
-  fi
+  pass "Claude CLI not installed — skipping .claude.json check"
 fi
 
 # ── summary ──────────────────────────────────────────────────────────────────

@@ -243,7 +243,7 @@ else
   echo "  3. Click 'Review Permissions' → 'Allow' to grant Gmail access."
   echo "  4. Once the page loads (even if it shows an error), return here."
   echo ""
-  if [ -e /dev/tty ]; then
+  if { true < /dev/tty; } 2>/dev/null; then
     read -rp "  ↵  Press Enter once you have authorized in the browser..." < /dev/tty
     echo ""
 
