@@ -49,7 +49,8 @@ function scanInbox(maxResults) {
 function searchMessages(query, maxResults) {
   const threads = GmailApp.search(query, 0, maxResults);
   return threads.map(thread => {
-    const msg    = thread.getMessages()[0];
+    const messages = thread.getMessages();
+    const msg      = messages[messages.length - 1];
     const plain  = msg.getPlainBody();
     const html   = msg.getBody();
     return {
