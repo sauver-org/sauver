@@ -21,7 +21,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 4. **Fetch message list:** Call `search_messages` with query `in:inbox` to get the list of inbox emails. Sort the results by date descending (newest first).
 
-5. **Per-message loop:** For each message in the sorted list, execute steps 5a–5c before moving to the next:
+5. **Per-message loop — strictly sequential, one at a time:** Process each message one by one. Do NOT batch or parallelize `get_message` calls. Complete steps 5a–5c fully for one message before starting the next:
 
    5a. **Fetch:** Call `get_message` to load the full body and HTML for this message.
 
