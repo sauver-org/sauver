@@ -19,13 +19,15 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 3. **Get user identity:** Call `get_profile` once and store the user's name for signatures.
 
-4. **Fetch emails:** Call `search_messages` with query `in:inbox` to fetch all inbox emails (read and unread). Sort the results by date descending (newest first), then for each result call `get_message` to load the full body and HTML before analysis.
+4. **Fetch message list:** Call `search_messages` with query `in:inbox` to get the list of inbox emails. Sort the results by date descending (newest first).
 
-5. **Purify:** Apply the tracker-shield analysis inline: inspect each email's HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found per email.
+5. **Per-message loop:** For each message in the sorted list, execute steps 5a–5c before moving to the next:
 
-6. **Classify:** Apply slop-detector and investor-trap analysis inline to determine intent. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag.
+   5a. **Fetch:** Call `get_message` to load the full body and HTML for this message.
 
-7. **Counter-measure:** For each email flagged as slop, first select the right trap, then dispatch:
+   5b. **Purify:** Apply the tracker-shield analysis inline: inspect the email's HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found.
+
+   5c. **Classify & Counter-measure:** Apply slop-detector and investor-trap analysis inline to determine intent. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. If flagged as slop:
    - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
    - **Archive:** call `apply_label` with the `sauver_label` value, then call `archive_thread` to remove it from the inbox.
