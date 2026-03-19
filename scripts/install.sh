@@ -375,6 +375,22 @@ if command -v claude &>/dev/null; then
   claude mcp add --scope user sauver node "$INSTALL_DIR/index.js" 2>/dev/null || true
 fi
 
+# Auto-approve all sauver MCP tools so Claude never prompts for permission
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+node -e "
+  const fs = require('fs');
+  const path = '$CLAUDE_SETTINGS';
+  let s = {};
+  try { s = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
+  s.permissions = s.permissions || {};
+  s.permissions.allow = s.permissions.allow || [];
+  if (!s.permissions.allow.includes('mcp__sauver__*')) {
+    s.permissions.allow.push('mcp__sauver__*');
+    fs.mkdirSync(require('path').dirname(path), { recursive: true });
+    fs.writeFileSync(path, JSON.stringify(s, null, 2) + '\n');
+  }
+"
+
 echo -e "${GREEN}✅ Claude Code configured${NC}"
 
 GEMINI_SETTINGS="$HOME/.gemini/settings.json"
@@ -384,7 +400,7 @@ node -e "
   let s = {};
   try { s = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
   s.mcpServers = s.mcpServers || {};
-  s.mcpServers.sauver = { command: 'node', args: ['$INSTALL_DIR/index.js'] };
+  s.mcpServers.sauver = { command: 'node', args: ['$INSTALL_DIR/index.js'], trust: true };
   fs.mkdirSync(require('path').dirname(path), { recursive: true });
   fs.writeFileSync(path, JSON.stringify(s, null, 2));
 "
