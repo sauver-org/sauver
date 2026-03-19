@@ -42,28 +42,25 @@ function json(obj) {
 
 // ── Actions ────────────────────────────────────────────────────────────────
 
-function threadToResult(thread) {
+function threadSummary(thread) {
   const messages = thread.getMessages();
   const msg      = messages[messages.length - 1];
   const plain    = msg.getPlainBody();
-  const html     = msg.getBody();
   return {
-    threadId:      thread.getId(),
-    messageId:     msg.getId(),
-    from:          msg.getFrom(),
-    to:            msg.getTo(),
-    subject:       msg.getSubject(),
-    date:          msg.getDate().toISOString(),
-    body:          plain.substring(0, 3000),
-    htmlBody:      html.substring(0, 6000),
-    bodyTruncated: plain.length > 3000 || html.length > 6000,
+    threadId:  thread.getId(),
+    messageId: msg.getId(),
+    from:      msg.getFrom(),
+    to:        msg.getTo(),
+    subject:   msg.getSubject(),
+    date:      msg.getDate().toISOString(),
+    snippet:   plain.substring(0, 200),
   };
 }
 
 function scanInbox(maxResults) {
   // Fetch from the native inbox API (correct visual order), then filter unread.
   const threads = GmailApp.getInboxThreads(0, maxResults * 3);
-  return threads.filter(t => t.isUnread()).slice(0, maxResults).map(threadToResult);
+  return threads.filter(t => t.isUnread()).slice(0, maxResults).map(threadSummary);
 }
 
 function searchMessages(query, maxResults) {
@@ -72,7 +69,7 @@ function searchMessages(query, maxResults) {
   const threads = query.trim() === "in:inbox"
     ? GmailApp.getInboxThreads(0, maxResults)
     : GmailApp.search(query, 0, maxResults);
-  return threads.map(threadToResult);
+  return threads.map(threadSummary);
 }
 
 function getMessage(messageId) {
