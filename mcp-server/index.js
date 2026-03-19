@@ -31,19 +31,25 @@ try {
 
 // ── Apps Script caller ─────────────────────────────────────────────────────
 
-async function callAppsScript(action, params = {}) {
-  const res = await fetch(config.apps_script_url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key: config.secret_key, action, ...params }),
-    redirect: "follow",
-  });
+async function callAppsScript(action, params = {}, retries = 3, delayMs = 1000) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const res = await fetch(config.apps_script_url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: config.secret_key, action, ...params }),
+      redirect: "follow",
+    });
 
-  const text = await res.text();
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error(`Non-JSON response from Apps Script: ${text.substring(0, 200)}`);
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, delayMs * attempt));
+        continue;
+      }
+      throw new Error(`Non-JSON response from Apps Script: ${text.substring(0, 200)}`);
+    }
   }
 }
 

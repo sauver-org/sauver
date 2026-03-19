@@ -21,16 +21,20 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 4. **Fetch message list:** Call `search_messages` with query `in:inbox` to get the list of inbox emails. Sort the results by date descending (newest first).
 
-5. **Per-message loop — strictly sequential, one at a time:** Process each message one by one. Do NOT batch or parallelize `get_message` calls. Complete steps 5a–5c fully for one message before starting the next:
+5. **Per-message loop:** Work through the list one message at a time using this exact cycle. **Do not call `get_message` for the next message until you have called `archive_thread` (or decided to skip archiving) for the current message.** Never issue two `get_message` calls in the same response.
 
-   5a. **Fetch:** Call `get_message` to load the full body and HTML for this message.
+   For each message in order:
 
-   5b. **Purify:** Apply the tracker-shield analysis inline: inspect the email's HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found.
+   **Step A — Fetch (one call, alone):** Call `get_message` for this message only. Wait for the result before doing anything else.
 
-   5c. **Classify & Counter-measure:** Apply slop-detector and investor-trap analysis inline to determine intent. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. If flagged as slop:
+   **Step B — Purify:** Inspect the returned HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found.
+
+   **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. If flagged as slop:
    - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
-   - **Archive:** call `apply_label` with the `sauver_label` value, then call `archive_thread` to remove it from the inbox.
+   - **Archive:** call `apply_label` with the `sauver_label` value, then call `archive_thread`.
+
+   Only after Step C is complete, move to Step A for the next message.
 
 ## Reporting Format
 
