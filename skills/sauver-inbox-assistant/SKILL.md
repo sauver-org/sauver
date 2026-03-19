@@ -19,7 +19,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 3. **Get user identity:** Call `get_profile` once and store the user's name for signatures.
 
-4. **Fetch emails:** Call `scan_inbox` (or `search_messages` with a custom query). Sort the results by date descending (newest first), then for each result call `get_message` to load the full body and HTML before analysis.
+4. **Fetch emails:** Call `search_messages` with query `in:inbox` to fetch all inbox emails (read and unread). Sort the results by date descending (newest first), then for each result call `get_message` to load the full body and HTML before analysis.
 
 5. **Purify:** Apply the tracker-shield analysis inline: inspect each email's HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found per email.
 
