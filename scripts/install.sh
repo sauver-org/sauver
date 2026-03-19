@@ -243,15 +243,19 @@ else
   echo "  3. Click 'Review Permissions' → 'Allow' to grant Gmail access."
   echo "  4. Once the page loads (even if it shows an error), return here."
   echo ""
-  read -rp "  ↵  Press Enter once you have authorized in the browser..." < /dev/tty
-  echo ""
+  if [ -e /dev/tty ]; then
+    read -rp "  ↵  Press Enter once you have authorized in the browser..." < /dev/tty
+    echo ""
 
-  RESPONSE=$(check_backend)
-  if echo "$RESPONSE" | grep -q '"email"'; then
-    echo -e "${GREEN}✅ Backend authorized — Gmail access confirmed${NC}"
+    RESPONSE=$(check_backend)
+    if echo "$RESPONSE" | grep -q '"email"'; then
+      echo -e "${GREEN}✅ Backend authorized — Gmail access confirmed${NC}"
+    else
+      echo -e "${YELLOW}⚠️  Could not confirm backend connectivity. Proceeding anyway.${NC}"
+      echo "   If Sauver fails later, re-open the URL above in your browser and allow access."
+    fi
   else
-    echo -e "${YELLOW}⚠️  Could not confirm backend connectivity. Proceeding anyway.${NC}"
-    echo "   If Sauver fails later, re-open the URL above in your browser and allow access."
+    echo -e "${YELLOW}⚠️  Non-interactive environment — skipping OAuth prompt. Run install again interactively to authorize Gmail access.${NC}"
   fi
 fi
 
