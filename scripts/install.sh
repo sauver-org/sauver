@@ -258,11 +258,11 @@ else
   echo ""
   echo "  1. Open this URL in your browser:"
   printf "     %s\n" "$(link "$APPS_SCRIPT_URL")"
-  # Try to open the URL automatically
+  # Try to open the URL automatically (best-effort; ignore errors in headless/CI environments)
   if command -v open &>/dev/null; then
-    open "$APPS_SCRIPT_URL"
+    open "$APPS_SCRIPT_URL" 2>/dev/null || true
   elif command -v xdg-open &>/dev/null; then
-    xdg-open "$APPS_SCRIPT_URL"
+    xdg-open "$APPS_SCRIPT_URL" 2>/dev/null || true
   fi
   echo ""
   echo "  2. If prompted, sign in with the Google account you want Sauver to manage."
