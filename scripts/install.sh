@@ -258,6 +258,12 @@ else
   echo ""
   echo "  1. Open this URL in your browser:"
   printf "     %s\n" "$(link "$APPS_SCRIPT_URL")"
+  # Try to open the URL automatically
+  if command -v open &>/dev/null; then
+    open "$APPS_SCRIPT_URL"
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "$APPS_SCRIPT_URL"
+  fi
   echo ""
   echo "  2. If prompted, sign in with the Google account you want Sauver to manage."
   echo "  3. Click 'Review Permissions' → 'Allow' to grant Gmail access."

@@ -10,6 +10,14 @@ YELLOW=$(printf '\033[1;33m')
 RED=$(printf '\033[0;31m')
 NC=$(printf '\033[0m')
 
+_open_url() {
+  if command -v open &>/dev/null; then
+    open "$1"
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "$1"
+  fi
+}
+
 echo ""
 echo -e "${BOLD}🗑️  Sauver Uninstaller${NC}"
 echo "   This will remove all Sauver files and configuration."
@@ -193,11 +201,13 @@ if [ -n "$SCRIPT_ID" ]; then
       echo -e "${YELLOW}⚠️  Could not auto-remove the Apps Script backend.${NC}"
       echo "   Delete it manually at:"
       echo "   https://script.google.com/home/projects/${SCRIPT_ID}"
+      _open_url "https://script.google.com/home/projects/${SCRIPT_ID}"
       ;;
   esac
 else
   echo -e "${YELLOW}⚠️  No Apps Script project ID on record — remove 'Sauver Backend' manually at:${NC}"
   echo "   https://script.google.com/home"
+  _open_url "https://script.google.com/home"
 fi
 
 # ── Done ─────────────────────────────────────────────────────────────────────

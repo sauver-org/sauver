@@ -161,7 +161,10 @@ async function checkForUpdates({ force = false } = {}) {
   if (!res.ok) throw new Error(`HTTP ${res.status} fetching remote version`);
   const { version: latestVersion } = await res.json();
 
-  if (!isNewerVersion(latestVersion, version)) {
+  const effectiveVersion = isNewerVersion(config.installed_skills_version ?? "0.0.0", version)
+    ? config.installed_skills_version
+    : version;
+  if (!isNewerVersion(latestVersion, effectiveVersion)) {
     return { checked: true, current_version: version, latest_version: latestVersion, updated: false };
   }
 
