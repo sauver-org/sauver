@@ -1,6 +1,6 @@
 {
   "name": "sauver",
-  "version": "1.8.1",
+  "version": "1.8.3",
   "description": "Sauver: The digital bouncer for your inbox. Use this extension to process, triage, or manage emails when asked to 'use sauver' or 'process my emails'.",
   "contextFileName": "GEMINI.md"
 }

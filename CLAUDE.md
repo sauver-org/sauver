@@ -68,7 +68,7 @@ See `skills/PROTOCOL.md` for the full config key reference.
 To bump the version:
 
 ```bash
-make version V=1.8.0
+make version V=x.y.z
 ```
 
 Never edit the version in `gemini-extension.json` or `index.js` directly.
