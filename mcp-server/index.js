@@ -123,6 +123,13 @@ async function downloadSkills() {
   if (!protocolRes.ok) throw new Error(`HTTP ${protocolRes.status} fetching PROTOCOL.md`);
   writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), await protocolRes.text());
 
+  // Download binary assets
+  const assetsDir = join(SKILLS_DIR, "assets");
+  mkdirSync(assetsDir, { recursive: true });
+  const ndaRes = await fetchWithTimeout(`${base}/skills/assets/NDA.docx`, 15_000);
+  if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching assets/NDA.docx`);
+  writeFileSync(join(assetsDir, "NDA.docx"), Buffer.from(await ndaRes.arrayBuffer()));
+
   for (const [skillName, commandName] of SKILL_MAP) {
     const skillDir = join(SKILLS_DIR, skillName);
     mkdirSync(skillDir, { recursive: true });

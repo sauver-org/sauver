@@ -29,6 +29,15 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
    **Step B — Purify:** Inspect the returned HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found.
 
+   **Step B.5 — Bot Detection:** Before classifying, inspect the thread's message timestamps to detect automated reply behaviour.
+
+   - Find the most recent message we sent (any message from the user's own address).
+   - Check how many seconds elapsed before the sender's next reply arrived.
+   - If **2 or more consecutive sender replies** each arrived within `bot_reply_threshold_seconds` (default 120) seconds of our preceding message, flag the thread as a likely bot.
+   - If flagged as a bot **and** `engage_bots` is `false`: call `apply_label` with the `sauver_label` value, call `archive_thread`, and report "🤖 Bot loop detected — disengaged." Skip Step C entirely for this message.
+   - If flagged as a bot **and** `engage_bots` is `true`: proceed to Step C as normal (keep engaging).
+   - If not flagged: proceed to Step C as normal.
+
    **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. If flagged as slop:
    - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
@@ -44,4 +53,4 @@ Provide a concise summary per email:
 - **Sender:** [Name/Email]
 - **Status:** ✅ Legitimate or 🚨 Slop
 - **Trackers:** [Summary of what was found/removed]
-- **Counter-measure:** [Trap name] — [Drafted / Sent]
+- **Counter-measure:** [Trap name] — [Drafted / Sent / Bot loop — disengaged]

@@ -9,6 +9,8 @@ Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies
 - **Expert-Domain Trap** — fires back hyper-specific technical questions at recruiters/sales bots
 - **Due Diligence Loop** — buries unsolicited "investors" in bureaucratic document requests
 - **Bouncer Reply** — engages generic spammers with absurd, impossible requirements
+- **NDA Trap** — when a sender repeats the same pitch 3+ times, sends them a Nondisclosure Agreement to sign before any further communication
+- **Bot Detection** — detects near-instant replies (under `bot_reply_threshold_seconds`) across two or more consecutive exchanges and silently archives the thread (configurable)
 
 ## Installation
 
@@ -38,13 +40,15 @@ This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.
 
 Settings live in `~/.sauver/config.json` under the `preferences` key. You can edit that file directly, or ask Claude/Gemini to change a setting for you (e.g. "turn on yolo mode").
 
-| Option.                               | Default | Meaning                                    |
-|---------------------------------------|---------|--------------------------------------------|
-| `auto_draft`                          | `true`  | Automatically create draft replies to slop |
-| `yolo_mode`                           | `false` | Auto-send replies (use with caution)       |
-| `treat_job_offers_as_slop`            | `true`  | Trigger Expert-Domain Trap for recruiters  |
-| `treat_unsolicited_investors_as_slop` | `true`  | Trigger Due Diligence Loop for investors   |
-| `sauver_label`                        | `Sauver`| Gmail label applied when archiving         |
+| Option                                | Default | Meaning                                                                                          |
+|---------------------------------------|---------|--------------------------------------------------------------------------------------------------|
+| `auto_draft`                          | `true`  | Automatically create draft replies to slop                                                       |
+| `yolo_mode`                           | `false` | Auto-send replies (use with caution)                                                             |
+| `treat_job_offers_as_slop`            | `true`  | Trigger Expert-Domain Trap for recruiters                                                        |
+| `treat_unsolicited_investors_as_slop` | `true`  | Trigger Due Diligence Loop for investors                                                         |
+| `sauver_label`                        | `Sauver`| Gmail label applied when archiving                                                               |
+| `engage_bots`                         | `false` | Keep engaging threads flagged as bot-like; if `false`, silently archive them                     |
+| `bot_reply_threshold_seconds`         | `120`   | Seconds between your last reply and their next one below which a sender is considered bot-like   |
 
 ## Usage
 
@@ -203,6 +207,7 @@ curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/unin
 - `~/.sauver/config.json` — your Web App URL, secret key, and update metadata (local, never committed)
 - `~/.sauver/mcp-server/` — the MCP server code (downloaded from this repo)
 - `~/.sauver/skills/` — skill instruction files (downloaded and auto-updated by the MCP server)
+- `~/.sauver/skills/assets/NDA.docx` — NDA template attached when the NDA Trap is deployed
 - `~/.claude/settings.json` — Claude Code MCP server registration
 - `~/.gemini/settings.json` — Gemini CLI MCP server registration
 - `~/.claude/commands/` — global Claude Code slash command shims (managed by the installer/auto-updater)

@@ -68,3 +68,5 @@ Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; u
 | `treat_job_offers_as_slop` | bool | `true` | Treat recruiter outreach as slop |
 | `treat_unsolicited_investors_as_slop` | bool | `true` | Treat investor outreach as slop |
 | `sauver_label` | string | `"Sauver"` | Gmail label applied when archiving |
+| `engage_bots` | bool | `false` | Continue trap engagement even when bot-like behaviour is detected; if `false`, silently archive bot threads |
+| `bot_reply_threshold_seconds` | int | `120` | Maximum seconds between our last reply and their next one to be considered bot-like |

@@ -209,7 +209,9 @@ if [ "$UPGRADE_MODE" = false ]; then
     "yolo_mode": false,
     "treat_job_offers_as_slop": true,
     "treat_unsolicited_investors_as_slop": true,
-    "sauver_label": "Sauver"
+    "sauver_label": "Sauver",
+    "engage_bots": false,
+    "bot_reply_threshold_seconds": 120
   }
 }
 EOF
@@ -223,7 +225,9 @@ EOF
     "yolo_mode": false,
     "treat_job_offers_as_slop": true,
     "treat_unsolicited_investors_as_slop": true,
-    "sauver_label": "Sauver"
+    "sauver_label": "Sauver",
+    "engage_bots": false,
+    "bot_reply_threshold_seconds": 120
   }
 }
 EOF
@@ -340,6 +344,13 @@ async function fetchText(url) {
 
 const protocol = await fetchText(`${base}/skills/PROTOCOL.md`);
 writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), protocol);
+
+// Download binary assets
+const ASSETS_DIR = join(SKILLS_DIR, "assets");
+mkdirSync(ASSETS_DIR, { recursive: true });
+const ndaRes = await fetch(`${base}/skills/assets/NDA.docx`);
+if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching NDA.docx`);
+writeFileSync(join(ASSETS_DIR, "NDA.docx"), Buffer.from(await ndaRes.arrayBuffer()));
 
 for (const [skillName, commandName] of SKILL_MAP) {
   const skillDir = join(SKILLS_DIR, skillName);
