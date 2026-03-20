@@ -104,6 +104,8 @@ To update the MCP server itself or the Apps Script backend, re-run the installer
 
 Sauver has three layers:
 
+![Architecture overview](docs/architecture.jpg)
+
 ```
 ┌─────────────────────────────────────────────────────┐
 │              Google Apps Script (cloud)             │
@@ -117,13 +119,13 @@ Sauver has three layers:
 │   A small Node.js process on your machine.          │
 │   Translates MCP tool calls → Apps Script actions.  │
 │   Reads config from ~/.sauver/config.json.          │
-└──────────────┬──────────────────────┬───────────────┘
-               │ stdio MCP            │ stdio MCP
-┌──────────────▼──────┐   ┌───────────▼──────────────┐
-│     Claude Code     │   │       Gemini CLI         │
-│   /sauver and       │   │   /sauver and            │
-│   other commands    │   │   other commands         │
-└─────────────────────┘   └──────────────────────────┘
+└──────────────┬───────────────────────┬──────────────┘
+               │ stdio MCP             │ stdio MCP
+┌──────────────▼──────┐    ┌───────────▼──────────────┐
+│     Claude Code     │    │       Gemini CLI         │
+│   /sauver and       │    │   /sauver and            │
+│   other commands    │    │   other commands         │
+└─────────────────────┘    └──────────────────────────┘
 ```
 
 ### Layer 1 — Google Apps Script
