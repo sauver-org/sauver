@@ -31,21 +31,21 @@ Our palette is limited and aggressive. It utilizes the high-visibility, hazard-p
 
 This yellow is defined for authoritative visibility. It must not appear "muddy" (too brown) or "pastel" (too washed out). It is an optimized safety-yellow.
 
-| Color Space | Value |
-| :--- | :--- |
-| **Hex (Web)** | `#FAA116` |
-| **RGB** | `(250, 161, 22)` |
+| Color Space     | Value                                                            |
+| --------------- | ---------------------------------------------------------------- |
+| **Hex (Web)**   | `#FAA116`                                                        |
+| **RGB**         | `(250, 161, 22)`                                                 |
 | **CMYK (Print)**| `(0, 42, 100, 2)` (Approximation—Use SVG for professional print) |
-| **Pantone** | **116 C** |
+| **Pantone**     | **116 C**                                                        |
 
 ### Background & Secondary: Deep Charcoal
 
 We define our dark background. *Avoid using `#000000` pure black for primary backgrounds,* as it is visually harsh. This deep, rich charcoal provides a more sophisticated and less flat appearance, appropriate for an enterprise offering.
 
-| Color Space | Value |
-| :--- | :--- |
-| **Hex (Web)** | `#111117` |
-| **RGB** | `(17, 17, 23)` |
+| Color Space   | Value          |
+| ------------- | -------------- |
+| **Hex (Web)** | `#111117`      |
+| **RGB**       | `(17, 17, 23)` |
 
 ## 4. Typography
 

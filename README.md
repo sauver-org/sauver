@@ -1,4 +1,4 @@
-<img src="assets/logo/sauver-shield.svg" alt="Sauver shield" width="80" />
+<img src="assets/logo/sauver-shield-color.svg" alt="Sauver shield" width="80" />
 
 # Sauver: The Digital Bouncer for your Inbox
 
