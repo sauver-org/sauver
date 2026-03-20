@@ -119,7 +119,7 @@ Sauver has three layers:
 │   Reads config from ~/.sauver/config.json.          │
 └──────────────┬──────────────────────┬───────────────┘
                │ stdio MCP            │ stdio MCP
-┌──────────────▼──────┐   ┌──────────▼──────────────┐
+┌──────────────▼──────┐   ┌───────────▼──────────────┐
 │     Claude Code     │   │       Gemini CLI         │
 │   /sauver and       │   │   /sauver and            │
 │   other commands    │   │   other commands         │
