@@ -1,4 +1,6 @@
-# Sauver: The Digital Bouncer for your Inbox 🛡️
+<img src="assets/logo/sauver-shield.svg" alt="Sauver shield" width="80" />
+
+# Sauver: The Digital Bouncer for your Inbox
 
 Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies recruiter/sales/investor "slop," and wastes spammers' time with automated traps. It runs inside Claude Code and Gemini CLI.
 
