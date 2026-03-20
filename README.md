@@ -106,7 +106,7 @@ To update the MCP server itself or the Apps Script backend, re-run the installer
 
 Sauver has three layers:
 
-![Architecture overview](docs/architecture.jpg)
+![Architecture overview](assets/architecture.jpg)
 
 ```
 ┌─────────────────────────────────────────────────────┐
