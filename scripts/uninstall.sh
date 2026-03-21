@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sauver Uninstaller
-# Usage: curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/uninstall.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/uninstall.sh | bash
 # Or run locally: bash scripts/uninstall.sh
 set -e
 

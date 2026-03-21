@@ -1,6 +1,6 @@
 // Sauver Gmail Backend — Google Apps Script Web App
 // Deploy as: Execute as "Me", Who has access "Anyone"
-// Docs: https://github.com/mszczodrak/sauver
+// Docs: https://github.com/sauver-org/sauver
 
 const SECRET_KEY = "CHANGE_ME"; // ← replaced by installer
 
