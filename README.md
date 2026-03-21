@@ -19,7 +19,7 @@ Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies
 Run this one command in your terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/install.sh | bash
 ```
 
 The installer automates the setup process (~3 minutes total) using `clasp`:
@@ -33,7 +33,7 @@ The installer automates the setup process (~3 minutes total) using `clasp`:
 ## Uninstallation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/uninstall.sh | bash
 ```
 
 This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.agent/workflows/`, and cleans the Sauver MCP entry from both `~/.claude/settings.json` and `~/.gemini/settings.json`. Your other AI settings and MCP servers are left untouched.
@@ -204,7 +204,7 @@ To update the MCP server itself or the Apps Script backend, re-run the installer
 
 **How do I uninstall Sauver?**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/uninstall.sh | bash
 ```
 
 **Where is my data stored?**

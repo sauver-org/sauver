@@ -24,7 +24,7 @@ try {
   process.stderr.write(
     `\nSauver: no config found at ${CONFIG_PATH}.\n` +
     `Run the installer:\n` +
-    `  curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/install.sh | bash\n\n`
+    `  curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/install.sh | bash\n\n`
   );
   process.exit(1);
 }
@@ -88,11 +88,11 @@ const GEMINI_WORKFLOWS_DIR = join(homedir(), ".agent", "workflows");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
-  ["slop-detector",          "slop-detector"],
-  ["investor-trap",          "investor-trap"],
-  ["bouncer-reply",          "bouncer-reply"],
-  ["tracker-shield",         "tracker-shield"],
-  ["archiver",               "archiver"],
+  ["slop-detector", "slop-detector"],
+  ["investor-trap", "investor-trap"],
+  ["bouncer-reply", "bouncer-reply"],
+  ["tracker-shield", "tracker-shield"],
+  ["archiver", "archiver"],
 ];
 
 function isNewerVersion(latest, current) {
@@ -359,7 +359,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-checkForUpdates().catch(() => {}); // fire-and-forget background check
+checkForUpdates().catch(() => { }); // fire-and-forget background check
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

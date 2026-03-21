@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sauver Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/mszczodrak/sauver/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/install.sh | bash
 set -e
 
 REPO="mszczodrak/sauver"
