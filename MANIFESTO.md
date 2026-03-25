@@ -1,6 +1,6 @@
 You aren't imagining it. Your attention is being harvested.
 
-The attention merchants — lead generators, growth hackers, and their armies of automated outreach tools — were handed AI and promised us it would save us time. Instead they used it to build a slop-machine that bombards your inbox and taxes your sanity. They've turned your most private tool — your email — into surveillance infrastructure for automated predators who see your time as raw material.
+AI was supposed to make us 10x more productive. Instead, the attention merchants — lead generators, growth hackers, and their armies of automated outreach tools — weaponized it to build a slop-machine that bombards your inbox and taxes your sanity. They've turned your most private tool — your email — into surveillance infrastructure for automated predators who see your time as raw material.
 
 It is not your fault you can't keep up. No human was ever meant to compete with a thousand bots firing at them simultaneously. The system isn't broken. It's working exactly as they intended.
 
