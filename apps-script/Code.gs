@@ -120,7 +120,7 @@ function getMessage(messageId) {
 }
 
 function createDraft(data) {
-  const { to, subject, body, threadId, htmlBody } = data;
+  const { to, subject, body, threadId, htmlBody, attachments } = data;
   let draft;
 
   const options = {};
@@ -128,6 +128,12 @@ function createDraft(data) {
     options.htmlBody = htmlBody;
   } else if (body) {
     options.htmlBody = escapeHtml(body).split("\n").join("<br>");
+  }
+
+  if (attachments && attachments.length > 0) {
+    options.attachments = attachments.map(function(a) {
+      return Utilities.newBlob(Utilities.base64Decode(a.data), a.mimeType, a.name);
+    });
   }
 
   if (threadId) {
@@ -143,13 +149,19 @@ function createDraft(data) {
 }
 
 function sendMessage(data) {
-  const { to, subject, body, threadId, htmlBody } = data;
+  const { to, subject, body, threadId, htmlBody, attachments } = data;
 
   const options = {};
   if (htmlBody) {
     options.htmlBody = htmlBody;
   } else if (body) {
     options.htmlBody = escapeHtml(body).split("\n").join("<br>");
+  }
+
+  if (attachments && attachments.length > 0) {
+    options.attachments = attachments.map(function(a) {
+      return Utilities.newBlob(Utilities.base64Decode(a.data), a.mimeType, a.name);
+    });
   }
 
   if (threadId) {

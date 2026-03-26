@@ -5,8 +5,8 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { join, dirname, extname } from "path";
 import { homedir } from "os";
 import { fileURLToPath } from "url";
 
@@ -248,6 +248,11 @@ const TOOLS = [
         threadId: { type: "string", description: "Creates a reply draft when provided" },
         to: { type: "string", description: "Recipient address (required for new emails)" },
         subject: { type: "string", description: "Subject line (required for new emails)" },
+        attachments: {
+          type: "array",
+          description: "File paths to attach (e.g. ['~/.sauver/skills/assets/NDA.pdf'])",
+          items: { type: "string" },
+        },
       },
     },
   },
@@ -263,6 +268,11 @@ const TOOLS = [
         threadId: { type: "string", description: "Sends as a reply when provided" },
         to: { type: "string", description: "Recipient address (required for new emails)" },
         subject: { type: "string", description: "Subject (required for new emails)" },
+        attachments: {
+          type: "array",
+          description: "File paths to attach (e.g. ['~/.sauver/skills/assets/NDA.pdf'])",
+          items: { type: "string" },
+        },
       },
     },
   },
@@ -352,6 +362,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (name === "set_preference") {
       const updated = setPreference(args.key, args.value);
       return { content: [{ type: "text", text: JSON.stringify(updated, null, 2) }] };
+    }
+
+    // Resolve file-path attachments to base64 for Apps Script
+    if (args.attachments && Array.isArray(args.attachments)) {
+      const MIME_TYPES = {
+        ".pdf": "application/pdf",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".doc": "application/msword",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+      };
+      args.attachments = args.attachments.map((filePath) => {
+        const resolved = filePath.replace(/^~/, homedir());
+        if (!existsSync(resolved)) {
+          throw new Error(`Attachment not found: ${filePath}`);
+        }
+        const ext = extname(resolved).toLowerCase();
+        const name = resolved.split("/").pop();
+        return {
+          name,
+          mimeType: MIME_TYPES[ext] || "application/octet-stream",
+          data: readFileSync(resolved).toString("base64"),
+        };
+      });
     }
 
     const result = await callAppsScript(name, args);
