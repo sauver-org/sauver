@@ -1,0 +1,11 @@
+{
+  "description": "Google Workspace subscription cancellation notification",
+  "label": "legitimate",
+  "category": "transactional",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "legitimate",
+    "draft_created": false,
+    "archived": false
+  }
+}

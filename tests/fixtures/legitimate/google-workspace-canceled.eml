@@ -1,0 +1,51 @@
+From: The Google Workspace Team <workspace-noreply@google.com>
+To: user@example.com
+Subject: Your Google Workspace Business Standard for user@example.com is canceled
+Date: Thu, 26 Mar 2026 10:36:27 -0700
+Reply-To: The Google Workspace Team <workspace-noreply@google.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="boundary-123"
+
+--boundary-123
+Content-Type: text/plain; charset="UTF-8"
+
+From: "The Google Workspace Team" [workspace-noreply@google.com]
+Subject:  Your Google Workspace Business Standard for user@example.com is canceled
+
+## Google Workspace Business Standard is canceled
+
+Hello,
+
+Your Google Workspace Business Standard subscription for user@example.com has been canceled. All Google Workspace Business Standard services for all users are inaccessible.
+
+### Account information
+
+Customer: user@example.com
+Customer ID: CXXXXXXXX
+Subscription: Google Workspace Business Standard
+
+If you have any questions, please contact our support team (https://support.google.com/a/answer/1047213).
+
+Sincerely,
+The Google Workspace Team
+
+--boundary-123
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<body>
+<h2>Google Workspace Business Standard is canceled</h2>
+<p>Hello,</p>
+<p>Your Google Workspace Business Standard subscription for user@example.com has been canceled. All Google Workspace Business Standard services for all users are inaccessible.</p>
+<h3>Account information</h3>
+<p><strong>Customer:</strong> user@example.com</p>
+<p><strong>Customer ID:</strong> CXXXXXXXX</p>
+<p><strong>Subscription:</strong> Google Workspace Business Standard</p>
+<p>If you have any questions, please contact <a href=3D"https://support.google.com/a/answer/1047213">our support team</a>.</p>
+<p>Sincerely,<br>The Google Workspace Team</p>
+<img alt=3D"" height=3D1 width=3D3 src=3D"https://notifications.google.com/g/img/ADMV5J-MXZp6E78p4wEh2oXAKNcRzIZBcWT1Sg0ej-PfhYfrG1iuqSxq_EqtwYJRMjJKhUEvNFxPTmXjQhuBGL3b-6heDCi2r4Yav-YsbolLKzQBDHJV3l2C8DTKz59eS4lZCv4fJA.gif">
+</body>
+</html>
+
+--boundary-123--
