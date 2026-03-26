@@ -43,10 +43,15 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    > [!IMPORTANT]
    > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If it matches slop patterns or bot behavior, it is slop. Never skip an email just because it appears to be an "ongoing discussion" if that discussion is a trap loop or automated outreach.
 
-   If flagged as slop:
-   - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
-   - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
-   - **Archive:** call `apply_label` with the **exact** `sauver_label` value from preferences (do not invent sub-labels like "Sauver/Slop" unless explicitly configured), then call `archive_thread`.
+   If flagged as slop, follow this **exact** sequence:
+
+   1. **Select Trap:** Use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
+   2. **Generate Response:** Generate the response content following the specific trap rules.
+   3. **Dispatch:** 
+      - If `yolo_mode` is `true`: Call `send_message`.
+      - Else if `auto_draft` is `true`: Call `create_draft`.
+      - Else: Skip sending/drafting and report only.
+   4. **Archive:** Call `apply_label` with the **exact** `sauver_label` value from preferences, then call `archive_thread`.
 
    Only after Step C is complete, move to Step A for the next message.
 

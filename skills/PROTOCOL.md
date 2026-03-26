@@ -70,3 +70,17 @@ Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; u
 | `sauver_label`                        | string | `Sauver` | Gmail label applied when archiving                        |
 | `engage_bots`                         | bool   | `false`  | Continue trap engagement even when bot-like behaviour is detected; if `false`, silently archive bot threads |
 | `bot_reply_threshold_seconds`         | int    | `120`    | Maximum seconds between our last reply and their next one to be considered bot-like |
+
+## Preference Adherence
+
+All skills MUST strictly follow the user's preferences from `~/.sauver/config.json`. Do not make autonomous decisions that override these keys:
+
+- **`auto_draft: true`**: You MUST create a draft for every flagged email if `yolo_mode` is `false`. Never skip this step unless the thread is a confirmed bot loop (and `engage_bots` is `false`) or the email is legitimate.
+- **`yolo_mode: true`**: You MUST send the reply immediately using `send_message`.
+- **`sauver_label`**: Always use this exact string for labeling. Do not invent sub-labels like "Sauver/Slop".
+
+Every counter-measure sequence MUST follow this order:
+1. **Identify** (Classify as slop/investor/etc)
+2. **Generate** (Create the hyper-specific trap response text)
+3. **Dispatch** (Call `create_draft` or `send_message` based on preferences)
+4. **Archive** (Apply label and archive the thread)
