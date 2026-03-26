@@ -80,9 +80,9 @@ GEMINI_SKILLS="$HOME/.gemini/skills"
 
 removed_gemini=0
 for cmd in "${COMMANDS[@]}"; do
-  f="$GEMINI_SKILLS/${cmd}.md"
-  if [ -f "$f" ]; then
-    rm "$f"
+  d="$GEMINI_SKILLS/${cmd}"
+  if [ -d "$d" ]; then
+    rm -rf "$d"
     removed_gemini=$((removed_gemini + 1))
   fi
 done
