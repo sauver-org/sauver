@@ -1,0 +1,11 @@
+{
+  "description": "MCA lender following up on unsolicited working capital advance offer for Acme",
+  "label": "slop",
+  "category": "unsolicited_financing",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

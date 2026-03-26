@@ -1,0 +1,69 @@
+MIME-Version: 1.0
+From: zoe.harper@clustox.pro
+To: bob@acme.com
+Subject: Re: Meeting on wednesday
+Date: Sat, 21 Mar 2026 14:59:22 +0000 (UTC)
+Content-Type: text/plain; charset="UTF-8"
+
+Hi Bob,
+
+Thank you for the thoughtful reply.
+
+You are getting to the exact point that usually determines whether a 
+custom system is actually viable long term or simply becomes another 
+dependency with a different label.
+
+Our approach is generally built around two principles: strong isolation 
+at the architecture level, and structured change management after 
+handoff.
+
+On the isolation side, we do not rely on a single pattern universally. 
+The right design depends on the risk profile, operational model, and 
+expected scale of the system. In cases where boundaries are critical, we 
+prefer enforcing them as close to the data layer as practical, with the 
+application layer complementing that rather than carrying the full 
+burden alone. The goal is to make separation a property of the system 
+itself, not just a convention in business logic.
+
+On the evolution side, we try to avoid creating systems where every 
+meaningful change has to route back through the original builder. We 
+usually structure delivery so that schema changes, workflow adjustments, 
+and rule updates can be managed in a controlled way by the client's 
+team, with proper versioning, migration discipline, and documentation in 
+place. Where requirements are likely to evolve, we also try to keep 
+volatile logic abstracted from the underlying structure so the system 
+can adapt without unnecessary rewiring.
+
+The broader idea is that post handoff should not feel like loss of 
+control. It should feel like ownership with a clear operating model.
+
+Given your background, I imagine that is probably the real filter for 
+you not whether something can be built, but whether it remains 
+predictable once it is no longer sitting with the original team.
+
+Happy to unpack how we usually think about that design boundary in more 
+detail with the relevant technical bench from our side so the 
+conversation stays concrete and useful.
+
+Happy to work around your calendar for a discussion later next week.
+
+Best,
+Zoe
+Clustox LLC
+
+On 2026-03-21 02:01, bob@acme.com wrote:
+
+> Interesting pitch. We've looked at this before and the
+> recurring-vs-buyout math is real, but the part that always trips us up
+> is the post-handoff maintenance model. When you build a custom
+> replacement for something like a CRM or billing system, how do you
+> handle the data isolation layer -- specifically, do you enforce tenancy
+> boundaries at the database level using something like Postgres
+> row-level security policies, or is all of that in the application
+> tier? And when business logic evolves after the handoff, what does the
+> schema migration process look like for the client -- do they need to
+> come back to you for every structural change, or is there some
+> abstraction in place that lets their team manage it?
+> 
+> Best,
+> Bob

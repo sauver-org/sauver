@@ -1,0 +1,11 @@
+{
+  "description": "Unsolicited working capital offer 50k-150k at 1% monthly for Acme, no PG or credit check",
+  "label": "slop",
+  "category": "unsolicited_financing",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "Fake SBA profile inactive final notice scam targeting ACME, INC. with CAGE code",
+  "label": "slop",
+  "category": "government_scam",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "Cold outreach to Acme's embedded software team using Instantly.ai ICP targeting",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

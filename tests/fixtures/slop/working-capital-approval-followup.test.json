@@ -1,0 +1,11 @@
+{
+  "description": "Financing broker following up on fabricated working capital approval projections",
+  "label": "slop",
+  "category": "unsolicited_financing",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "B2B advisory firm pitching network expansion services to technology companies",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}
