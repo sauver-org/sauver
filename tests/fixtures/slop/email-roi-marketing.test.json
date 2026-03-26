@@ -1,0 +1,11 @@
+{
+  "description": "Unsolicited marketing email promoting email marketing services ('30-40x ROI'). Heavy HTML with multiple tracking pixels and redirect wrappers via ActiveCampaign (activehosted.com CDN).",
+  "label": "slop",
+  "category": "marketing_newsletter",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

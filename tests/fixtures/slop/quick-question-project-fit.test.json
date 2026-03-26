@@ -1,0 +1,11 @@
+{
+  "description": "Sales outreach from 'Charles Adeyinka' pretending to have a California contract opportunity for IT/systems integration at ACME, INC. Uses a GMass tracking pixel (1x1 img from amailroute.net). Reply-To differs from From.",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

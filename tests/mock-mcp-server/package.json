@@ -1,0 +1,11 @@
+{
+  "name": "sauver-mock-mcp-server",
+  "version": "0.0.0",
+  "description": "Mock MCP server for Sauver skill integration tests — serves EML fixtures instead of calling Gmail",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "mailparser": "^3.7.2"
+  }
+}
