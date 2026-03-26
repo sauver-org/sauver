@@ -244,6 +244,7 @@ const TOOLS = [
       required: ["body"],
       properties: {
         body: { type: "string", description: "Email body text" },
+        htmlBody: { type: "string", description: "Optional HTML version of the body" },
         threadId: { type: "string", description: "Creates a reply draft when provided" },
         to: { type: "string", description: "Recipient address (required for new emails)" },
         subject: { type: "string", description: "Subject line (required for new emails)" },
@@ -258,6 +259,7 @@ const TOOLS = [
       required: ["body"],
       properties: {
         body: { type: "string" },
+        htmlBody: { type: "string", description: "Optional HTML version of the body" },
         threadId: { type: "string", description: "Sends as a reply when provided" },
         to: { type: "string", description: "Recipient address (required for new emails)" },
         subject: { type: "string", description: "Subject (required for new emails)" },

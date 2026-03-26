@@ -11,8 +11,8 @@ All Gmail operations go through the Sauver MCP server. Use these tools:
 | `scan_inbox`      | List unread inbox emails                           |
 | `search_messages` | Search with a Gmail query string                   |
 | `get_message`     | Fetch full email content by messageId              |
-| `create_draft`    | Create a draft (new email or reply)                |
-| `send_message`    | Send immediately (yolo_mode only)                  |
+| `create_draft`    | Create a draft (with optional `htmlBody`)          |
+| `send_message`    | Send immediately (with optional `htmlBody`)        |
 | `archive_thread`  | Remove from inbox, mark read                       |
 | `apply_label`     | Apply a label (creates it if missing)              |
 | `get_profile`     | Get the user's email address and name              |
@@ -31,6 +31,7 @@ All generated replies MUST look like a plain human message:
 - **Plain prose only** — short paragraphs, casual punctuation, the way a person types in Gmail.
 - **No filler phrases** that signal automation: "I hope this email finds you well", "Thank you for reaching out", "Please don't hesitate to", "Best of luck", etc.
 - The tone should read as a real person dashing off a quick note, not a polished template.
+- **Wrapping Prevention:** The backend automatically converts plain text `body` to an HTML version (replacing newlines with `<br>`) to ensure Gmail doesn't apply 72-character line wrapping. You can optionally provide your own `htmlBody` for more control.
 
 ## Signature
 
