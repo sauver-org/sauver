@@ -105,6 +105,8 @@ echo "  Mock server: ${MOCK_SERVER_DIR}/index.js"
 CLAUDE_MCP_FILE="${REPO_DIR}/.mcp.json"
 CLAUDE_SETTINGS="${REPO_DIR}/.claude/settings.json"
 GEMINI_SETTINGS="${REPO_DIR}/.gemini/settings.json"
+GEMINI_POLICY_DIR="${REPO_DIR}/.gemini/policies"
+GEMINI_POLICY_FILE="${GEMINI_POLICY_DIR}/test-policy.toml"
 
 # Capture original states for BOTH to ensure clean restoration
 CLAUDE_SETTINGS_ORIGINAL=$(cat "$CLAUDE_SETTINGS" 2>/dev/null || echo "{}")
@@ -136,6 +138,8 @@ restore_settings() {
   else
     echo "$GEMINI_SETTINGS_ORIGINAL" > "$GEMINI_SETTINGS"
   fi
+  rm -f "${GEMINI_POLICY_FILE}"
+  rmdir "${GEMINI_POLICY_DIR}" 2>/dev/null || true
 }
 trap restore_settings EXIT
 
@@ -175,7 +179,7 @@ write_gemini_settings() {
   local fixture_file="$1"
   local log_file="$2"
   node --input-type=module <<EOF
-import { writeFileSync } from "fs";
+import { writeFileSync, mkdirSync } from "fs";
 const cfg = {
   mcpServers: {
     sauver: {
@@ -187,12 +191,14 @@ const cfg = {
       },
       trust: true
     }
-  },
-  tools: {
-    allowed: ["Read"]
   }
 };
 writeFileSync("${SETTINGS_FILE}", JSON.stringify(cfg, null, 2));
+
+// Policy Engine migration: allow Read tool
+const policy = '[[rule]]\ntoolName = "Read"\ndecision = "allow"\npriority = 100\n';
+mkdirSync("${GEMINI_POLICY_DIR}", { recursive: true });
+writeFileSync("${GEMINI_POLICY_FILE}", policy);
 EOF
 }
 

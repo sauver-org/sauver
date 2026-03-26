@@ -434,6 +434,9 @@ node -e "
 echo -e "${GREEN}✅ Claude Code configured${NC}"
 
 GEMINI_SETTINGS="$HOME/.gemini/settings.json"
+GEMINI_POLICY_DIR="$HOME/.gemini/policies"
+GEMINI_POLICY_FILE="$GEMINI_POLICY_DIR/sauver.toml"
+
 node -e "
   const fs = require('fs');
   const path = '$GEMINI_SETTINGS';
@@ -441,11 +444,28 @@ node -e "
   try { s = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
   s.mcpServers = s.mcpServers || {};
   s.mcpServers.sauver = { command: 'node', args: ['$INSTALL_DIR/index.js'], trust: true };
+  // Migration: Remove deprecated tools.allowed if present
+  if (s.tools) delete s.tools;
   fs.mkdirSync(require('path').dirname(path), { recursive: true });
   fs.writeFileSync(path, JSON.stringify(s, null, 2));
 "
 
-echo -e "${GREEN}✅ Gemini CLI configured${NC}"
+# Create Gemini Policy Engine rule to allow Read tool and Sauver MCP tools
+mkdir -p "$GEMINI_POLICY_DIR"
+cat > "$GEMINI_POLICY_FILE" <<EOF
+# Sauver Policy — Allow tools required for autonomous operation
+[[rule]]
+toolName = "Read"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "mcp__sauver__*"
+decision = "allow"
+priority = 100
+EOF
+
+echo -e "${GREEN}✅ Gemini CLI configured (Policy Engine updated)${NC}"
 
 # ── Done ─────────────────────────────────────────────────────────────────────
 

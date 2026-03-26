@@ -1,0 +1,11 @@
+# Allow tools that are safe for automatic execution in this project
+[[rule]]
+toolName = "Read"
+decision = "allow"
+priority = 100
+
+# Optional: allow all read-only tools if desired
+# [[rule]]
+# toolAnnotations = { readOnlyHint = true }
+# decision = "allow"
+# priority = 50

@@ -166,6 +166,17 @@ case "$gemini_enablement_result" in
   removed)       echo -e "${GREEN}✅ Removed Sauver entry from ~/.gemini/mcp-server-enablement.json${NC}" ;;
 esac
 
+# ── 5. Remove Gemini Policy Engine rule ─────────────────────────────────────
+
+GEMINI_POLICY_FILE="$HOME/.gemini/policies/sauver.toml"
+if [ -f "$GEMINI_POLICY_FILE" ]; then
+  rm "$GEMINI_POLICY_FILE"
+  rmdir "$(dirname "$GEMINI_POLICY_FILE")" 2>/dev/null || true
+  echo -e "${GREEN}✅ Removed Sauver policy from ~/.gemini/policies${NC}"
+else
+  echo -e "${YELLOW}⚠️  Sauver policy not found in ~/.gemini/policies — skipping${NC}"
+fi
+
 # ── 6. Delete the Apps Script backend ───────────────────────────────────────
 
 if [ -n "$SCRIPT_ID" ]; then
