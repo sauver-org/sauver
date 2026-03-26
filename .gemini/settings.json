@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "sauver": {
+      "command": "node",
+      "args": [
+        "/Users/marcin/src/sauver/tests/mock-mcp-server/index.js"
+      ],
+      "env": {
+        "SAUVER_TEST_FIXTURE_FILE": "tests/fixtures/legitimate/google-workspace-canceled.eml",
+        "SAUVER_TEST_LOG": "/tmp/sauver-test-google-workspace-canceled.json"
+      },
+      "trust": true
+    }
+  },
+  "tools": {
+    "allowed": [
+      "Read"
+    ]
+  }
+}
