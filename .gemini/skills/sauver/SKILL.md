@@ -1,4 +1,5 @@
 ---
+name: sauver
 description: "The primary orchestrator skill for Sauver. Coordinates tracking protection, slop detection, and spammer redirection."
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: bouncer-reply
 description: "Specialized skill to generate confusing, time-wasting draft responses to trap spammers in a hallucinated conversation."
 ---
 

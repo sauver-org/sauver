@@ -153,9 +153,11 @@ async function downloadSkills() {
     // Claude: plain markdown (no frontmatter needed)
     writeFileSync(join(CLAUDE_COMMANDS_DIR, `${commandName}.md`), body);
 
-    // Gemini: requires YAML frontmatter with description for slash command discovery
-    const geminiShim = `---\ndescription: ${description}\n---\n\n${body}`;
-    writeFileSync(join(GEMINI_WORKFLOWS_DIR, `${commandName}.md`), geminiShim);
+    // Gemini: skill must be a directory containing SKILL.md with name + description frontmatter
+    const geminiSkillDir = join(GEMINI_WORKFLOWS_DIR, commandName);
+    mkdirSync(geminiSkillDir, { recursive: true });
+    const geminiShim = `---\nname: ${commandName}\ndescription: ${description}\n---\n\n${body}`;
+    writeFileSync(join(geminiSkillDir, "SKILL.md"), geminiShim);
   }
 }
 
