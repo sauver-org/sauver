@@ -282,6 +282,7 @@ const TOOLS = [
       },
     },
   },
+  {
     name: "get_profile",
     description: "Get the authenticated user's Gmail address and display name.",
     inputSchema: { type: "object" },
