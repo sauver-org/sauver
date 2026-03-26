@@ -133,17 +133,28 @@ else
   (
     cd "$CLASP_WORK_DIR" || exit 1
     
-    # Create the project
-    npx --yes @google/clasp create --type standalone --title "Sauver Backend" >/dev/null
+    # Determine user's name for a more personalized backend
+    USER_NAME=$(id -F 2>/dev/null | cut -d' ' -f1)
+    if [ -z "$USER_NAME" ]; then USER_NAME=$(whoami); fi
+    BACKEND_NAME="${USER_NAME}'s Sauver Backend"
 
-    # Download source
-    curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
+    # Create the project
+    npx --yes @google/clasp create --type standalone --title "$BACKEND_NAME" >/dev/null
+
+    # Download source (prefer local if available during development)
+    if [ -f "../../apps-script/Code.gs" ]; then
+      cp "../../apps-script/Code.gs" Code.gs
+    else
+      curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
+    fi
     
-    # Inject user's unique secret key
+    # Inject user's unique secret key and backend name
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i '' "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
+      sed -i '' "s/const BACKEND_NAME = \"Sauver Backend\";/const BACKEND_NAME = \"${BACKEND_NAME}\";/" Code.gs
     else
       sed -i "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
+      sed -i "s/const BACKEND_NAME = \"Sauver Backend\";/const BACKEND_NAME = \"${BACKEND_NAME}\";/" Code.gs
     fi
 
     # Create appsscript.json required for 'Anyone' access webapp
@@ -212,6 +223,7 @@ if [ "$UPGRADE_MODE" = false ]; then
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "script_id": "${SCRIPT_ID}",
   "secret_key": "${SECRET_KEY}",
+  "backend_name": "${BACKEND_NAME}",
   "preferences": {
     "auto_draft": true,
     "yolo_mode": false,
@@ -228,6 +240,7 @@ EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "secret_key": "${SECRET_KEY}",
+  "backend_name": "${BACKEND_NAME:-Sauver Backend}",
   "preferences": {
     "auto_draft": true,
     "yolo_mode": false,

@@ -3,6 +3,7 @@
 // Docs: https://github.com/sauver-org/sauver
 
 const SECRET_KEY = "CHANGE_ME"; // ← replaced by installer
+const BACKEND_NAME = "Sauver Backend"; // ← replaced by installer
 
 function doGet(e) {
   const html = `
@@ -22,7 +23,7 @@ function doGet(e) {
       <body>
         <div class="card">
           <div class="icon">🛡️</div>
-          <h1>Sauver Backend Active</h1>
+          <h1>${BACKEND_NAME} Active</h1>
           <p>Your Gmail defense layer is successfully authorized and ready to protect your inbox.</p>
           <div class="status">Authorized</div>
           <p style="margin-top: 2rem; font-size: 0.8rem; color: #555;">You can now close this window and return to the terminal.</p>
@@ -31,7 +32,7 @@ function doGet(e) {
     </html>
   `;
   return HtmlService.createHtmlOutput(html)
-    .setTitle("Sauver | Backend Authorized")
+    .setTitle(`Sauver | ${BACKEND_NAME} Authorized`)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
