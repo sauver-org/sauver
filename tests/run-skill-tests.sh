@@ -67,8 +67,8 @@ NC='\033[0m'
 PASS=0
 FAIL=0
 
-pass() { echo -e "  ${GREEN}✓${NC} $1"; ((PASS++)); }
-fail() { echo -e "  ${RED}✗${NC} $1"; ((FAIL++)); }
+pass() { echo -e "  ${GREEN}✓${NC} $1"; PASS=$((PASS + 1)); }
+fail() { echo -e "  ${RED}✗${NC} $1"; FAIL=$((FAIL + 1)); }
 warn() { echo -e "  ${YELLOW}!${NC} $1"; }
 section() { echo -e "\n${BOLD}── $1 ──${NC}"; }
 
@@ -94,27 +94,84 @@ echo "  CLI: ${CLI}"
 echo "  Mock server: ${MOCK_SERVER_DIR}/index.js"
 
 # ── Settings file management ─────────────────────────────────────────────────
-# We temporarily replace the project-scoped .claude/settings.json so the AI
-# uses the mock MCP server instead of the real one.
-# For Gemini, ~/.gemini/settings.json is patched instead (and restored).
+# For Claude: we write two files:
+#   - .mcp.json          — project-scoped MCP override (takes precedence over ~/.claude.json)
+#   - .claude/settings.json — permissions
+# For Gemini: ~/.gemini/settings.json is patched (and restored).
+#
+# Claude stores user-level MCP servers in ~/.claude.json; project-level in .mcp.json.
+# Project scope takes precedence, so writing .mcp.json replaces the user sauver server.
 
+CLAUDE_MCP_FILE="${REPO_DIR}/.mcp.json"
 CLAUDE_SETTINGS="${REPO_DIR}/.claude/settings.json"
-GEMINI_SETTINGS="${HOME}/.gemini/settings.json"
+GEMINI_SETTINGS="${REPO_DIR}/.gemini/settings.json"
+
+# Capture original states for BOTH to ensure clean restoration
+CLAUDE_SETTINGS_ORIGINAL=$(cat "$CLAUDE_SETTINGS" 2>/dev/null || echo "{}")
+CLAUDE_MCP_ORIGINAL=$(cat "$CLAUDE_MCP_FILE" 2>/dev/null || echo "")
+GEMINI_SETTINGS_ORIGINAL=$(cat "$GEMINI_SETTINGS" 2>/dev/null || echo "{}")
 
 if [[ "$CLI" == "claude" ]]; then
   SETTINGS_FILE="$CLAUDE_SETTINGS"
-  SETTINGS_ORIGINAL=$(cat "$SETTINGS_FILE" 2>/dev/null || echo "{}")
 elif [[ "$CLI" == "gemini" ]]; then
   SETTINGS_FILE="$GEMINI_SETTINGS"
-  SETTINGS_ORIGINAL=$(cat "$SETTINGS_FILE" 2>/dev/null || echo "{}")
 fi
 
 restore_settings() {
-  echo "$SETTINGS_ORIGINAL" > "$SETTINGS_FILE"
+  # Restore Claude
+  if [[ "$CLAUDE_SETTINGS_ORIGINAL" == "{}" ]]; then
+    rm -f "$CLAUDE_SETTINGS"
+  else
+    echo "$CLAUDE_SETTINGS_ORIGINAL" > "$CLAUDE_SETTINGS"
+  fi
+  if [[ -z "$CLAUDE_MCP_ORIGINAL" ]]; then
+    rm -f "$CLAUDE_MCP_FILE"
+  else
+    echo "$CLAUDE_MCP_ORIGINAL" > "$CLAUDE_MCP_FILE"
+  fi
+
+  # Restore Gemini
+  if [[ "$GEMINI_SETTINGS_ORIGINAL" == "{}" ]]; then
+    rm -f "$GEMINI_SETTINGS"
+  else
+    echo "$GEMINI_SETTINGS_ORIGINAL" > "$GEMINI_SETTINGS"
+  fi
 }
 trap restore_settings EXIT
 
 write_claude_settings() {
+  local fixture_file="$1"
+  local log_file="$2"
+  # Write project-scoped MCP override to .mcp.json
+  node --input-type=module <<EOF
+import { writeFileSync } from "fs";
+const mcp = {
+  mcpServers: {
+    sauver: {
+      command: "node",
+      args: ["${MOCK_SERVER_DIR}/index.js"],
+      env: {
+        SAUVER_TEST_FIXTURE_FILE: "${fixture_file}",
+        SAUVER_TEST_LOG: "${log_file}"
+      }
+    }
+  }
+};
+writeFileSync("${CLAUDE_MCP_FILE}", JSON.stringify(mcp, null, 2));
+EOF
+  # Write permissions to .claude/settings.json
+  node --input-type=module <<EOF
+import { writeFileSync } from "fs";
+const cfg = {
+  permissions: {
+    allow: ["mcp__sauver__*", "Read"]
+  }
+};
+writeFileSync("${SETTINGS_FILE}", JSON.stringify(cfg, null, 2));
+EOF
+}
+
+write_gemini_settings() {
   local fixture_file="$1"
   local log_file="$2"
   node --input-type=module <<EOF
@@ -127,33 +184,13 @@ const cfg = {
       env: {
         SAUVER_TEST_FIXTURE_FILE: "${fixture_file}",
         SAUVER_TEST_LOG: "${log_file}"
-      }
+      },
+      trust: true
     }
   },
-  permissions: {
-    allow: ["mcp__sauver__*"]
+  tools: {
+    allowed: ["Read"]
   }
-};
-writeFileSync("${SETTINGS_FILE}", JSON.stringify(cfg, null, 2));
-EOF
-}
-
-write_gemini_settings() {
-  local fixture_file="$1"
-  local log_file="$2"
-  node --input-type=module <<EOF
-import { writeFileSync, readFileSync } from "fs";
-let cfg = {};
-try { cfg = JSON.parse(readFileSync("${SETTINGS_FILE}", "utf8")); } catch {}
-cfg.mcpServers = cfg.mcpServers ?? {};
-cfg.mcpServers.sauver = {
-  command: "node",
-  args: ["${MOCK_SERVER_DIR}/index.js"],
-  env: {
-    SAUVER_TEST_FIXTURE_FILE: "${fixture_file}",
-    SAUVER_TEST_LOG: "${log_file}"
-  },
-  trust: true
 };
 writeFileSync("${SETTINGS_FILE}", JSON.stringify(cfg, null, 2));
 EOF
@@ -253,7 +290,7 @@ run_test() {
   fi
 
   # Restore settings so next test starts clean (trap also does this on EXIT)
-  echo "$SETTINGS_ORIGINAL" > "$SETTINGS_FILE"
+  restore_settings
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────────
