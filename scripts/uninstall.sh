@@ -74,13 +74,13 @@ else
   echo -e "${YELLOW}⚠️  No Claude command shims found — skipping${NC}"
 fi
 
-# ── 3. Remove Gemini CLI workflow shims ──────────────────────────────────────
+# ── 3. Remove Gemini CLI skill shims ─────────────────────────────────────────
 
-GEMINI_WORKFLOWS="$HOME/.agent/workflows"
+GEMINI_SKILLS="$HOME/.gemini/skills"
 
 removed_gemini=0
 for cmd in "${COMMANDS[@]}"; do
-  f="$GEMINI_WORKFLOWS/${cmd}.md"
+  f="$GEMINI_SKILLS/${cmd}.md"
   if [ -f "$f" ]; then
     rm "$f"
     removed_gemini=$((removed_gemini + 1))
@@ -88,9 +88,9 @@ for cmd in "${COMMANDS[@]}"; do
 done
 
 if [ "$removed_gemini" -gt 0 ]; then
-  echo -e "${GREEN}✅ Removed $removed_gemini Gemini workflow shim(s) from ~/.agent/workflows${NC}"
+  echo -e "${GREEN}✅ Removed $removed_gemini Gemini skill shim(s) from ~/.gemini/skills${NC}"
 else
-  echo -e "${YELLOW}⚠️  No Gemini workflow shims found — skipping${NC}"
+  echo -e "${YELLOW}⚠️  No Gemini skill shims found — skipping${NC}"
 fi
 
 # ── 4 & 5. Remove mcpServers.sauver from Claude & Gemini settings ────────────

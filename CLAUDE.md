@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-make sync              # Regenerate .claude/ and .agent/ shims (run after editing any SKILL.md)
+make sync              # Regenerate .claude/commands/ and .gemini/skills/ shims (run after editing any SKILL.md)
 make check-sync        # Verify shims are up to date
 make test              # Run installer unit tests
 make test-skills       # Run skill integration tests against EML fixtures (claude CLI)
