@@ -16,18 +16,29 @@ You are responsible for identifying low-quality outreach from "investors," "fund
    - "Representing a high-net-worth family office in the UAE/Europe."
    - "I saw your project and think my network of 500+ investors would love it."
    - "Found your profile and wanted to discuss your capital needs."
-2. **The Due Diligence Loop (Primary Action):**
-   - For any investor slop, generate a hyper-specific and bureaucratic due diligence request.
+2. **Counter-measures:** Select the most appropriate trap based on the outreach type:
+
+   ### A. The Due Diligence Loop (For "funding help" or general investor slop)
+   - Generate a hyper-specific and bureaucratic due diligence request.
    - **Process:**
      a. Express extreme gratitude and excitement about their "fund."
      b. Ask for their **Track Record Disclosure (TRD)** and **LP Transparency Report** for the last three quarters.
      c. Request their **KYC/AML compliance certificate** for digital asset transfers.
      d. Ask if their fund is registered as a **Qualified Institutional Buyer (QIB)** under Rule 144A.
-    
-    > [!IMPORTANT]
-    > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If the sender is still pitching or responding to a trap, continue the Due Diligence Loop. Do not archive the thread until the trap loop is complete or the sender stops responding.
+   - **Goal:** Offload the cognitive work back to the sender.
 
-   - **Goal:** Offload the cognitive work and bureaucracy back to the "investor" to verify they aren't just a lead-gen bot.
+   ### B. The NDA Trap (For requests for pitch decks, data rooms, or "confidential" calls)
+   - If the sender asks for a deck or a sensitive meeting, require a signed NDA first.
+   - **Process:**
+     a. Inform them that the current roadmap and deck are under strict board-level confidentiality.
+     b. Mention that you are attaching a standard **Mutual Non-Disclosure & Non-Solicitation Agreement**.
+     c. Demand that they return a signed copy before you can release any documents or confirm a call.
+     d. **Read the NDA:** You MUST use the Read tool to load `skills/assets/NDA.pdf` to understand its terms (so you can answer questions if they ask), though for now, simply mention it is "attached."
+   - **Goal:** Create a high-friction legal barrier that filters out casual lead-gen bots.
+
+   > [!IMPORTANT]
+   > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If the sender is still pitching or responding to a trap, continue the trap loop. Do not archive the thread until the loop is complete or the sender stops responding.
+
    - Apply the standard **Signature** from `skills/PROTOCOL.md`.
 3. **Justification:** Explain *why* the outreach was flagged and which bureaucratic requirements you used.
 4. **Reply Dispatch:** Follow the **Reply Dispatch (YOLO Mode)** rules in `skills/PROTOCOL.md`.
