@@ -114,6 +114,7 @@ const TOOLS = [
       required: ["body"],
       properties: {
         body:     { type: "string" },
+        htmlBody: { type: "string" },
         threadId: { type: "string" },
         to:       { type: "string" },
         subject:  { type: "string" },
@@ -128,6 +129,7 @@ const TOOLS = [
       required: ["body"],
       properties: {
         body:     { type: "string" },
+        htmlBody: { type: "string" },
         threadId: { type: "string" },
         to:       { type: "string" },
         subject:  { type: "string" },

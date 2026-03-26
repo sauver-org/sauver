@@ -120,34 +120,58 @@ function getMessage(messageId) {
 }
 
 function createDraft(data) {
-  const { to, subject, body, threadId } = data;
+  const { to, subject, body, threadId, htmlBody } = data;
   let draft;
+
+  const options = {};
+  if (htmlBody) {
+    options.htmlBody = htmlBody;
+  } else if (body) {
+    options.htmlBody = escapeHtml(body).split("\n").join("<br>");
+  }
 
   if (threadId) {
     const thread = GmailApp.getThreadById(threadId);
     if (!thread) return { error: "Thread not found" };
-    draft = thread.createDraftReply(body);
+    draft = thread.createDraftReply(body || "", options);
   } else {
     if (!to || !subject) return { error: "to and subject are required for new drafts" };
-    draft = GmailApp.createDraft(to, subject, body);
+    draft = GmailApp.createDraft(to, subject, body || "", options);
   }
 
   return { draftId: draft.getId(), status: "Draft created" };
 }
 
 function sendMessage(data) {
-  const { to, subject, body, threadId } = data;
+  const { to, subject, body, threadId, htmlBody } = data;
+
+  const options = {};
+  if (htmlBody) {
+    options.htmlBody = htmlBody;
+  } else if (body) {
+    options.htmlBody = escapeHtml(body).split("\n").join("<br>");
+  }
 
   if (threadId) {
     const thread = GmailApp.getThreadById(threadId);
     if (!thread) return { error: "Thread not found" };
-    thread.reply(body);
+    thread.reply(body || "", options);
     return { status: "Reply sent" };
   }
 
   if (!to || !subject) return { error: "to and subject are required" };
-  GmailApp.sendEmail(to, subject, body);
+  GmailApp.sendEmail(to, subject, body || "", options);
   return { status: "Message sent" };
+}
+
+function escapeHtml(text) {
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function archiveThread(threadId) {
