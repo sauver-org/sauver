@@ -1,0 +1,37 @@
+MIME-Version: 1.0
+From: Android Developers <android-developers-noreply@google.com>
+Reply-To: Android Developers <android-developers-noreply@google.com>
+To: bob@acme.com
+Subject: Build apps from prompts: Upgrade to Panda 2
+Date: Tue, 24 Mar 2026 14:27:29 -0700
+List-Unsubscribe: <https://myaccount.google.com/communication-preferences/auto/unsubscribe>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Precedence: bulk
+Content-Type: text/plain; charset="UTF-8"
+
+Your vision, now in production
+
+Android Studio Panda 2 is here. Go from concept to working app faster with
+new agentic experiences designed to handle the heavy lifting for you.
+
+Go from idea to app
+
+With the New Project flow, you can describe your vision in natural language
+or even upload a UI mockup and let Gemini (or your LLM of choice via API
+key) build the foundation for you instead of spending hours wiring up
+dependencies.
+
+How it works:
+
+1. Open the New Project Wizard and select "Create with AI".
+
+2. Describe your app's flow (e.g., "A workout tracker with a calendar view
+and local storage"). You can even upload images for style inspiration.
+
+3. The agent creates a project plan, writes the Kotlin and Compose code,
+resolves build errors autonomously, and deploys a working draft to your
+emulator.
+
+Upgrade to Build with AI at https://developer.android.com/studio
+
+To stop receiving these emails, visit your Google Account communication preferences.

@@ -1,0 +1,25 @@
+MIME-Version: 1.0
+From: Google Cloud Platform <CloudPlatform-noreply@google.com>
+To: bob@acme.com
+Subject: Your billing account "GCP-BILLING-001" has been closed.
+Date: Wed, 25 Mar 2026 00:55:20 -0700
+Content-Type: text/plain; charset="UTF-8"
+
+We're writing to confirm your billing account "GCP-BILLING-001" has
+been closed.
+
+This may happen if the credits provided have expired or have been
+completely consumed. All billable services (e.g., VM instances) in any
+projects linked to the account will stop.
+
+If you wish to retain your projects, please move projects associated with
+this account to a different Billing Account. If you do not currently have a
+Billing Account and wish to sign up, please visit cloud.google.com.
+
+The Google team
+
+© 2026 Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043
+
+You have received this mandatory service announcement to update you about
+important changes to Google Cloud Platform, Firebase, APIs, or to your
+account.

@@ -1,0 +1,11 @@
+{
+  "description": "Event reminder from Luma for OpenClaw SV Builder Meetup (user registered for this event)",
+  "label": "legitimate",
+  "category": "event_reminder",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "legitimate",
+    "draft_created": false,
+    "archived": false
+  }
+}

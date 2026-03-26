@@ -1,0 +1,43 @@
+MIME-Version: 1.0
+From: "Chris Paxton from \"It Can Think\"" <itcanthink@substack.com>
+Reply-To: "Chris Paxton from \"It Can Think\"" <itcanthink@substack.com>
+To: bob@acme.com
+Subject: Will World Models Allow Robots to Think?
+Date: Thu, 26 Mar 2026 04:45:27 +0000
+List-Id: <itcanthink.substack.com>
+List-Post: <https://itcanthink.substack.com/p/will-world-models-allow-robots-to>
+List-Unsubscribe: <https://itcanthink.substack.com/action/disable_email/disable>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Precedence: bulk
+Content-Type: text/plain; charset="UTF-8"
+
+View this post on the web at https://itcanthink.substack.com/p/will-world-models-allow-robots-to
+
+Even if we should be freaking out about AI, intelligence specifically in
+robots still has a long way to go — it can take weeks to deploy a robot for
+a new task. On the other hand, video generation has gotten insanely good
+recently: Veo 3 from Google and Seedance 2.0 from ByteDance seem likely to
+change the way Hollywood works forever.
+
+Perhaps as a result of this incredible jump in capabilities, world models —
+which is to say, video-predictive model for robot tasks — are one of the
+most exciting trends in robotics right now. They show advanced generalization
+capabilities, can execute open-ended tasks, and provide an effective way to
+leverage large amounts of internet data to learn "priors" about how the robot
+should interact with the world, thus providing an effective way to close the
+robot data gap.
+
+I've written about world models before, so think of this post as an update —
+looking at the developments over the last few months and a couple novel ways
+of employing these models, as well as some trends that have developed.
+
+If you like this blog or these kinds of posts, please like, subscribe, and share.
+
+Thanks for reading It Can Think! Subscribe for free to receive new posts and
+support my work.
+
+Types of World Models
+
+I'll go over a few different types of world models that people look at.
+Note that I am to some extent using my own terminology here, so apologies
+for any inconsistencies with the broader literature.

@@ -1,0 +1,11 @@
+{
+  "description": "Subscribed newsletter from Android Developers about Android Studio Panda 2 release",
+  "label": "legitimate",
+  "category": "newsletter",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "legitimate",
+    "draft_created": false,
+    "archived": false
+  }
+}
