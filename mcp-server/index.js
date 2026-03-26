@@ -84,7 +84,7 @@ const REPO = "mszczodrak/sauver";
 const SAUVER_DIR = join(homedir(), ".sauver");
 const SKILLS_DIR = join(SAUVER_DIR, "skills");
 const CLAUDE_COMMANDS_DIR = join(homedir(), ".claude", "commands");
-const GEMINI_WORKFLOWS_DIR = join(homedir(), ".agent", "workflows");
+const GEMINI_WORKFLOWS_DIR = join(homedir(), ".gemini", "skills");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
@@ -139,7 +139,7 @@ async function downloadSkills() {
     const skillContent = await res.text();
     writeFileSync(join(skillDir, "SKILL.md"), skillContent);
 
-    // Extract description from SKILL.md YAML frontmatter for Gemini workflows
+    // Extract description from SKILL.md YAML frontmatter for Gemini skills
     const descMatch = skillContent.match(/^description:\s*"?([^"\n]+)"?/m);
     const description = descMatch ? descMatch[1].trim() : `Sauver ${commandName} skill`;
 

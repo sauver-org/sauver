@@ -26,7 +26,7 @@ import re
 
 # Both Claude and Gemini/Antigravity need these shims, but in different locations
 CLAUDE_DIR = ROOT / ".claude" / "commands"
-GEMINI_DIR = ROOT / ".agent" / "workflows"
+GEMINI_DIR = ROOT / ".gemini" / "skills"
 
 COMMANDS_DIRS = [CLAUDE_DIR, GEMINI_DIR]
 

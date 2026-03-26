@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-make sync              # Regenerate .claude/ and .agent/ shims (run after editing any SKILL.md)
+make sync              # Regenerate .claude/commands/ and .gemini/skills/ shims (run after editing any SKILL.md)
 make check-sync        # Verify shims are up to date
 make test              # Run installer unit tests
 make test-skills       # Run skill integration tests against EML fixtures (claude CLI)
@@ -14,7 +14,7 @@ make test-skills-gemini # Run skill integration tests against EML fixtures (gemi
 
 ## Claude Code Skills
 
-The following slash commands are available in Claude Code (`.claude/commands/`) and Gemini CLI (`.agent/workflows/`):
+The following slash commands are available in Claude Code (`.claude/commands/`) and Gemini CLI (`.gemini/skills/`):
 
 |      Command      |                                  Description                                         |
 |-------------------|--------------------------------------------------------------------------------------|
@@ -78,7 +78,7 @@ Never edit the version in `gemini-extension.json` or `index.js` directly.
 
 ## Sync Rules
 
-`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` and `.agent/workflows/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make check-sync` catches forgotten syncs.
+`skills/*/SKILL.md` is the single source of truth. `.claude/commands/*.md` and `.gemini/skills/*.md` are auto-generated shims — **do not edit them directly**. After changing any SKILL.md, run `make sync` to regenerate the commands. `make check-sync` catches forgotten syncs.
 
 **Always edit files in this repo, never in `~/.sauver/`.** The installer copies files there for runtime use; `~/.sauver/` is a deployment target, not a source of truth. Changes made there will be lost on the next install.
 

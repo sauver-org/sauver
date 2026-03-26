@@ -346,7 +346,7 @@ import { homedir } from "os";
 const REPO = "mszczodrak/sauver";
 const SKILLS_DIR = join(homedir(), ".sauver", "skills");
 const CLAUDE_COMMANDS = join(homedir(), ".claude", "commands");
-const GEMINI_WORKFLOWS = join(homedir(), ".agent", "workflows");
+const GEMINI_WORKFLOWS = join(homedir(), ".gemini", "skills");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
@@ -385,7 +385,7 @@ for (const [skillName, commandName] of SKILL_MAP) {
   const content = await fetchText(`${base}/skills/${skillName}/SKILL.md`);
   writeFileSync(join(skillDir, "SKILL.md"), content);
 
-  // Extract description from SKILL.md frontmatter for Gemini workflows
+  // Extract description from SKILL.md frontmatter for Gemini skills
   const descMatch = content.match(/^description:\s*"?([^"\n]+)"?/m);
   const description = descMatch ? descMatch[1].trim() : `Sauver ${commandName} skill`;
 

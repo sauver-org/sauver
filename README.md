@@ -36,7 +36,7 @@ The installer automates the setup process (~3 minutes total) using `clasp`:
 curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/uninstall.sh | bash
 ```
 
-This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.agent/workflows/`, and cleans the Sauver MCP entry from both `~/.claude/settings.json` and `~/.gemini/settings.json`. Your other AI settings and MCP servers are left untouched.
+This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.gemini/skills/`, and cleans the Sauver MCP entry from both `~/.claude/settings.json` and `~/.gemini/settings.json`. Your other AI settings and MCP servers are left untouched.
 
 ## Configuration
 
@@ -69,7 +69,7 @@ The installer writes slash commands to `~/.claude/commands/`, so they are availa
 
 ### Gemini CLI
 
-The installer writes workflows to `~/.agent/workflows/` and registers the MCP server in `~/.gemini/settings.json`, so all slash commands are available globally:
+The installer writes skills to `~/.gemini/skills/` and registers the MCP server in `~/.gemini/settings.json`, so all slash commands are available globally:
 
 | Command           | What it does                                                                                        |
 | ----------------- | --------------------------------------------------------------------------------------------------- |
@@ -94,7 +94,7 @@ Claude Code discovers Sauver through two layers:
 Gemini CLI discovers Sauver through two layers:
 
 1. **MCP Server Registration:** The installer adds the Sauver MCP server under `mcpServers` in `~/.gemini/settings.json`. Gemini reads this at startup, so `mcp__sauver__*` tools are available in every session.
-2. **Global Slash Commands:** The installer writes shims with YAML frontmatter to `~/.agent/workflows/`. Gemini CLI discovers these as slash commands globally, from any directory.
+2. **Global Slash Commands:** The installer writes skills with YAML frontmatter to `~/.gemini/skills/`. Gemini CLI discovers these as slash commands globally, from any directory.
 
 ### Skill auto-updates
 
@@ -215,4 +215,4 @@ curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/unin
 - `~/.claude/settings.json` — Claude Code MCP server registration
 - `~/.gemini/settings.json` — Gemini CLI MCP server registration
 - `~/.claude/commands/` — global Claude Code slash command shims (managed by the installer/auto-updater)
-- `~/.agent/workflows/` — global Gemini CLI slash command shims (managed by the installer/auto-updater)
+- `~/.gemini/skills/` — global Gemini CLI slash command shims (managed by the installer/auto-updater)
