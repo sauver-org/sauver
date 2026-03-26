@@ -126,9 +126,12 @@ async function downloadSkills() {
   // Download binary assets
   const assetsDir = join(SKILLS_DIR, "assets");
   mkdirSync(assetsDir, { recursive: true });
-  const ndaRes = await fetchWithTimeout(`${base}/skills/assets/NDA.docx`, 15_000);
-  if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching assets/NDA.docx`);
-  writeFileSync(join(assetsDir, "NDA.docx"), Buffer.from(await ndaRes.arrayBuffer()));
+
+  for (const asset of ["NDA.docx", "NDA.pdf"]) {
+    const assetRes = await fetchWithTimeout(`${base}/skills/assets/${asset}`, 15_000);
+    if (!assetRes.ok) throw new Error(`HTTP ${assetRes.status} fetching assets/${asset}`);
+    writeFileSync(join(assetsDir, asset), Buffer.from(await assetRes.arrayBuffer()));
+  }
 
   for (const [skillName, commandName] of SKILL_MAP) {
     const skillDir = join(SKILLS_DIR, skillName);
