@@ -460,7 +460,7 @@ decision = "allow"
 priority = 100
 
 [[rule]]
-toolName = "mcp__sauver__*"
+mcpName = "sauver"
 decision = "allow"
 priority = 100
 EOF
