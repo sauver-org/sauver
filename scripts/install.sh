@@ -385,7 +385,7 @@ for (const [skillName, commandName] of SKILL_MAP) {
   const content = await fetchText(`${base}/skills/${skillName}/SKILL.md`);
   writeFileSync(join(skillDir, "SKILL.md"), content);
 
-  // Extract description from SKILL.md frontmatter for Gemini workflows
+  // Extract description from SKILL.md frontmatter for Gemini skills
   const descMatch = content.match(/^description:\s*"?([^"\n]+)"?/m);
   const description = descMatch ? descMatch[1].trim() : `Sauver ${commandName} skill`;
 

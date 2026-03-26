@@ -139,7 +139,7 @@ async function downloadSkills() {
     const skillContent = await res.text();
     writeFileSync(join(skillDir, "SKILL.md"), skillContent);
 
-    // Extract description from SKILL.md YAML frontmatter for Gemini workflows
+    // Extract description from SKILL.md YAML frontmatter for Gemini skills
     const descMatch = skillContent.match(/^description:\s*"?([^"\n]+)"?/m);
     const description = descMatch ? descMatch[1].trim() : `Sauver ${commandName} skill`;
 
