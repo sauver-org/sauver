@@ -136,7 +136,13 @@ else
     # Determine user's name for a more personalized backend
     USER_NAME=$(id -F 2>/dev/null | cut -d' ' -f1)
     if [ -z "$USER_NAME" ]; then USER_NAME=$(whoami); fi
-    BACKEND_NAME="${USER_NAME}'s Sauver Backend"
+    
+    # If the name is generic or missing, use a more personal default
+    if [[ -z "$USER_NAME" || "$USER_NAME" =~ ^(root|admin|guest|user|node|docker)$ ]]; then
+      BACKEND_NAME="My Sauver Backend"
+    else
+      BACKEND_NAME="${USER_NAME}'s Sauver Backend"
+    fi
 
     # Create the project
     npx --yes @google/clasp create --type standalone --title "$BACKEND_NAME" >/dev/null
