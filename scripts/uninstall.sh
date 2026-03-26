@@ -33,13 +33,15 @@ fi
 # ── 0. Read config before removal ───────────────────────────────────────────
 
 SCRIPT_ID=""
+BACKEND_NAME=""
 CONFIG_FILE="$HOME/.sauver/config.json"
 if [ -f "$CONFIG_FILE" ]; then
-  SCRIPT_ID=$(node -e "
+  eval $(node -e "
     try {
       const c = JSON.parse(require('fs').readFileSync('$CONFIG_FILE', 'utf8'));
-      console.log(c.script_id || '');
-    } catch { console.log(''); }
+      console.log('SCRIPT_ID=' + (c.script_id || ''));
+      console.log('BACKEND_NAME=\"' + (c.backend_name || '') + '\"');
+    } catch { }
   " 2>/dev/null)
 fi
 
@@ -205,7 +207,7 @@ if [ -n "$SCRIPT_ID" ]; then
       ;;
   esac
 else
-  echo -e "${YELLOW}⚠️  No Apps Script project ID on record — remove 'Sauver Backend' manually at:${NC}"
+  echo -e "${YELLOW}⚠️  No Apps Script project ID on record — remove '${BACKEND_NAME:-Sauver Backend}' manually at:${NC}"
   echo "   https://script.google.com/home"
   _open_url "https://script.google.com/home"
 fi

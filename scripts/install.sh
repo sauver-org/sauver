@@ -112,6 +112,14 @@ else
   echo "  a) First, you must enable the Google Apps Script API:"
   printf "     Open %s\n" "$(link 'https://script.google.com/home/usersettings')"
   echo "     and toggle 'Google Apps Script API' to ON."
+
+  # Try to open the URL automatically (best-effort)
+  local SETTINGS_URL="https://script.google.com/home/usersettings"
+  if command -v open &>/dev/null; then
+    open "$SETTINGS_URL" 2>/dev/null || true
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "$SETTINGS_URL" 2>/dev/null || true
+  fi
   echo ""
   read -rp "  ↵  Press Enter when you have done this..." < /dev/tty
   echo ""
@@ -125,17 +133,34 @@ else
   (
     cd "$CLASP_WORK_DIR" || exit 1
     
-    # Create the project
-    npx --yes @google/clasp create --type standalone --title "Sauver Backend" >/dev/null
-
-    # Download source
-    curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
+    # Determine user's name for a more personalized backend
+    USER_NAME=$(id -F 2>/dev/null | cut -d' ' -f1)
+    if [ -z "$USER_NAME" ]; then USER_NAME=$(whoami); fi
     
-    # Inject user's unique secret key
+    # If the name is generic or missing, use a more personal default
+    if [[ -z "$USER_NAME" || "$USER_NAME" =~ ^(root|admin|guest|user|node|docker)$ ]]; then
+      BACKEND_NAME="My Sauver Backend"
+    else
+      BACKEND_NAME="${USER_NAME}'s Sauver Backend"
+    fi
+
+    # Create the project
+    npx --yes @google/clasp create --type standalone --title "$BACKEND_NAME" >/dev/null
+
+    # Download source (prefer local if available during development)
+    if [ -f "../../apps-script/Code.gs" ]; then
+      cp "../../apps-script/Code.gs" Code.gs
+    else
+      curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
+    fi
+    
+    # Inject user's unique secret key and backend name
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i '' "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
+      sed -i '' "s/const BACKEND_NAME = \"Sauver Backend\";/const BACKEND_NAME = \"${BACKEND_NAME}\";/" Code.gs
     else
       sed -i "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
+      sed -i "s/const BACKEND_NAME = \"Sauver Backend\";/const BACKEND_NAME = \"${BACKEND_NAME}\";/" Code.gs
     fi
 
     # Create appsscript.json required for 'Anyone' access webapp
@@ -204,6 +229,7 @@ if [ "$UPGRADE_MODE" = false ]; then
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "script_id": "${SCRIPT_ID}",
   "secret_key": "${SECRET_KEY}",
+  "backend_name": "${BACKEND_NAME}",
   "preferences": {
     "auto_draft": true,
     "yolo_mode": false,
@@ -220,6 +246,7 @@ EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "secret_key": "${SECRET_KEY}",
+  "backend_name": "${BACKEND_NAME:-Sauver Backend}",
   "preferences": {
     "auto_draft": true,
     "yolo_mode": false,
