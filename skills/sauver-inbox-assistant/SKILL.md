@@ -46,7 +46,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    If flagged as slop:
    - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
-   - **Archive:** call `apply_label` with the `sauver_label` value, then call `archive_thread`.
+   - **Archive:** call `apply_label` with the **exact** `sauver_label` value from preferences (do not invent sub-labels like "Sauver/Slop" unless explicitly configured), then call `archive_thread`.
 
    Only after Step C is complete, move to Step A for the next message.
 

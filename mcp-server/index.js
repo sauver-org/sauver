@@ -272,17 +272,16 @@ const TOOLS = [
   },
   {
     name: "apply_label",
-    description: "Apply a label to a Gmail thread. Creates the label if it doesn't exist.",
+    description: "Apply a label to a Gmail thread. Creates the label if it doesn't exist. Always use the label name provided in the user preferences (sauver_label).",
     inputSchema: {
       type: "object",
       required: ["threadId", "labelName"],
       properties: {
         threadId: { type: "string" },
-        labelName: { type: "string", description: "e.g. 'Sauver' or 'Sauver/Slop'" },
+        labelName: { type: "string", description: "The name of the label to apply (e.g. the value of 'sauver_label' from preferences)" },
       },
     },
   },
-  {
     name: "get_profile",
     description: "Get the authenticated user's Gmail address and display name.",
     inputSchema: { type: "object" },
