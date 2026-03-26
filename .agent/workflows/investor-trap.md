@@ -1,3 +1,7 @@
+---
+description: "Specialized skill to identify unsolicited investor 'slop' (family offices, fund-raising help) and neutralize them with the 'Due Diligence Loop'."
+---
+
 <!-- Generated from skills/investor-trap/SKILL.md by scripts/sync_commands.py — do not edit directly.
      Run `make sync` to regenerate after editing the source SKILL.md. -->
 

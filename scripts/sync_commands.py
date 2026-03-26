@@ -22,11 +22,13 @@ SKILLS_DIR = ROOT / "skills"
 VERSION_SOURCE = ROOT / "mcp-server" / "package.json"
 GEMINI_EXTENSION = ROOT / "gemini-extension.json"
 
+import re
+
 # Both Claude and Gemini/Antigravity need these shims, but in different locations
-COMMANDS_DIRS = [
-    ROOT / ".claude" / "commands",
-    ROOT / ".agent" / "workflows",
-]
+CLAUDE_DIR = ROOT / ".claude" / "commands"
+GEMINI_DIR = ROOT / ".agent" / "workflows"
+
+COMMANDS_DIRS = [CLAUDE_DIR, GEMINI_DIR]
 
 # Skill directory name → command filename (None = skip)
 SKILL_TO_COMMAND: dict[str, Optional[str]] = {
@@ -38,7 +40,22 @@ SKILL_TO_COMMAND: dict[str, Optional[str]] = {
     "archiver": "archiver",
 }
 
-SHIM_TEMPLATE = """\
+CLAUDE_SHIM_TEMPLATE = """\
+<!-- Generated from {skill_rel} by scripts/sync_commands.py — do not edit directly.
+     Run `make sync` to regenerate after editing the source SKILL.md. -->
+
+Use your Read tool to load `{skill_rel}` and `skills/PROTOCOL.md`, then follow \
+the instructions in that file exactly.
+
+All tools listed in `skills/PROTOCOL.md` are available via the Sauver MCP server \
+(`mcp__sauver__*`). No substitution needed.
+"""
+
+GEMINI_SHIM_TEMPLATE = """\
+---
+description: "{description}"
+---
+
 <!-- Generated from {skill_rel} by scripts/sync_commands.py — do not edit directly.
      Run `make sync` to regenerate after editing the source SKILL.md. -->
 
@@ -50,9 +67,26 @@ All tools listed in `skills/PROTOCOL.md` are available via the Sauver MCP server
 """
 
 
-def render_shim(skill_name: str) -> str:
+def extract_description(skill_md_path: Path) -> str:
+    """Extract description from YAML frontmatter in SKILL.md."""
+    content = skill_md_path.read_text()
+    match = re.search(r'^description:\s*"(.*)"', content, re.MULTILINE)
+    if match:
+        return match.group(1)
+    match = re.search(r"^description:\s*'(.*)'", content, re.MULTILINE)
+    if match:
+        return match.group(1)
+    match = re.search(r"^description:\s*(.*)", content, re.MULTILINE)
+    if match:
+        return match.group(1).strip()
+    return "Execute the Sauver skill: " + skill_md_path.parent.name
+
+
+def render_shim(skill_name: str, dest_dir: Path, description: str) -> str:
     skill_rel = f"skills/{skill_name}/SKILL.md"
-    return SHIM_TEMPLATE.format(skill_rel=skill_rel)
+    if dest_dir == GEMINI_DIR:
+        return GEMINI_SHIM_TEMPLATE.format(skill_rel=skill_rel, description=description)
+    return CLAUDE_SHIM_TEMPLATE.format(skill_rel=skill_rel)
 
 
 def sync_version(check_only: bool = False) -> int:
@@ -90,9 +124,10 @@ def sync(check_only: bool = False) -> int:
             print(f"  WARNING  skills/{skill_name}/SKILL.md not found — skipped", file=sys.stderr)
             continue
 
-        new_content = render_shim(skill_name)
+        description = extract_description(skill_md)
 
         for d in COMMANDS_DIRS:
+            new_content = render_shim(skill_name, d, description)
             command_path = d / f"{command_name}.md"
             rel_path = command_path.relative_to(ROOT)
             if command_path.exists() and command_path.read_text() == new_content:

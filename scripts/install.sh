@@ -114,7 +114,7 @@ else
   echo "     and toggle 'Google Apps Script API' to ON."
 
   # Try to open the URL automatically (best-effort)
-  local SETTINGS_URL="https://script.google.com/home/usersettings"
+  SETTINGS_URL="https://script.google.com/home/usersettings"
   if command -v open &>/dev/null; then
     open "$SETTINGS_URL" 2>/dev/null || true
   elif command -v xdg-open &>/dev/null; then

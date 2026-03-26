@@ -1,3 +1,7 @@
+---
+description: "Specialized skill to identify and strip tracking pixels, spy-links, and open-tracking beacons from HTML email bodies."
+---
+
 <!-- Generated from skills/tracker-shield/SKILL.md by scripts/sync_commands.py — do not edit directly.
      Run `make sync` to regenerate after editing the source SKILL.md. -->
 

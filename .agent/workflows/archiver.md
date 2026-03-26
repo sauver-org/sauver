@@ -1,3 +1,7 @@
+---
+description: "Standalone utility skill to label and archive a specific Gmail thread on demand — without running a full triage."
+---
+
 <!-- Generated from skills/archiver/SKILL.md by scripts/sync_commands.py — do not edit directly.
      Run `make sync` to regenerate after editing the source SKILL.md. -->
 

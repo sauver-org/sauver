@@ -1,3 +1,7 @@
+---
+description: "Specialized skill to generate confusing, time-wasting draft responses to trap spammers in a hallucinated conversation."
+---
+
 <!-- Generated from skills/bouncer-reply/SKILL.md by scripts/sync_commands.py — do not edit directly.
      Run `make sync` to regenerate after editing the source SKILL.md. -->
 
