@@ -1,3 +1,7 @@
+---
+description: "The primary orchestrator skill for Sauver. Coordinates tracking protection, slop detection, and spammer redirection."
+---
+
 <!-- Generated from skills/sauver-inbox-assistant/SKILL.md by scripts/sync_commands.py — do not edit directly.
      Run `make sync` to regenerate after editing the source SKILL.md. -->
 
