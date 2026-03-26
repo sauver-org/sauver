@@ -14,7 +14,7 @@ function doGet(e) {
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0a0a0a; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
           .card { background: #111; padding: 2rem; border-radius: 12px; border: 1px solid #222; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-          .icon { font-size: 3.5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
+          .icon { margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
           h1 { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
           p { color: #999; margin: 0; line-height: 1.6; font-size: 0.95rem; }
           .status { display: inline-block; margin-top: 1.5rem; padding: 4px 12px; background: #1a2e1a; color: #4ade80; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -22,7 +22,7 @@ function doGet(e) {
       </head>
       <body>
         <div class="card">
-          <div class="icon">🛡️</div>
+          <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 1024 1024"><path fill="rgb(250,161,22)" d="M512 42.667969L128 213.332031L128 469.332031C128 706.132812 291.839844 927.574219 512 981.332031C732.160156 927.574219 896 706.132812 896 469.332031L896 213.332031ZM512 511.574219L810.667969 511.574219C790.613281 696.746094 683.519531 861.011719 512 916.480469L512 512L213.332031 512L213.332031 268.800781L512 136.105469Z"/></svg></div>
           <h1>${BACKEND_NAME} Active</h1>
           <p>Your Gmail defense layer is successfully authorized and ready to protect your inbox.</p>
           <div class="status">Authorized</div>
