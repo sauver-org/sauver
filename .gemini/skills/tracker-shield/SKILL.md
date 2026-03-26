@@ -1,4 +1,5 @@
 ---
+name: tracker-shield
 description: "Specialized skill to identify and strip tracking pixels, spy-links, and open-tracking beacons from HTML email bodies."
 ---
 

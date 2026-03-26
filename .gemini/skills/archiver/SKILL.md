@@ -1,4 +1,5 @@
 ---
+name: archiver
 description: "Standalone utility skill to label and archive a specific Gmail thread on demand — without running a full triage."
 ---
 

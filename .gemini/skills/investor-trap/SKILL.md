@@ -1,4 +1,5 @@
 ---
+name: investor-trap
 description: "Specialized skill to identify unsolicited investor 'slop' (family offices, fund-raising help) and neutralize them with the 'Due Diligence Loop'."
 ---
 

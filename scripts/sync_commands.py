@@ -53,6 +53,7 @@ All tools listed in `skills/PROTOCOL.md` are available via the Sauver MCP server
 
 GEMINI_SHIM_TEMPLATE = """\
 ---
+name: {command_name}
 description: "{description}"
 ---
 
@@ -82,10 +83,10 @@ def extract_description(skill_md_path: Path) -> str:
     return "Execute the Sauver skill: " + skill_md_path.parent.name
 
 
-def render_shim(skill_name: str, dest_dir: Path, description: str) -> str:
+def render_shim(skill_name: str, command_name: str, dest_dir: Path, description: str) -> str:
     skill_rel = f"skills/{skill_name}/SKILL.md"
     if dest_dir == GEMINI_DIR:
-        return GEMINI_SHIM_TEMPLATE.format(skill_rel=skill_rel, description=description)
+        return GEMINI_SHIM_TEMPLATE.format(skill_rel=skill_rel, description=description, command_name=command_name)
     return CLAUDE_SHIM_TEMPLATE.format(skill_rel=skill_rel)
 
 
@@ -127,8 +128,12 @@ def sync(check_only: bool = False) -> int:
         description = extract_description(skill_md)
 
         for d in COMMANDS_DIRS:
-            new_content = render_shim(skill_name, d, description)
-            command_path = d / f"{command_name}.md"
+            new_content = render_shim(skill_name, command_name, d, description)
+            if d == GEMINI_DIR:
+                command_path = d / command_name / "SKILL.md"
+                command_path.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                command_path = d / f"{command_name}.md"
             rel_path = command_path.relative_to(ROOT)
             if command_path.exists() and command_path.read_text() == new_content:
                 print(f"  ok       {rel_path}")

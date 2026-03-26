@@ -1,4 +1,5 @@
 ---
+name: slop-detector
 description: "Specialized skill to identify automated 'slop' (low-quality outreach) and neutralize it with 'The Expert-Domain Trap'."
 ---
 
