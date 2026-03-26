@@ -346,7 +346,7 @@ import { homedir } from "os";
 const REPO = "mszczodrak/sauver";
 const SKILLS_DIR = join(homedir(), ".sauver", "skills");
 const CLAUDE_COMMANDS = join(homedir(), ".claude", "commands");
-const GEMINI_WORKFLOWS = join(homedir(), ".agent", "workflows");
+const GEMINI_WORKFLOWS = join(homedir(), ".gemini", "skills");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],

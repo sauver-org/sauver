@@ -84,7 +84,7 @@ const REPO = "mszczodrak/sauver";
 const SAUVER_DIR = join(homedir(), ".sauver");
 const SKILLS_DIR = join(SAUVER_DIR, "skills");
 const CLAUDE_COMMANDS_DIR = join(homedir(), ".claude", "commands");
-const GEMINI_WORKFLOWS_DIR = join(homedir(), ".agent", "workflows");
+const GEMINI_WORKFLOWS_DIR = join(homedir(), ".gemini", "skills");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
