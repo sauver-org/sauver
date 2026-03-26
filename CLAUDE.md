@@ -138,7 +138,7 @@ Activated entirely via environment variables — no changes to production code:
 ### Test Runner (`tests/run-skill-tests.sh`)
 
 For each fixture the runner:
-1. Writes a project-scoped `.claude/settings.json` pointing to the mock MCP server (project scope overrides user scope, so the real Gmail connection is never touched; the original settings are restored on exit)
+1. Writes project-scoped overrides ( `.mcp.json` for Claude, `.gemini/settings.json` for Gemini) pointing to the mock MCP server. Project scope overrides user scope, so the real Gmail connection is never touched; original settings are restored on exit.
 2. Runs `claude -p "/sauver"` (or `gemini -p "/sauver"` with `--cli gemini`)
 3. Reads the call log and checks `draft_created` and `archived` against the `.test.json` expectations
 
