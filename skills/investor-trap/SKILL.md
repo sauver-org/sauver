@@ -23,6 +23,10 @@ You are responsible for identifying low-quality outreach from "investors," "fund
      b. Ask for their **Track Record Disclosure (TRD)** and **LP Transparency Report** for the last three quarters.
      c. Request their **KYC/AML compliance certificate** for digital asset transfers.
      d. Ask if their fund is registered as a **Qualified Institutional Buyer (QIB)** under Rule 144A.
+    
+    > [!IMPORTANT]
+    > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If the sender is still pitching or responding to a trap, continue the Due Diligence Loop. Do not archive the thread until the trap loop is complete or the sender stops responding.
+
    - **Goal:** Offload the cognitive work and bureaucracy back to the "investor" to verify they aren't just a lead-gen bot.
    - Apply the standard **Signature** from `skills/PROTOCOL.md`.
 3. **Justification:** Explain *why* the outreach was flagged and which bureaucratic requirements you used.

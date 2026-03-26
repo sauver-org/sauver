@@ -38,7 +38,12 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    - If flagged as a bot **and** `engage_bots` is `true`: proceed to Step C as normal (keep engaging).
    - If not flagged: proceed to Step C as normal.
 
-   **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. If flagged as slop:
+   **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. 
+    
+   > [!IMPORTANT]
+   > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If it matches slop patterns or bot behavior, it is slop. Never skip an email just because it appears to be an "ongoing discussion" if that discussion is a trap loop or automated outreach.
+
+   If flagged as slop:
    - **Trap selection:** use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    - **Dispatch:** if `yolo_mode` is `true`, call `send_message`; else if `auto_draft` is `true`, call `create_draft`; else skip sending and report only.
    - **Archive:** call `apply_label` with the `sauver_label` value, then call `archive_thread`.
