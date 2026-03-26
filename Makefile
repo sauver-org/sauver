@@ -1,4 +1,4 @@
-.PHONY: sync check-sync version test
+.PHONY: sync check-sync version test test-skills test-skills-gemini
 
 sync:
 	@echo "Regenerating extension shims (.claude/ & .agent/) from skills/..."
@@ -10,6 +10,16 @@ check-sync:
 
 test:
 	bash tests/test-install.sh
+
+# Skill integration tests — run the /sauver skill against real EML fixtures
+# via the mock MCP server. Requires claude (or gemini) CLI to be installed.
+test-skills:
+	cd tests/mock-mcp-server && npm install --silent
+	bash tests/run-skill-tests.sh
+
+test-skills-gemini:
+	cd tests/mock-mcp-server && npm install --silent
+	bash tests/run-skill-tests.sh --cli gemini
 
 version:
 	@test -n "$(V)" || (echo "Usage: make version V=x.y.z" && exit 1)

@@ -5,8 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-make sync       # Regenerate .claude/ and .agent/ shims (run after editing any SKILL.md)
-make check-sync # Verify shims are up to date
+make sync              # Regenerate .claude/ and .agent/ shims (run after editing any SKILL.md)
+make check-sync        # Verify shims are up to date
+make test              # Run installer unit tests
+make test-skills       # Run skill integration tests against EML fixtures (claude CLI)
+make test-skills-gemini # Run skill integration tests against EML fixtures (gemini CLI)
 ```
 
 ## Claude Code Skills
@@ -85,3 +88,64 @@ Never edit the version in `gemini-extension.json` or `index.js` directly.
 cd mcp-server && npm install
 # Config must exist at ~/.sauver/config.json (run install.sh or create manually)
 ```
+
+## Skill Integration Tests
+
+`tests/` contains a two-part integration test system for validating AI behaviour against real email samples.
+
+### Fixtures (`tests/fixtures/`)
+
+EML files are the test inputs. Each `.eml` file has a sidecar `.test.json` with:
+
+```json
+{
+  "description": "human-readable summary of the email",
+  "label": "slop",          // ground truth: "slop" | "legitimate"
+  "category": "sales_outreach",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}
+```
+
+Fixtures are organised by ground truth:
+
+```
+tests/fixtures/
+  slop/       ← emails that should be detected and trapped
+  legitimate/ ← emails that should be left alone (not archived/drafted)
+```
+
+To add a new fixture: drop a `.eml` + `.test.json` into the appropriate subdirectory.
+
+EML files should include only the headers the AI actually uses — `From`, `Reply-To`, `To`, `Subject`, `Date`, `MIME-Version`, `Content-Type`, any mass-mailer signals (`X-Mailer`, `List-Unsubscribe`) — plus the full body. Strip all SMTP routing headers (Received, ARC, DKIM, X-Spam, etc.).
+
+### Mock MCP Server (`tests/mock-mcp-server/`)
+
+A drop-in replacement for the production MCP server that:
+- Reads EML files from disk (via `mailparser`) and serves them as the "inbox"
+- Returns instant no-ops for `check_update`, `get_preferences`, `get_profile`
+- Logs all write calls (`create_draft`, `send_message`, `archive_thread`, `apply_label`) to a JSON file at `SAUVER_TEST_LOG`
+
+Activated entirely via environment variables — no changes to production code:
+- `SAUVER_TEST_FIXTURE_FILE` — single EML (single-email inbox)
+- `SAUVER_TEST_FIXTURES_DIR` — directory of EMLs (multi-email inbox)
+- `SAUVER_TEST_LOG` — path for the call log (default: `/tmp/sauver-test-calls.json`)
+
+### Test Runner (`tests/run-skill-tests.sh`)
+
+For each fixture the runner:
+1. Writes a project-scoped `.claude/settings.json` pointing to the mock MCP server (project scope overrides user scope, so the real Gmail connection is never touched; the original settings are restored on exit)
+2. Runs `claude -p "/sauver"` (or `gemini -p "/sauver"` with `--cli gemini`)
+3. Reads the call log and checks `draft_created` and `archived` against the `.test.json` expectations
+
+```bash
+make test-skills                                                          # all fixtures, claude
+make test-skills-gemini                                                   # all fixtures, gemini
+bash tests/run-skill-tests.sh tests/fixtures/slop/quick-question.eml     # single fixture
+```
+
+These are local-only tests — they require the claude or gemini CLI to be installed and authenticated, and Sauver skills to be installed at `~/.sauver/skills/`. They are not run in CI.
