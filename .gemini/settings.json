@@ -6,15 +6,10 @@
         "/Users/marcin/src/sauver/tests/mock-mcp-server/index.js"
       ],
       "env": {
-        "SAUVER_TEST_FIXTURE_FILE": "tests/fixtures/legitimate/google-workspace-canceled.eml",
-        "SAUVER_TEST_LOG": "/tmp/sauver-test-google-workspace-canceled.json"
+        "SAUVER_TEST_FIXTURE_FILE": "/Users/marcin/src/sauver/tests/fixtures/slop/credit-line-offer-shelby.eml",
+        "SAUVER_TEST_LOG": "/tmp/sauver-test-credit-line-offer-shelby.json"
       },
       "trust": true
     }
-  },
-  "tools": {
-    "allowed": [
-      "Read"
-    ]
   }
 }
