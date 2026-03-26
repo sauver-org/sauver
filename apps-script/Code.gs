@@ -36,6 +36,37 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+function doGet(e) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <base target="_top">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0a0a0a; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+          .card { background: #111; padding: 2rem; border-radius: 12px; border: 1px solid #222; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+          .icon { font-size: 3.5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
+          h1 { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; }
+          p { color: #999; margin: 0; line-height: 1.6; font-size: 0.95rem; }
+          .status { display: inline-block; margin-top: 1.5rem; padding: 4px 12px; background: #1a2e1a; color: #4ade80; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="icon">🛡️</div>
+          <h1>Sauver Backend Active</h1>
+          <p>Your Gmail defense layer is successfully authorized and ready to protect your inbox.</p>
+          <div class="status">Authorized</div>
+          <p style="margin-top: 2rem; font-size: 0.8rem; color: #555;">You can now close this window and return to the terminal.</p>
+        </div>
+      </body>
+    </html>
+  `;
+  return HtmlService.createHtmlOutput(html)
+    .setTitle("Sauver | Backend Authorized")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
