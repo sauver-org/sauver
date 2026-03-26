@@ -1,0 +1,11 @@
+{
+  "description": "Government contracting consultancy pitching OASIS+ on-ramp proposal assistance",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

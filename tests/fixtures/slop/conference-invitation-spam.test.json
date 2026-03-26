@@ -1,0 +1,11 @@
+{
+  "description": "Fake leadership conference invitation in Las Vegas asking for availability",
+  "label": "slop",
+  "category": "conference_spam",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "Cold outreach tool vendor (Instantly.ai) first reply to Acme's TAM methodology questions",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

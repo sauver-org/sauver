@@ -1,0 +1,11 @@
+{
+  "description": "Recruiter following up on unsolicited public safety sales manager candidate pitch",
+  "label": "slop",
+  "category": "job_offer",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

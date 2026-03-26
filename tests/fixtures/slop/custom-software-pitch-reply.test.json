@@ -1,0 +1,11 @@
+{
+  "description": "Custom software dev firm follow-up explaining isolation and change management",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

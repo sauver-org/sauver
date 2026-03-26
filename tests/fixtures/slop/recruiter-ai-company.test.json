@@ -1,0 +1,11 @@
+{
+  "description": "Recruiter pitching an engineering role at Decagon AI agents company",
+  "label": "slop",
+  "category": "job_offer",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

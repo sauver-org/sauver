@@ -1,0 +1,11 @@
+{
+  "description": "Custom software dev firm pitching replacement of SaaS tools at 70% lower cost",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

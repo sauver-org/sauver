@@ -1,0 +1,11 @@
+{
+  "description": "Investor spam claiming to have found an interested investor for Acme",
+  "label": "slop",
+  "category": "unsolicited_investor",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "Marketing newsletter vendor (Potions) pitching revenue from newsletters via ActiveCampaign",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": true,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "description": "Unsolicited flexible credit line offer 100k-500k for Acme, no guarantees",
+  "label": "slop",
+  "category": "unsolicited_financing",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}

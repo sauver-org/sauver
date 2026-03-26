@@ -1,0 +1,11 @@
+{
+  "description": "AI dev agency pitching to build an AI prototype for Acme",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": true,
+    "archived": true
+  }
+}
