@@ -21,7 +21,10 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
 2. **Route by Email Type:**
 
    ### A. Job Offer / Recruiter Outreach
-   Determine whether this is the **first message** in the thread or a **follow-up** (check thread history via `get_message`).
+   Determine whether this is the **first message** in the thread or a **follow-up**. Check thread history via `get_message`.
+   
+   > [!IMPORTANT]
+   > **Ongoing conversation does not equal legitimacy.** If the sender is still pitching or responding to a trap, continue the trap escalation. Do not archive the thread until the trap loop is complete or the sender stops responding.
 
    **First contact — The Info Vacuum:**
    Reply with a brief, politely curious note asking for any details that were *not* included in the email. Pick from the following as needed:
@@ -29,7 +32,7 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
    - Founder names and background
    - Specific open positions and their seniority level
    - Office location and whether remote is an option
-
+   
    Keep the tone genuinely interested but non-committal. The goal is to make them do the legwork of filling in the blanks they skipped.
 
    **Follow-up / subsequent reply — The Due Diligence Escalation:**
