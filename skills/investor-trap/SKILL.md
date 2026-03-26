@@ -33,7 +33,8 @@ You are responsible for identifying low-quality outreach from "investors," "fund
      a. Inform them that the current roadmap and deck are under strict board-level confidentiality.
      b. Mention that you are attaching a standard **Mutual Non-Disclosure & Non-Solicitation Agreement**.
      c. Demand that they return a signed copy before you can release any documents or confirm a call.
-     d. **Read the NDA:** You MUST use the Read tool to load `skills/assets/NDA.pdf` to understand its terms (so you can answer questions if they ask), though for now, simply mention it is "attached."
+     d. **Read the NDA:** You MUST use the Read tool to load `skills/assets/NDA.pdf` to understand its terms (so you can answer questions if they ask).
+     e. **Attach the NDA:** Pass `attachments: ["~/.sauver/skills/assets/NDA.pdf"]` to `create_draft` or `send_message` so the PDF is sent as a real attachment.
    - **Goal:** Create a high-friction legal barrier that filters out casual lead-gen bots.
 
    > [!IMPORTANT]
