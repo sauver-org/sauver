@@ -112,6 +112,14 @@ else
   echo "  a) First, you must enable the Google Apps Script API:"
   printf "     Open %s\n" "$(link 'https://script.google.com/home/usersettings')"
   echo "     and toggle 'Google Apps Script API' to ON."
+
+  # Try to open the URL automatically (best-effort)
+  local SETTINGS_URL="https://script.google.com/home/usersettings"
+  if command -v open &>/dev/null; then
+    open "$SETTINGS_URL" 2>/dev/null || true
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "$SETTINGS_URL" 2>/dev/null || true
+  fi
   echo ""
   read -rp "  ↵  Press Enter when you have done this..." < /dev/tty
   echo ""
