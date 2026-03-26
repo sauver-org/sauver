@@ -1,0 +1,11 @@
+{
+  "description": "Subscribed Substack newsletter from 'It Can Think' about world models and robotics",
+  "label": "legitimate",
+  "category": "newsletter",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "legitimate",
+    "draft_created": false,
+    "archived": false
+  }
+}

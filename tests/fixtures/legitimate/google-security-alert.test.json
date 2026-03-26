@@ -1,0 +1,11 @@
+{
+  "description": "Google account security alert about OAuth access granted to Sauver Backend",
+  "label": "legitimate",
+  "category": "transactional",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "legitimate",
+    "draft_created": false,
+    "archived": false
+  }
+}
