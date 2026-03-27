@@ -19,7 +19,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 3. **Get user identity:** Call `get_profile` once and store the user's name for signatures.
 
-4. **Fetch message list:** Call `search_messages` with query `in:inbox` to get the list of inbox emails. Sort the results by date descending (newest first).
+4. **Fetch message list:** Call `search_messages` with query `in:inbox -label:<reviewed_label>` (substituting the `reviewed_label` value from preferences, default `Sauver/Reviewed`). This excludes emails that were already analyzed in a previous run. Sort the results by date descending (newest first).
 
 5. **Per-message loop:** Work through the list one message at a time using this exact cycle. **Do not call `get_message` for the next message until you have called `archive_thread` (or decided to skip archiving) for the current message.** Never issue two `get_message` calls in the same response.
 
@@ -43,11 +43,13 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    > [!IMPORTANT]
    > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If it matches slop patterns or bot behavior, it is slop. Never skip an email just because it appears to be an "ongoing discussion" if that discussion is a trap loop or automated outreach.
 
-   If flagged as slop, follow this **exact** sequence:
+   If flagged as **legitimate**: call `apply_label` with the `reviewed_label` value from preferences (default `Sauver/Reviewed`). This marks it so future `/sauver` runs skip it. Do **not** archive — the email stays in the inbox.
+
+   If flagged as **slop**, follow this **exact** sequence:
 
    1. **Select Trap:** Use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    2. **Generate Response:** Generate the response content following the specific trap rules.
-   3. **Dispatch:** 
+   3. **Dispatch:**
       - If `yolo_mode` is `true`: Call `send_message`.
       - Else if `auto_draft` is `true`: Call `create_draft`.
       - Else: Skip sending/drafting and report only.
