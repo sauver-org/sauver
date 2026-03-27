@@ -18,11 +18,11 @@ The following slash commands are available in Claude Code (`.claude/commands/`) 
 
 |      Command      |                                  Description                                         |
 |-------------------|--------------------------------------------------------------------------------------|
-| `/sauver`         | Full inbox triage pipeline — classify, trap, and draft replies for all unread emails |
+| `/sauver`         | Full inbox triage — two-pass scan, classify, trap, and draft replies for all emails  |
 | `/tracker-shield` | Strip tracking pixels and spy-links from a specific email                            |
-| `/slop-detector`  | Detect recruiter/sales slop and deploy the Expert-Domain Trap or Info Vacuum         |
-| `/investor-trap`  | Detect investor slop and deploy the Due Diligence Loop                               |
-| `/bouncer-reply`  | Generate a Time-Sink Trap reply for general spam                                     |
+| `/slop-detector`  | Detect recruiter/sales slop and deploy the Expert-Domain Trap, Info Vacuum, or NDA   |
+| `/investor-trap`  | Detect investor slop and deploy the Due Diligence Loop or NDA Trap                   |
+| `/bouncer-reply`  | Generate a Time-Sink Trap reply for general spam, escalate to NDA Trap               |
 | `/archiver`       | Label and archive a specific thread on demand, without full triage                   |
 
 These commands use the Sauver MCP server (`mcp__sauver__*` tools). See `skills/PROTOCOL.md` for the full tool reference and operational protocol.
@@ -44,19 +44,22 @@ Claude Code / Gemini CLI    ←  runs the skills
 ```
 
 ### MCP Tools (`mcp-server/index.js`)
-The local MCP server exposes 11 tools that both Claude and Gemini can call:
+The local MCP server exposes 12 tools that both Claude and Gemini can call:
 
-`scan_inbox` · `search_messages` · `get_message` · `create_draft` · `send_message` · `archive_thread` · `apply_label` · `get_profile` · `list_labels` · `get_preferences` · `set_preference`
+`scan_inbox` · `search_messages` · `get_message` · `create_draft` · `send_message` · `archive_thread` · `apply_label` · `get_profile` · `list_labels` · `get_preferences` · `set_preference` · `check_update`
 
 ### Skills (`skills/*/SKILL.md`)
 LLM instruction files for the pipeline:
 
-- **sauver-inbox-assistant** — top-level orchestrator
+- **sauver-inbox-assistant** — top-level orchestrator (two-pass triage: known slop fast-path + full classification)
 - **tracker-shield** — strips tracking pixels via LLM analysis
-- **slop-detector** — Expert-Domain Trap for recruiter/sales slop
-- **investor-trap** — Due Diligence Loop for VC slop
-- **bouncer-reply** — Time-Sink Trap for generic spam
+- **slop-detector** — Expert-Domain Trap / Info Vacuum / NDA Trap for recruiter/sales slop
+- **investor-trap** — Due Diligence Loop / NDA Trap for VC slop (with exchange limit and post-NDA disengagement)
+- **bouncer-reply** — Time-Sink Trap / NDA Trap for generic spam
 - **archiver** — applies label and archives via `apply_label` + `archive_thread`
+
+### Security (`skills/PROTOCOL.md`)
+All skills inherit a prompt injection defense protocol: file-read whitelist, secret exfiltration prevention, and injection detection. See the **Prompt Injection Defense** section in `skills/PROTOCOL.md`.
 
 ### Configuration (`~/.sauver/config.json`)
 User preferences live in the `preferences` key of `~/.sauver/config.json`. Read them via the `get_preferences` MCP tool; update them via `set_preference`. Works from any working directory with both Claude Code and Gemini CLI.

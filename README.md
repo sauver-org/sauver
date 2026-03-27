@@ -11,8 +11,10 @@ Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies
 - **Expert-Domain Trap** — fires back hyper-specific technical questions at recruiters/sales bots
 - **Due Diligence Loop** — buries unsolicited "investors" in bureaucratic document requests
 - **Bouncer Reply** — engages generic spammers with absurd, impossible requirements
-- **NDA Trap** — when a sender repeats the same pitch 3+ times, sends them a Nondisclosure Agreement to sign before any further communication
+- **NDA Trap** — after `max_trap_exchanges` back-and-forth exchanges (default 3), sends a Nondisclosure Agreement and disengages. Always insists on our NDA — never accepts theirs
 - **Bot Detection** — detects near-instant replies (under `bot_reply_threshold_seconds`) across two or more consecutive exchanges and silently archives the thread (configurable)
+- **Two-Pass Triage** — known slop (already labeled) skips reclassification for faster, cheaper processing; unclassified emails get the full pipeline
+- **Prompt Injection Defense** — file-read whitelist, secret exfiltration prevention, and injection detection protect against malicious email content
 
 ## Installation
 
@@ -167,6 +169,7 @@ Both Claude Code and Gemini CLI connect to the same local MCP server and see the
 - The secret key is a 64-character random hex string generated locally during install. It never leaves your machine except in the POST body to your own Apps Script.
 - The Apps Script runs under your Google account and is not accessible to anyone without the key.
 - Email content is read by the AI model on your local machine. It is not stored or sent anywhere beyond what your AI client (Claude/Gemini) already handles.
+- **Prompt injection defense:** All skills inherit a security protocol from `skills/PROTOCOL.md` that treats email content as untrusted data. It enforces a file-read whitelist (only NDA.pdf and skill files), prevents secret material (keys, tokens, credentials) from appearing in any outgoing email, and flags emails that attempt to override AI instructions.
 
 ---
 
@@ -177,6 +180,9 @@ No. Google Apps Script runs inside your Google account for free. The installer r
 
 **Is my email data sent to Anthropic or Google?**
 Email content is read by the AI model (Claude or Gemini) running on your machine as part of the conversation. It is subject to the same privacy terms as any other message you send to your AI assistant — not to any additional service.
+
+**Is Sauver protected against prompt injection?**
+Yes. The skills include a prompt injection defense protocol: a strict file-read whitelist (only NDA.pdf and skill files), a rule that secret material (keys, tokens, credentials) must never appear in any outgoing email, and automatic detection of injection attempts in email bodies. See `skills/PROTOCOL.md` for details.
 
 **What does "Who has access: Anyone" mean in the automated deployment configuration?**
 It means the Apps Script Web App URL is publicly reachable — but the secret key acts as a password. Any request without the correct key is immediately rejected. The URL alone is useless without the key.
