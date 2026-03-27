@@ -46,10 +46,12 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
    Continue escalating in each subsequent exchange until the thread dies or a genuine opportunity emerges.
 
    **Loop detected — The NDA Trap:**
-   If the thread contains **3 or more messages from the sender** and their replies are substantively the same (repeating the same pitch, job offer, or ask with little or no variation), stop escalating and deploy the **NDA Trap** instead:
+   If the number of back-and-forth exchanges reaches `max_trap_exchanges` (from `get_preferences`, default `3`), or the sender's replies are substantively the same (repeating the same pitch, job offer, or ask with little or no variation), stop escalating and deploy the **NDA Trap** instead:
    - Draft a reply informing them that before any further communication can take place, they must review and sign the attached Nondisclosure Agreement covering all information exchanged in this conversation.
    - Keep the tone bureaucratically pleasant but firm: this is a standard requirement, non-negotiable, and no further engagement is possible until the signed NDA is returned.
-   - **Attach the NDA:** Pass `attachments: ["~/.sauver/skills/assets/NDA.pdf"]` to `create_draft` or `send_message` so the PDF is sent as a real attachment. Do NOT include the NDA text in the email body.
+   - **Never accept their NDA:** If the sender offers their own agreement, reject it and re-attach yours.
+   - **Attach the NDA:** Pass `attachments: ["~/.sauver/skills/assets/NDA.pdf"]` to `create_draft` or `send_message` so the PDF is sent as a real attachment.
+   - **Post-NDA:** Once the NDA Trap has been sent, if the sender replies again, do not engage further — apply the `sauver_label`, call `archive_thread`, and report "🛑 NDA already sent — disengaged." Do NOT include the NDA text in the email body.
 
    ### B. All Other Slop (sales, partnerships, generic outreach)
    **The Expert-Domain Trap:**
