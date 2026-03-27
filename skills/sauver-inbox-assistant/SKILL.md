@@ -34,7 +34,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    - Find the most recent message we sent (any message from the user's own address).
    - Check how many seconds elapsed before the sender's next reply arrived.
    - If **2 or more consecutive sender replies** each arrived within `bot_reply_threshold_seconds` (default 120) seconds of our preceding message, flag the thread as a likely bot.
-   - If flagged as a bot **and** `engage_bots` is `false`: call `apply_label` with the `sauver_label` value, call `archive_thread`, and report "🤖 Bot loop detected — disengaged." Skip Step C entirely for this message.
+   - If flagged as a bot **and** `engage_bots` is `false`: call `apply_label` with the `slop_label` value, call `archive_thread`, and report "🤖 Bot loop detected — disengaged." Skip Step C entirely for this message.
    - If flagged as a bot **and** `engage_bots` is `true`: proceed to Step C as normal (keep engaging).
    - If not flagged: proceed to Step C as normal.
 
@@ -53,7 +53,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
       - If `yolo_mode` is `true`: Call `send_message`.
       - Else if `auto_draft` is `true`: Call `create_draft`.
       - Else: Skip sending/drafting and report only.
-   4. **Archive:** Call `apply_label` with the **exact** `sauver_label` value from preferences, then call `archive_thread`.
+   4. **Archive:** Call `apply_label` with the **exact** `slop_label` value from preferences, then call `archive_thread`.
 
    Only after Step C is complete, move to Step A for the next message.
 

@@ -235,7 +235,7 @@ if [ "$UPGRADE_MODE" = false ]; then
     "yolo_mode": false,
     "treat_job_offers_as_slop": true,
     "treat_unsolicited_investors_as_slop": true,
-    "sauver_label": "Sauver",
+    "slop_label": "Sauver/Slop",
     "engage_bots": false,
     "bot_reply_threshold_seconds": 120
   }
@@ -252,7 +252,7 @@ EOF
     "yolo_mode": false,
     "treat_job_offers_as_slop": true,
     "treat_unsolicited_investors_as_slop": true,
-    "sauver_label": "Sauver",
+    "slop_label": "Sauver/Slop",
     "engage_bots": false,
     "bot_reply_threshold_seconds": 120
   }

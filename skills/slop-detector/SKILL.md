@@ -51,7 +51,7 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
    - Keep the tone bureaucratically pleasant but firm: this is a standard requirement, non-negotiable, and no further engagement is possible until the signed NDA is returned.
    - **Never accept their NDA:** If the sender offers their own agreement, reject it and re-attach yours.
    - **Attach the NDA:** Pass `attachments: ["~/.sauver/skills/assets/NDA.pdf"]` to `create_draft` or `send_message` so the PDF is sent as a real attachment.
-   - **Post-NDA:** Once the NDA Trap has been sent, if the sender replies again, do not engage further — apply the `sauver_label`, call `archive_thread`, and report "🛑 NDA already sent — disengaged." Do NOT include the NDA text in the email body.
+   - **Post-NDA:** Once the NDA Trap has been sent, if the sender replies again, do not engage further — apply the `slop_label`, call `archive_thread`, and report "🛑 NDA already sent — disengaged." Do NOT include the NDA text in the email body.
 
    ### B. All Other Slop (sales, partnerships, generic outreach)
    **The Expert-Domain Trap:**
