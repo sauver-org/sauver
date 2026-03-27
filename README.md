@@ -2,6 +2,11 @@
 
 # Sauver: The Digital Bouncer for your Inbox
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Protocol: MCP](https://img.shields.io/badge/Protocol-MCP-blue.svg)
+![Environment: Node.js 18+](https://img.shields.io/badge/Node-18+-green.svg)
+![Platform: Gmail](https://img.shields.io/badge/Platform-Gmail-red.svg)
+
 Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies recruiter/sales/investor "slop," and wastes spammers' time with automated traps. It runs inside Claude Code and Gemini CLI.
 
 ## What it does
@@ -11,7 +16,7 @@ Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies
 - **Expert-Domain Trap** — fires back hyper-specific technical questions at recruiters/sales bots
 - **Due Diligence Loop** — buries unsolicited "investors" in bureaucratic document requests
 - **Bouncer Reply** — engages generic spammers with absurd, impossible requirements
-- **NDA Trap** — after `max_trap_exchanges` back-and-forth exchanges (default 3), sends a Nondisclosure Agreement and disengages. Always insists on our NDA — never accepts theirs
+- **NDA Trap** — after `max_trap_exchanges` back-and-forth exchanges (default 3), attaches a Nondisclosure Agreement and disengages. Always insists on our NDA — never accepts theirs. The PDF is read from `~/.sauver/skills/assets/NDA.pdf` — swap it with your own document to customize
 - **Bot Detection** — detects near-instant replies (under `bot_reply_threshold_seconds`) across two or more consecutive exchanges and silently archives the thread (configurable)
 - **Two-Pass Triage** — known slop (already labeled) skips reclassification for faster, cheaper processing; unclassified emails get the full pipeline
 - **Prompt Injection Defense** — file-read whitelist, secret exfiltration prevention, and injection detection protect against malicious email content
@@ -50,8 +55,8 @@ Settings live in `~/.sauver/config.json` under the `preferences` key. You can ed
 | `yolo_mode`                           | `false` | Auto-send replies (use with caution)                                                             |
 | `treat_job_offers_as_slop`            | `true`  | Trigger Expert-Domain Trap for recruiters                                                        |
 | `treat_unsolicited_investors_as_slop` | `true`  | Trigger Due Diligence Loop for investors                                                         |
-| `slop_label`                          | `Sauver/Slop` | Gmail label applied to flagged emails when archiving                                        |
-| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans            |
+| `slop_label`                          | `Sauver/Slop` | Gmail label applied to flagged emails when archiving                                       |
+| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans           |
 | `engage_bots`                         | `false` | Keep engaging threads flagged as bot-like; if `false`, silently archive them                     |
 | `bot_reply_threshold_seconds`         | `120`   | Seconds between your last reply and their next one below which a sender is considered bot-like   |
 | `max_trap_exchanges`                  | `3`     | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging               |
@@ -134,6 +139,36 @@ Sauver has three layers:
 └─────────────────────┘    └──────────────────────────┘
 ```
 
+### Triage pipeline
+
+```
+/sauver
+  │
+  ├─ Pass 1: Known slop (label:Sauver/Slop still in inbox)
+  │    │     Sender replied to a trap — skip reclassification
+  │    │
+  │    ├─ Recruiter? ──→ Expert-Domain Trap
+  │    ├─ Investor?  ──→ Due Diligence Loop
+  │    └─ Other?     ──→ Time-Sink Trap (Bouncer Reply)
+  │         │
+  │         ▼
+  │    Exchange count ≥ max_trap_exchanges?
+  │         ├─ No  ──→ escalate, archive
+  │         └─ Yes ──→ NDA Trap → disengage
+  │
+  ├─ Pass 2: Unclassified (never seen before)
+  │    │
+  │    ├─ Strip trackers (Tracker Shield)
+  │    ├─ Bot detection (reply-time analysis)
+  │    │     └─ Bot detected & engage_bots=false ──→ archive
+  │    │
+  │    └─ Classify intent
+  │         ├─ Legitimate ──→ label Sauver/Reviewed, leave in inbox
+  │         └─ Slop ──→ select trap (see Pass 1), label, archive
+  │
+  └─ Repeat both passes until inbox is clear
+```
+
 ### Layer 1 — Google Apps Script
 
 `apps-script/Code.gs` is deployed as a Web App inside your own Google account. Because it runs as you, it has full native Gmail access via `GmailApp` — the same APIs Gmail itself uses. There are no OAuth flows, no service accounts, and no third-party tokens to manage.
@@ -170,6 +205,12 @@ Both Claude Code and Gemini CLI connect to the same local MCP server and see the
 - The Apps Script runs under your Google account and is not accessible to anyone without the key.
 - Email content is read by the AI model on your local machine. It is not stored or sent anywhere beyond what your AI client (Claude/Gemini) already handles.
 - **Prompt injection defense:** All skills inherit a security protocol from `skills/PROTOCOL.md` that treats email content as untrusted data. It enforces a file-read whitelist (only NDA.pdf and skill files), prevents secret material (keys, tokens, credentials) from appearing in any outgoing email, and flags emails that attempt to override AI instructions.
+
+**Security hardening:**
+
+- **Scoped access:** The Apps Script backend only uses `GmailApp` — it has no access to your Google Drive, Contacts, Calendar, or any other Google service. The blast radius is limited to Gmail operations.
+- **Key rotation:** To rotate the secret key, uninstall and reinstall. This generates a new key, redeploys the backend with it, and invalidates the old one — an instant kill switch if you suspect `~/.sauver/config.json` was compromised.
+- **Local NDA attachment:** The NDA.pdf lives on your machine at `~/.sauver/skills/assets/NDA.pdf`. The MCP server reads it from disk, base64-encodes it, and sends it to Apps Script for attachment — the cloud backend never stores it. You can swap this file with your own PDF without redeploying anything.
 
 ---
 
