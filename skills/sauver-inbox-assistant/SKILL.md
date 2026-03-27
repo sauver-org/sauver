@@ -19,13 +19,21 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 3. **Get user identity:** Call `get_profile` once and store the user's name for signatures.
 
-4. **Fetch message lists (two passes):** Run two searches to separate known slop from unclassified emails:
+4. **Fetch and process until inbox is clear:** The goal is to process **every** message in the inbox until nothing unhandled remains. Work in two passes, repeating until both return empty results.
 
-   **Pass 1 — Known slop (fast path):** Call `search_messages` with query `in:inbox label:<slop_label>` (substituting the `slop_label` value from preferences, default `Sauver/Slop`). These are threads we already classified as slop that returned to the inbox because the sender replied. They do **not** need reclassification.
+   **Pass 1 — Known slop (fast path):** Call `search_messages` with query `in:inbox label:<slop_label>` (substituting the `slop_label` value from preferences, default `Sauver/Slop`). These are threads we already classified as slop that returned to the inbox because the sender replied. They do **not** need reclassification. Process all results (steps 5A–E), then re-run the same query. Repeat until it returns zero results.
 
-   **Pass 2 — Unclassified:** Call `search_messages` with query `in:inbox -label:<slop_label> -label:<reviewed_label>` (substituting both label values from preferences). These are emails that have never been analyzed.
+   **Pass 2 — Unclassified:** Call `search_messages` with a query that excludes **both** the slop label AND the reviewed label — you must include both exclusions:
 
-   Sort each list by date descending (newest first). Process **Pass 1 first**, then **Pass 2**.
+   ```
+   in:inbox -label:<slop_label> -label:<reviewed_label>
+   ```
+
+   Substitute both label values from preferences (defaults: `Sauver/Slop` and `Sauver/Reviewed`). These are emails that have never been analyzed. If you omit either `-label:` clause, you will re-process already-handled emails. Process all results (steps 6A–G), then re-run the same query. Repeat until it returns zero results.
+
+   Do **not** pass `max_results` to `search_messages` unless the user explicitly requests a limit. Let the server return its default page size and loop for more.
+
+   Within each batch, sort by date descending (newest first). Process **Pass 1 fully** (including re-fetches) before starting **Pass 2**.
 
 5. **Pass 1 loop — Known slop (skip classification):** For each message from Pass 1, work through this abbreviated cycle. **Do not call `get_message` for the next message until you have finished the current one.** Never issue two `get_message` calls in the same response.
 
