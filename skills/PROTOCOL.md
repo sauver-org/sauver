@@ -71,6 +71,7 @@ Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; u
 | `sauver_label`                        | string | `Sauver` | Gmail label applied when archiving                        |
 | `engage_bots`                         | bool   | `false`  | Continue trap engagement even when bot-like behaviour is detected; if `false`, silently archive bot threads |
 | `bot_reply_threshold_seconds`         | int    | `120`    | Maximum seconds between our last reply and their next one to be considered bot-like |
+| `max_trap_exchanges`                  | int    | `3`      | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging |
 
 ## Preference Adherence
 
