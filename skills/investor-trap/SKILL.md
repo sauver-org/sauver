@@ -27,8 +27,8 @@ You are responsible for identifying low-quality outreach from "investors," "fund
      d. Ask if their fund is registered as a **Qualified Institutional Buyer (QIB)** under Rule 144A.
    - **Goal:** Offload the cognitive work back to the sender.
 
-   ### B. The NDA Trap (For requests for pitch decks, data rooms, or "confidential" calls)
-   - If the sender asks for a deck or a sensitive meeting, require a signed NDA first.
+   ### B. The NDA Trap (For meeting requests, pitch decks, data rooms, or "confidential" calls)
+   - If the sender asks for a deck, a sensitive meeting, or pushes a scheduling link (e.g. Calendly, Cal.com, HubSpot), require a signed NDA first. This is especially effective against bots that auto-reply with a generic "schedule a time" message — the NDA attachment creates a friction wall they cannot clear.
    - **Process:**
      a. Inform them that the current roadmap and deck are under strict board-level confidentiality.
      b. Mention that you are attaching a standard **Mutual Non-Disclosure & Non-Solicitation Agreement**.

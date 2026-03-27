@@ -211,7 +211,7 @@ curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/unin
 - `~/.sauver/config.json` — your Web App URL, secret key, and update metadata (local, never committed)
 - `~/.sauver/mcp-server/` — the MCP server code (downloaded from this repo)
 - `~/.sauver/skills/` — skill instruction files (downloaded and auto-updated by the MCP server)
-- `~/.sauver/skills/assets/NDA.docx` — NDA template attached when the NDA Trap is deployed
+- `~/.sauver/skills/assets/NDA.pdf` — NDA template attached when the NDA Trap is deployed
 - `~/.claude/settings.json` — Claude Code MCP server registration
 - `~/.gemini/settings.json` — Gemini CLI MCP server registration
 - `~/.claude/commands/` — global Claude Code slash command shims (managed by the installer/auto-updater)
