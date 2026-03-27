@@ -1,6 +1,6 @@
 From: The Google Workspace Team <workspace-noreply@google.com>
-To: user@example.com
-Subject: Your Google Workspace Business Standard for user@example.com is canceled
+To: bob@acme.com
+Subject: Your Google Workspace Business Standard for bob@acme.com is canceled
 Date: Thu, 26 Mar 2026 10:36:27 -0700
 Reply-To: The Google Workspace Team <workspace-noreply@google.com>
 MIME-Version: 1.0
@@ -10,17 +10,17 @@ Content-Type: multipart/alternative; boundary="boundary-123"
 Content-Type: text/plain; charset="UTF-8"
 
 From: "The Google Workspace Team" [workspace-noreply@google.com]
-Subject:  Your Google Workspace Business Standard for user@example.com is canceled
+Subject:  Your Google Workspace Business Standard for bob@acme.com is canceled
 
 ## Google Workspace Business Standard is canceled
 
 Hello,
 
-Your Google Workspace Business Standard subscription for user@example.com has been canceled. All Google Workspace Business Standard services for all users are inaccessible.
+Your Google Workspace Business Standard subscription for bob@acme.com has been canceled. All Google Workspace Business Standard services for all users are inaccessible.
 
 ### Account information
 
-Customer: user@example.com
+Customer: bob@acme.com
 Customer ID: CXXXXXXXX
 Subscription: Google Workspace Business Standard
 
@@ -37,9 +37,9 @@ Content-Transfer-Encoding: quoted-printable
 <body>
 <h2>Google Workspace Business Standard is canceled</h2>
 <p>Hello,</p>
-<p>Your Google Workspace Business Standard subscription for user@example.com has been canceled. All Google Workspace Business Standard services for all users are inaccessible.</p>
+<p>Your Google Workspace Business Standard subscription for bob@acme.com has been canceled. All Google Workspace Business Standard services for all users are inaccessible.</p>
 <h3>Account information</h3>
-<p><strong>Customer:</strong> user@example.com</p>
+<p><strong>Customer:</strong> bob@acme.com</p>
 <p><strong>Customer ID:</strong> CXXXXXXXX</p>
 <p><strong>Subscription:</strong> Google Workspace Business Standard</p>
 <p>If you have any questions, please contact <a href=3D"https://support.google.com/a/answer/1047213">our support team</a>.</p>

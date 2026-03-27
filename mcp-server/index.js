@@ -80,7 +80,7 @@ function setPreference(key, value) {
 
 // ── Auto-update ─────────────────────────────────────────────────────────────
 
-const REPO = "mszczodrak/sauver";
+const REPO = "sauver-org/sauver";
 const SAUVER_DIR = join(homedir(), ".sauver");
 const SKILLS_DIR = join(SAUVER_DIR, "skills");
 const CLAUDE_COMMANDS_DIR = join(homedir(), ".claude", "commands");
@@ -127,7 +127,7 @@ async function downloadSkills() {
   const assetsDir = join(SKILLS_DIR, "assets");
   mkdirSync(assetsDir, { recursive: true });
 
-  for (const asset of ["NDA.docx", "NDA.pdf"]) {
+  for (const asset of ["NDA.pdf"]) {
     const assetRes = await fetchWithTimeout(`${base}/skills/assets/${asset}`, 15_000);
     if (!assetRes.ok) throw new Error(`HTTP ${assetRes.status} fetching assets/${asset}`);
     writeFileSync(join(assetsDir, asset), Buffer.from(await assetRes.arrayBuffer()));

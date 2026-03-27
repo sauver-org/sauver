@@ -15,7 +15,7 @@ You are the digital bouncer. Your job is not to decline spammers politely, but t
    - Draft a reply informing them that all further communication requires a signed Nondisclosure Agreement.
    - Include the full NDA text from `skills/slop-detector/SKILL.md` (the NDA Template section) inline in the email body. Fill in today's date; use "Recipient" for their name/org.
    - Keep the tone bureaucratically pleasant but immovable.
-   - Note in your confirmation that the user can manually attach `~/.sauver/skills/assets/NDA.docx` to the draft before sending.
+   - Note in your confirmation that the user can manually attach `~/.sauver/skills/assets/NDA.pdf` to the draft before sending.
    - Follow **Reply Dispatch (YOLO Mode)** from `skills/PROTOCOL.md` for dispatch.
 
 1. **Generate the Time-Sink Reply:**

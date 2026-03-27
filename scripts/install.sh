@@ -3,7 +3,7 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/install.sh | bash
 set -e
 
-REPO="mszczodrak/sauver"
+REPO="sauver-org/sauver"
 INSTALL_DIR="$HOME/.sauver/mcp-server"
 CONFIG_FILE="$HOME/.sauver/config.json"
 
@@ -343,7 +343,7 @@ import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 
-const REPO = "mszczodrak/sauver";
+const REPO = "sauver-org/sauver";
 const SKILLS_DIR = join(homedir(), ".sauver", "skills");
 const CLAUDE_COMMANDS = join(homedir(), ".claude", "commands");
 const GEMINI_WORKFLOWS = join(homedir(), ".gemini", "skills");
@@ -375,9 +375,9 @@ writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), protocol);
 // Download binary assets
 const ASSETS_DIR = join(SKILLS_DIR, "assets");
 mkdirSync(ASSETS_DIR, { recursive: true });
-const ndaRes = await fetch(`${base}/skills/assets/NDA.docx`);
-if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching NDA.docx`);
-writeFileSync(join(ASSETS_DIR, "NDA.docx"), Buffer.from(await ndaRes.arrayBuffer()));
+const ndaRes = await fetch(`${base}/skills/assets/NDA.pdf`);
+if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching NDA.pdf`);
+writeFileSync(join(ASSETS_DIR, "NDA.pdf"), Buffer.from(await ndaRes.arrayBuffer()));
 
 for (const [skillName, commandName] of SKILL_MAP) {
   const skillDir = join(SKILLS_DIR, skillName);
