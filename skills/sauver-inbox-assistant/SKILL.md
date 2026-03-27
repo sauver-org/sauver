@@ -19,9 +19,33 @@ When asked to triage or clean the inbox, execute this pipeline in order:
 
 3. **Get user identity:** Call `get_profile` once and store the user's name for signatures.
 
-4. **Fetch message list:** Call `search_messages` with query `in:inbox -label:<reviewed_label>` (substituting the `reviewed_label` value from preferences, default `Sauver/Reviewed`). This excludes emails that were already analyzed in a previous run. Sort the results by date descending (newest first).
+4. **Fetch message lists (two passes):** Run two searches to separate known slop from unclassified emails:
 
-5. **Per-message loop:** Work through the list one message at a time using this exact cycle. **Do not call `get_message` for the next message until you have called `archive_thread` (or decided to skip archiving) for the current message.** Never issue two `get_message` calls in the same response.
+   **Pass 1 — Known slop (fast path):** Call `search_messages` with query `in:inbox label:<slop_label>` (substituting the `slop_label` value from preferences, default `Sauver/Slop`). These are threads we already classified as slop that returned to the inbox because the sender replied. They do **not** need reclassification.
+
+   **Pass 2 — Unclassified:** Call `search_messages` with query `in:inbox -label:<slop_label> -label:<reviewed_label>` (substituting both label values from preferences). These are emails that have never been analyzed.
+
+   Sort each list by date descending (newest first). Process **Pass 1 first**, then **Pass 2**.
+
+5. **Pass 1 loop — Known slop (skip classification):** For each message from Pass 1, work through this abbreviated cycle. **Do not call `get_message` for the next message until you have finished the current one.** Never issue two `get_message` calls in the same response.
+
+   **Step A — Fetch:** Call `get_message` for this message only.
+
+   **Step B — Purify:** Inspect the returned HTML body for trackers as usual.
+
+   **Step C — Skip classification, go straight to trap:** This thread is already confirmed slop. Do **not** reclassify. Instead:
+
+   1. **Select Trap:** Determine the appropriate trap from the thread context (recruiter → slop-detector, investor → investor-trap, other → bouncer-reply).
+   2. **Generate Response:** Generate the next escalation following the specific trap rules (including exchange counting and NDA escalation from `max_trap_exchanges`).
+   3. **Dispatch:**
+      - If `yolo_mode` is `true`: Call `send_message`.
+      - Else if `auto_draft` is `true`: Call `create_draft`.
+      - Else: Skip sending/drafting and report only.
+   4. **Archive:** Call `archive_thread` (the `slop_label` is already applied).
+
+   Report with status: "🚨 Slop (known)" in the summary.
+
+6. **Pass 2 loop — Unclassified (full pipeline):** For each message from Pass 2, work through the full cycle. **Do not call `get_message` for the next message until you have finished the current one.** Never issue two `get_message` calls in the same response.
 
    For each message in order:
 
@@ -38,8 +62,8 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    - If flagged as a bot **and** `engage_bots` is `true`: proceed to Step C as normal (keep engaging).
    - If not flagged: proceed to Step C as normal.
 
-   **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag. 
-    
+   **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag.
+
    > [!IMPORTANT]
    > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If it matches slop patterns or bot behavior, it is slop. Never skip an email just because it appears to be an "ongoing discussion" if that discussion is a trap loop or automated outreach.
 
