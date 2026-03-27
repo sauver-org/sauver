@@ -220,7 +220,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         yolo_mode: false,
         treat_job_offers_as_slop: true,
         treat_unsolicited_investors_as_slop: true,
-        sauver_label: "Sauver",
+        slop_label: "Sauver/Slop",
+        reviewed_label: "Sauver/Reviewed",
       };
       break;
 

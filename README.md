@@ -48,9 +48,11 @@ Settings live in `~/.sauver/config.json` under the `preferences` key. You can ed
 | `yolo_mode`                           | `false` | Auto-send replies (use with caution)                                                             |
 | `treat_job_offers_as_slop`            | `true`  | Trigger Expert-Domain Trap for recruiters                                                        |
 | `treat_unsolicited_investors_as_slop` | `true`  | Trigger Due Diligence Loop for investors                                                         |
-| `sauver_label`                        | `Sauver`| Gmail label applied when archiving                                                               |
+| `slop_label`                          | `Sauver/Slop` | Gmail label applied to flagged emails when archiving                                        |
+| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans            |
 | `engage_bots`                         | `false` | Keep engaging threads flagged as bot-like; if `false`, silently archive them                     |
 | `bot_reply_threshold_seconds`         | `120`   | Seconds between your last reply and their next one below which a sender is considered bot-like   |
+| `max_trap_exchanges`                  | `3`     | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging               |
 
 ## Usage
 

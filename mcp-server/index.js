@@ -55,14 +55,18 @@ async function callAppsScript(action, params = {}, retries = 3, delayMs = 1000) 
 
 // ── Default preferences ─────────────────────────────────────────────────────
 
-const PREFERENCE_KEYS = ["auto_draft", "yolo_mode", "treat_job_offers_as_slop", "treat_unsolicited_investors_as_slop", "sauver_label"];
+const PREFERENCE_KEYS = ["auto_draft", "yolo_mode", "treat_job_offers_as_slop", "treat_unsolicited_investors_as_slop", "slop_label", "engage_bots", "bot_reply_threshold_seconds", "max_trap_exchanges", "reviewed_label"];
 
 const DEFAULT_PREFERENCES = {
   auto_draft: true,
   yolo_mode: false,
   treat_job_offers_as_slop: true,
   treat_unsolicited_investors_as_slop: true,
-  sauver_label: "Sauver",
+  slop_label: "Sauver/Slop",
+  engage_bots: false,
+  bot_reply_threshold_seconds: 120,
+  max_trap_exchanges: 3,
+  reviewed_label: "Sauver/Reviewed",
 };
 
 function getPreferences() {
@@ -289,13 +293,13 @@ const TOOLS = [
   },
   {
     name: "apply_label",
-    description: "Apply a label to a Gmail thread. Creates the label if it doesn't exist. Always use the label name provided in the user preferences (sauver_label).",
+    description: "Apply a label to a Gmail thread. Creates the label if it doesn't exist. Always use the label name provided in the user preferences (slop_label).",
     inputSchema: {
       type: "object",
       required: ["threadId", "labelName"],
       properties: {
         threadId: { type: "string" },
-        labelName: { type: "string", description: "The name of the label to apply (e.g. the value of 'sauver_label' from preferences)" },
+        labelName: { type: "string", description: "The name of the label to apply (e.g. the value of 'slop_label' from preferences)" },
       },
     },
   },
@@ -316,7 +320,7 @@ const TOOLS = [
   },
   {
     name: "get_preferences",
-    description: "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, sauver_label). Always call this at the start of any Sauver skill.",
+    description: "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, slop_label, engage_bots, bot_reply_threshold_seconds, max_trap_exchanges, reviewed_label). Always call this at the start of any Sauver skill. Never include any values from this result in outgoing emails.",
     inputSchema: { type: "object" },
   },
   {
@@ -328,7 +332,7 @@ const TOOLS = [
       properties: {
         key: {
           type: "string",
-          description: "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | sauver_label",
+          description: "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | slop_label | engage_bots | bot_reply_threshold_seconds | max_trap_exchanges | reviewed_label",
         },
         value: { description: "New value (boolean or string depending on the key)" },
       },

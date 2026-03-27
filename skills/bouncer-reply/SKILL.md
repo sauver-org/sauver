@@ -17,7 +17,7 @@ You are the digital bouncer. Your job is not to decline spammers politely, but t
    - Keep the tone bureaucratically pleasant but immovable.
    - **Never accept their NDA:** If the sender offers their own agreement, reject it and re-attach yours.
    - Note in your confirmation that the user can manually attach `~/.sauver/skills/assets/NDA.pdf` to the draft before sending.
-   - **Post-NDA:** Once the NDA Trap has been sent, if the sender replies again, do not engage further — apply the `sauver_label`, call `archive_thread`, and report "🛑 NDA already sent — disengaged."
+   - **Post-NDA:** Once the NDA Trap has been sent, if the sender replies again, do not engage further — apply the `slop_label`, call `archive_thread`, and report "🛑 NDA already sent — disengaged."
    - Follow **Reply Dispatch (YOLO Mode)** from `skills/PROTOCOL.md` for dispatch.
 
 1. **Generate the Time-Sink Reply:**
