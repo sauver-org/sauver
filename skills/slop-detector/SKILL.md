@@ -21,18 +21,19 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
 2. **Route by Email Type:**
 
    ### A. Job Offer / Recruiter Outreach
+
    Determine whether this is the **first message** in the thread or a **follow-up**. Check thread history via `get_message`.
-   
+
    > [!IMPORTANT]
    > **Ongoing conversation does not equal legitimacy.** If the sender is still pitching or responding to a trap, continue the trap escalation. Do not archive the thread until the trap loop is complete or the sender stops responding.
 
    **First contact — The Info Vacuum:**
-   Reply with a brief, politely curious note asking for any details that were *not* included in the email. Pick from the following as needed:
+   Reply with a brief, politely curious note asking for any details that were _not_ included in the email. Pick from the following as needed:
    - Company name (if not mentioned or hidden behind a recruiter agency)
    - Founder names and background
    - Specific open positions and their seniority level
    - Office location and whether remote is an option
-   
+
    Keep the tone genuinely interested but non-committal. The goal is to make them do the legwork of filling in the blanks they skipped.
 
    **Follow-up / subsequent reply — The Due Diligence Escalation:**
@@ -54,6 +55,7 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
    - **Post-NDA:** Once the NDA Trap has been sent, if the sender replies again, do not engage further — apply the `slop_label`, call `archive_thread`, and report "🛑 NDA already sent — disengaged." Do NOT include the NDA text in the email body.
 
    ### B. All Other Slop (sales, partnerships, generic outreach)
+
    **The Expert-Domain Trap:**
    - Identify the sender's professional field (e.g., Marketing, Legal, Backend Engineering).
    - Identify a specific, complex concept they mentioned or implied.
@@ -62,7 +64,7 @@ You are responsible for identifying low-quality outreach (recruiter pitches, sal
 
 3. **Apply the standard Signature** from `skills/PROTOCOL.md` to all replies.
 
-4. **Justification:** Explain *why* the outreach was flagged and which strategy was deployed (Info Vacuum, Due Diligence Escalation, Expert-Domain Trap, or NDA Trap).
+4. **Justification:** Explain _why_ the outreach was flagged and which strategy was deployed (Info Vacuum, Due Diligence Escalation, Expert-Domain Trap, or NDA Trap).
 
 5. **Reply Dispatch:** Follow the **Reply Dispatch (YOLO Mode)** rules in `skills/PROTOCOL.md`.
 
