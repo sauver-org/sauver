@@ -49,18 +49,18 @@ This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.
 
 Settings live in `~/.sauver/config.json` under the `preferences` key. You can edit that file directly, or ask Claude/Gemini to change a setting for you (e.g. "turn on yolo mode").
 
-| Option                                | Default | Meaning                                                                                          |
-|---------------------------------------|---------|--------------------------------------------------------------------------------------------------|
-| `auto_draft`                          | `true`  | Automatically create draft replies to slop                                                       |
-| `yolo_mode`                           | `false` | Auto-send replies (use with caution)                                                             |
-| `treat_job_offers_as_slop`            | `true`  | Trigger Expert-Domain Trap for recruiters                                                        |
-| `treat_unsolicited_investors_as_slop` | `true`  | Trigger Due Diligence Loop for investors                                                         |
-| `slop_label`                          | `Sauver/Slop` | Gmail label applied to flagged emails when archiving                                       |
-| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans           |
-| `engage_bots`                         | `false` | Keep engaging threads flagged as bot-like; if `false`, silently archive them                     |
-| `bot_reply_threshold_seconds`         | `120`   | Seconds between your last reply and their next one below which a sender is considered bot-like   |
-| `max_trap_exchanges`                  | `3`     | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging               |
-| `max_daily_replies`                   | `10`    | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window                        |
+| Option                                | Default           | Meaning                                                                                        |
+| ------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------- |
+| `auto_draft`                          | `true`            | Automatically create draft replies to slop                                                     |
+| `yolo_mode`                           | `false`           | Auto-send replies (use with caution)                                                           |
+| `treat_job_offers_as_slop`            | `true`            | Trigger Expert-Domain Trap for recruiters                                                      |
+| `treat_unsolicited_investors_as_slop` | `true`            | Trigger Due Diligence Loop for investors                                                       |
+| `slop_label`                          | `Sauver/Slop`     | Gmail label applied to flagged emails when archiving                                           |
+| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans                   |
+| `engage_bots`                         | `false`           | Keep engaging threads flagged as bot-like; if `false`, silently archive them                   |
+| `bot_reply_threshold_seconds`         | `120`             | Seconds between your last reply and their next one below which a sender is considered bot-like |
+| `max_trap_exchanges`                  | `3`               | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging             |
+| `max_daily_replies`                   | `100`             | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window                      |
 
 ## Usage
 
@@ -81,16 +81,16 @@ The installer writes slash commands to `~/.claude/commands/`, so they are availa
 
 The installer writes skills to `~/.gemini/skills/` and registers the MCP server in `~/.gemini/settings.json`, so all slash commands are available globally:
 
-| Command           | What it does                                                                                        |
-| ----------------- | --------------------------------------------------------------------------------------------------- |
-| `/sauver`         | Full triage — runs the orchestrator skill                                                           |
-| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.                                          |
-| `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap                                 |
-| `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop                                        |
-| `/bouncer-reply`  | Reply to generic spam with the Time-Sink Trap                                                       |
-| `/archiver`       | Label and archive a specific thread on demand, without full triage                                  |
+| Command           | What it does                                                        |
+| ----------------- | ------------------------------------------------------------------- |
+| `/sauver`         | Full triage — runs the orchestrator skill                           |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.          |
+| `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap |
+| `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop        |
+| `/bouncer-reply`  | Reply to generic spam with the Time-Sink Trap                       |
+| `/archiver`       | Label and archive a specific thread on demand, without full triage  |
 
-You can also ask Gemini in plain English: *"Sauver, triage my last 10 unread emails"* or *"Archive this thread under the Sauver label"*.
+You can also ask Gemini in plain English: _"Sauver, triage my last 10 unread emails"_ or _"Archive this thread under the Sauver label"_.
 
 ### How Claude finds Sauver
 
@@ -176,17 +176,17 @@ Sauver has three layers:
 
 The Web App accepts HTTPS POST requests and routes them to one of nine Gmail actions:
 
-| Action            | What it does                                                                                        |
-| ----------------- | --------------------------------------------------------------------------------------------------- |
-| `scan_inbox`      | List unread inbox emails                                                                            |
-| `search_messages` | Search with a Gmail query string                                                                    |
-| `get_message`     | Fetch full email content by ID                                                                      |
-| `create_draft`    | Create a new draft or a reply draft                                                                 |
-| `send_message`    | Send a reply immediately                                                                            |
-| `archive_thread`  | Remove from Inbox and mark read                                                                     |
-| `apply_label`     | Apply a label (creates it if missing)                                                               |
-| `get_profile`     | Get the user's email and display name                                                               |
-| `list_labels`     | List all Gmail labels                                                                               |
+| Action            | What it does                          |
+| ----------------- | ------------------------------------- |
+| `scan_inbox`      | List unread inbox emails              |
+| `search_messages` | Search with a Gmail query string      |
+| `get_message`     | Fetch full email content by ID        |
+| `create_draft`    | Create a new draft or a reply draft   |
+| `send_message`    | Send a reply immediately              |
+| `archive_thread`  | Remove from Inbox and mark read       |
+| `apply_label`     | Apply a label (creates it if missing) |
+| `get_profile`     | Get the user's email and display name |
+| `list_labels`     | List all Gmail labels                 |
 
 Every request must include a secret key that was randomly generated during installation. Requests without the correct key are rejected.
 
@@ -261,11 +261,13 @@ Skill files update automatically — the MCP server checks GitHub once a day at 
 To update the MCP server itself or the Apps Script backend, re-run the installer.
 
 **How do I uninstall Sauver?**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/uninstall.sh | bash
 ```
 
 **Where is my data stored?**
+
 - `~/.sauver/config.json` — your Web App URL, secret key, and update metadata (local, never committed)
 - `~/.sauver/mcp-server/` — the MCP server code (downloaded from this repo)
 - `~/.sauver/skills/` — skill instruction files (downloaded and auto-updated by the MCP server)

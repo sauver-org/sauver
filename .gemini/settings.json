@@ -2,9 +2,7 @@
   "mcpServers": {
     "sauver": {
       "command": "node",
-      "args": [
-        "/Users/marcin/src/sauver/tests/mock-mcp-server/index.js"
-      ],
+      "args": ["/Users/marcin/src/sauver/tests/mock-mcp-server/index.js"],
       "env": {
         "SAUVER_TEST_FIXTURE_FILE": "/Users/marcin/src/sauver/tests/fixtures/slop/credit-line-offer-shelby.eml",
         "SAUVER_TEST_LOG": "/tmp/sauver-test-credit-line-offer-shelby.json"

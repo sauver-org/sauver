@@ -16,14 +16,14 @@ make test-skills-gemini # Run skill integration tests against EML fixtures (gemi
 
 The following slash commands are available in Claude Code (`.claude/commands/`) and Gemini CLI (`.gemini/skills/`):
 
-|      Command      |                                  Description                                         |
-|-------------------|--------------------------------------------------------------------------------------|
-| `/sauver`         | Full inbox triage — two-pass scan, classify, trap, and draft replies for all emails  |
-| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email                            |
-| `/slop-detector`  | Detect recruiter/sales slop and deploy the Expert-Domain Trap, Info Vacuum, or NDA   |
-| `/investor-trap`  | Detect investor slop and deploy the Due Diligence Loop or NDA Trap                   |
-| `/bouncer-reply`  | Generate a Time-Sink Trap reply for general spam, escalate to NDA Trap               |
-| `/archiver`       | Label and archive a specific thread on demand, without full triage                   |
+| Command           | Description                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| `/sauver`         | Full inbox triage — two-pass scan, classify, trap, and draft replies for all emails |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email                           |
+| `/slop-detector`  | Detect recruiter/sales slop and deploy the Expert-Domain Trap, Info Vacuum, or NDA  |
+| `/investor-trap`  | Detect investor slop and deploy the Due Diligence Loop or NDA Trap                  |
+| `/bouncer-reply`  | Generate a Time-Sink Trap reply for general spam, escalate to NDA Trap              |
+| `/archiver`       | Label and archive a specific thread on demand, without full triage                  |
 
 These commands use the Sauver MCP server (`mcp__sauver__*` tools). See `skills/PROTOCOL.md` for the full tool reference and operational protocol.
 
@@ -44,11 +44,13 @@ Claude Code / Gemini CLI    ←  runs the skills
 ```
 
 ### MCP Tools (`mcp-server/index.js`)
+
 The local MCP server exposes 12 tools that both Claude and Gemini can call:
 
 `scan_inbox` · `search_messages` · `get_message` · `create_draft` · `send_message` · `archive_thread` · `apply_label` · `get_profile` · `list_labels` · `get_preferences` · `set_preference` · `check_update`
 
 ### Skills (`skills/*/SKILL.md`)
+
 LLM instruction files for the pipeline:
 
 - **sauver-inbox-assistant** — top-level orchestrator (two-pass triage: known slop fast-path + full classification)
@@ -59,9 +61,11 @@ LLM instruction files for the pipeline:
 - **archiver** — applies label and archives via `apply_label` + `archive_thread`
 
 ### Security (`skills/PROTOCOL.md`)
+
 All skills inherit a prompt injection defense protocol: file-read whitelist, secret exfiltration prevention, and injection detection. See the **Prompt Injection Defense** section in `skills/PROTOCOL.md`.
 
 ### Configuration (`~/.sauver/config.json`)
+
 User preferences live in the `preferences` key of `~/.sauver/config.json`. Read them via the `get_preferences` MCP tool; update them via `set_preference`. Works from any working directory with both Claude Code and Gemini CLI.
 
 See `skills/PROTOCOL.md` for the full config key reference.
@@ -103,7 +107,7 @@ EML files are the test inputs. Each `.eml` file has a sidecar `.test.json` with:
 ```json
 {
   "description": "human-readable summary of the email",
-  "label": "slop",          // ground truth: "slop" | "legitimate"
+  "label": "slop", // ground truth: "slop" | "legitimate"
   "category": "sales_outreach",
   "has_tracker": true,
   "expected": {
@@ -129,11 +133,13 @@ EML files should include only the headers the AI actually uses — `From`, `Repl
 ### Mock MCP Server (`tests/mock-mcp-server/`)
 
 A drop-in replacement for the production MCP server that:
+
 - Reads EML files from disk (via `mailparser`) and serves them as the "inbox"
 - Returns instant no-ops for `check_update`, `get_preferences`, `get_profile`
 - Logs all write calls (`create_draft`, `send_message`, `archive_thread`, `apply_label`) to a JSON file at `SAUVER_TEST_LOG`
 
 Activated entirely via environment variables — no changes to production code:
+
 - `SAUVER_TEST_FIXTURE_FILE` — single EML (single-email inbox)
 - `SAUVER_TEST_FIXTURES_DIR` — directory of EMLs (multi-email inbox)
 - `SAUVER_TEST_LOG` — path for the call log (default: `/tmp/sauver-test-calls.json`)
@@ -141,6 +147,7 @@ Activated entirely via environment variables — no changes to production code:
 ### Test Runner (`tests/run-skill-tests.sh`)
 
 For each fixture the runner:
+
 1. Writes project-scoped overrides ( `.mcp.json` for Claude, `.gemini/settings.json` for Gemini) pointing to the mock MCP server. Project scope overrides user scope, so the real Gmail connection is never touched; original settings are restored on exit.
 2. Runs `claude -p "/sauver"` (or `gemini -p "/sauver"` with `--cli gemini`)
 3. Reads the call log and checks `draft_created` and `archived` against the `.test.json` expectations

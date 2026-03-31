@@ -1,8 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "mcp__sauver__*",
-      "Read"
-    ]
+    "allow": ["mcp__sauver__*", "Read"]
   }
 }

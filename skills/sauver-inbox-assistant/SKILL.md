@@ -42,7 +42,6 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    **Step B — Purify:** Inspect the returned HTML body for trackers as usual.
 
    **Step C — Skip classification, go straight to trap:** This thread is already confirmed slop. Do **not** reclassify. Instead:
-
    1. **Select Trap:** Determine the appropriate trap from the thread context (recruiter → slop-detector, investor → investor-trap, other → bouncer-reply).
    2. **Generate Response:** Generate the next escalation following the specific trap rules (including exchange counting and NDA escalation from `max_trap_exchanges`).
    3. **Dispatch:**
@@ -62,7 +61,6 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    **Step B — Purify:** Inspect the returned HTML body for 1×1 pixel `<img>` tags, external beacon URLs, and link-redirect wrappers. Report what was found.
 
    **Step B.5 — Bot Detection:** Before classifying, inspect the thread's message timestamps to detect automated reply behaviour.
-
    - Find the most recent message we sent (any message from the user's own address).
    - Check how many seconds elapsed before the sender's next reply arrived.
    - If **2 or more consecutive sender replies** each arrived within `bot_reply_threshold_seconds` (default 120) seconds of our preceding message, flag the thread as a likely bot.
@@ -78,7 +76,6 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    If flagged as **legitimate**: call `apply_label` with the `reviewed_label` value from preferences (default `Sauver/Reviewed`). This marks it so future `/sauver` runs skip it. Do **not** archive — the email stays in the inbox.
 
    If flagged as **slop**, follow this **exact** sequence:
-
    1. **Select Trap:** Use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    2. **Generate Response:** Generate the response content following the specific trap rules.
    3. **Dispatch:**

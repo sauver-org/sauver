@@ -45,62 +45,65 @@ function doPost(e) {
     }
 
     const handlers = {
-      scan_inbox:      () => scanInbox(data.max_results || 10),
+      scan_inbox: () => scanInbox(data.max_results || 10),
       search_messages: () => searchMessages(data.query, data.max_results || 10),
-      get_message:     () => getMessage(data.messageId),
-      create_draft:    () => createDraft(data),
-      send_message:    () => sendMessage(data),
-      archive_thread:  () => archiveThread(data.threadId),
-      apply_label:     () => applyLabel(data.threadId, data.labelName),
-      get_profile:     () => getProfile(),
-      list_labels:     () => listLabels(),
+      get_message: () => getMessage(data.messageId),
+      create_draft: () => createDraft(data),
+      send_message: () => sendMessage(data),
+      archive_thread: () => archiveThread(data.threadId),
+      apply_label: () => applyLabel(data.threadId, data.labelName),
+      get_profile: () => getProfile(),
+      list_labels: () => listLabels(),
     };
 
     const handler = handlers[data.action];
     if (!handler) return json({ error: `Unknown action: ${data.action}` });
 
     return json(handler());
-
   } catch (err) {
     return json({ error: err.toString() });
   }
 }
 
 function json(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
+    ContentService.MimeType.JSON,
+  );
 }
 
 // ── Actions ────────────────────────────────────────────────────────────────
 
 function threadSummary(thread) {
   const messages = thread.getMessages();
-  const msg      = messages[messages.length - 1];
-  const plain    = msg.getPlainBody();
+  const msg = messages[messages.length - 1];
+  const plain = msg.getPlainBody();
   return {
-    threadId:  thread.getId(),
+    threadId: thread.getId(),
     messageId: msg.getId(),
-    from:      msg.getFrom(),
-    to:        msg.getTo(),
-    subject:   msg.getSubject(),
-    date:      msg.getDate().toISOString(),
-    snippet:   plain.substring(0, 200),
+    from: msg.getFrom(),
+    to: msg.getTo(),
+    subject: msg.getSubject(),
+    date: msg.getDate().toISOString(),
+    snippet: plain.substring(0, 200),
   };
 }
 
 function scanInbox(maxResults) {
   // Fetch from the native inbox API (correct visual order), then filter unread.
   const threads = GmailApp.getInboxThreads(0, maxResults * 3);
-  return threads.filter(t => t.isUnread()).slice(0, maxResults).map(threadSummary);
+  return threads
+    .filter((t) => t.isUnread())
+    .slice(0, maxResults)
+    .map(threadSummary);
 }
 
 function searchMessages(query, maxResults) {
   // Use the native inbox API when possible — it returns threads in Gmail's
   // exact visual order, unlike GmailApp.search which can diverge.
-  const threads = query.trim() === "in:inbox"
-    ? GmailApp.getInboxThreads(0, maxResults)
-    : GmailApp.search(query, 0, maxResults);
+  const threads =
+    query.trim() === "in:inbox"
+      ? GmailApp.getInboxThreads(0, maxResults)
+      : GmailApp.search(query, 0, maxResults);
   return threads.map(threadSummary);
 }
 
@@ -108,14 +111,14 @@ function getMessage(messageId) {
   const msg = GmailApp.getMessageById(messageId);
   if (!msg) return { error: "Message not found" };
   return {
-    threadId:  msg.getThread().getId(),
+    threadId: msg.getThread().getId(),
     messageId: msg.getId(),
-    from:      msg.getFrom(),
-    to:        msg.getTo(),
-    subject:   msg.getSubject(),
-    date:      msg.getDate().toISOString(),
-    body:      msg.getPlainBody(),
-    htmlBody:  msg.getBody(),
+    from: msg.getFrom(),
+    to: msg.getTo(),
+    subject: msg.getSubject(),
+    date: msg.getDate().toISOString(),
+    body: msg.getPlainBody(),
+    htmlBody: msg.getBody(),
   };
 }
 
@@ -131,8 +134,12 @@ function createDraft(data) {
   }
 
   if (attachments && attachments.length > 0) {
-    options.attachments = attachments.map(function(a) {
-      return Utilities.newBlob(Utilities.base64Decode(a.data), a.mimeType, a.name);
+    options.attachments = attachments.map(function (a) {
+      return Utilities.newBlob(
+        Utilities.base64Decode(a.data),
+        a.mimeType,
+        a.name,
+      );
     });
   }
 
@@ -141,7 +148,8 @@ function createDraft(data) {
     if (!thread) return { error: "Thread not found" };
     draft = thread.createDraftReply(body || "", options);
   } else {
-    if (!to || !subject) return { error: "to and subject are required for new drafts" };
+    if (!to || !subject)
+      return { error: "to and subject are required for new drafts" };
     draft = GmailApp.createDraft(to, subject, body || "", options);
   }
 
@@ -159,8 +167,12 @@ function sendMessage(data) {
   }
 
   if (attachments && attachments.length > 0) {
-    options.attachments = attachments.map(function(a) {
-      return Utilities.newBlob(Utilities.base64Decode(a.data), a.mimeType, a.name);
+    options.attachments = attachments.map(function (a) {
+      return Utilities.newBlob(
+        Utilities.base64Decode(a.data),
+        a.mimeType,
+        a.name,
+      );
     });
   }
 
@@ -195,7 +207,8 @@ function archiveThread(threadId) {
 }
 
 function applyLabel(threadId, labelName) {
-  if (!threadId || !labelName) return { error: "threadId and labelName are required" };
+  if (!threadId || !labelName)
+    return { error: "threadId and labelName are required" };
   const thread = GmailApp.getThreadById(threadId);
   if (!thread) return { error: "Thread not found" };
 
@@ -212,5 +225,8 @@ function getProfile() {
 }
 
 function listLabels() {
-  return GmailApp.getUserLabels().map(l => ({ id: l.getName(), name: l.getName() }));
+  return GmailApp.getUserLabels().map((l) => ({
+    id: l.getName(),
+    name: l.getName(),
+  }));
 }

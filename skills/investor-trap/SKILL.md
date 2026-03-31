@@ -10,6 +10,7 @@ You are responsible for identifying low-quality outreach from "investors," "fund
 > Shared conventions (signature, YOLO mode, config keys): see `skills/PROTOCOL.md`.
 
 ## Operational Rules
+
 0. **Check Configuration:** Call `get_preferences` and read `treat_unsolicited_investors_as_slop`. If `false`, treat the email as legitimate and stop — do not deploy any trap.
 1. **Identification:** Analyze the email for "Investor Slop" signals:
    - "I help founders raise Series A/B."
@@ -53,8 +54,8 @@ You are responsible for identifying low-quality outreach from "investors," "fund
 
    > [!IMPORTANT]
    > **Engagement does not imply legitimacy.** Even if we have already responded to an email or it is part of an ongoing thread, it must still be evaluated. If the sender is still pitching or responding to a trap, continue the trap loop until the NDA is sent. After NDA, disengage.
-
    - Apply the standard **Signature** from `skills/PROTOCOL.md`.
-4. **Justification:** Explain *why* the outreach was flagged, which trap was deployed, and the current exchange count (e.g. "Exchange 2/max_trap_exchanges — Due Diligence Loop" or "Exchange max_trap_exchanges/max_trap_exchanges — NDA Trap triggered").
+
+4. **Justification:** Explain _why_ the outreach was flagged, which trap was deployed, and the current exchange count (e.g. "Exchange 2/max_trap_exchanges — Due Diligence Loop" or "Exchange max_trap_exchanges/max_trap_exchanges — NDA Trap triggered").
 5. **Reply Dispatch:** Follow the **Reply Dispatch (YOLO Mode)** rules in `skills/PROTOCOL.md`.
 6. **Confirmation:** Follow the **Confirmation Messages** convention in `skills/PROTOCOL.md`.

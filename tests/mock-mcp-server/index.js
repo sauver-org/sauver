@@ -14,7 +14,10 @@
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join, basename } from "path";
 import { simpleParser } from "mailparser";
@@ -22,12 +25,12 @@ import { simpleParser } from "mailparser";
 // ── Config ──────────────────────────────────────────────────────────────────
 
 const FIXTURE_FILE = process.env.SAUVER_TEST_FIXTURE_FILE;
-const FIXTURE_DIR  = process.env.SAUVER_TEST_FIXTURES_DIR;
-const LOG_FILE     = process.env.SAUVER_TEST_LOG || "/tmp/sauver-test-calls.json";
+const FIXTURE_DIR = process.env.SAUVER_TEST_FIXTURES_DIR;
+const LOG_FILE = process.env.SAUVER_TEST_LOG || "/tmp/sauver-test-calls.json";
 
 if (!FIXTURE_FILE && !FIXTURE_DIR) {
   process.stderr.write(
-    "sauver-mock: SAUVER_TEST_FIXTURE_FILE or SAUVER_TEST_FIXTURES_DIR must be set\n"
+    "sauver-mock: SAUVER_TEST_FIXTURE_FILE or SAUVER_TEST_FIXTURES_DIR must be set\n",
   );
   process.exit(1);
 }
@@ -35,30 +38,35 @@ if (!FIXTURE_FILE && !FIXTURE_DIR) {
 // ── Parse EML fixtures ───────────────────────────────────────────────────────
 
 function slugify(name) {
-  return basename(name, ".eml").replace(/\s+/g, "-").replace(/[^a-z0-9-]/gi, "").toLowerCase();
+  return basename(name, ".eml")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/gi, "")
+    .toLowerCase();
 }
 
 async function parseEml(filePath) {
   const content = readFileSync(filePath);
-  const parsed  = await simpleParser(content);
-  const slug    = slugify(filePath);
+  const parsed = await simpleParser(content);
+  const slug = slugify(filePath);
 
   return {
-    threadId:  `thread-${slug}`,
+    threadId: `thread-${slug}`,
     messageId: `msg-${slug}`,
-    from:      parsed.from?.text  ?? "",
-    to:        parsed.to?.text    ?? "",
-    subject:   parsed.subject     ?? "",
-    date:      (parsed.date ?? new Date()).toISOString(),
-    snippet:   (parsed.text ?? "").substring(0, 200),
-    body:      parsed.text ?? "",
-    htmlBody:  parsed.html ?? "",
+    from: parsed.from?.text ?? "",
+    to: parsed.to?.text ?? "",
+    subject: parsed.subject ?? "",
+    date: (parsed.date ?? new Date()).toISOString(),
+    snippet: (parsed.text ?? "").substring(0, 200),
+    body: parsed.text ?? "",
+    htmlBody: parsed.html ?? "",
   };
 }
 
 const emlPaths = FIXTURE_FILE
   ? [FIXTURE_FILE]
-  : readdirSync(FIXTURE_DIR).filter(f => f.endsWith(".eml")).map(f => join(FIXTURE_DIR, f));
+  : readdirSync(FIXTURE_DIR)
+      .filter((f) => f.endsWith(".eml"))
+      .map((f) => join(FIXTURE_DIR, f));
 
 const messages = await Promise.all(emlPaths.map(parseEml));
 
@@ -113,27 +121,28 @@ const TOOLS = [
       type: "object",
       required: ["body"],
       properties: {
-        body:     { type: "string" },
+        body: { type: "string" },
         htmlBody: { type: "string" },
         threadId: { type: "string" },
-        to:       { type: "string" },
-        subject:  { type: "string" },
+        to: { type: "string" },
+        subject: { type: "string" },
         attachments: { type: "array", items: { type: "string" } },
       },
     },
   },
   {
     name: "send_message",
-    description: "Send a message immediately. Only use when yolo_mode is enabled.",
+    description:
+      "Send a message immediately. Only use when yolo_mode is enabled.",
     inputSchema: {
       type: "object",
       required: ["body"],
       properties: {
-        body:     { type: "string" },
+        body: { type: "string" },
         htmlBody: { type: "string" },
         threadId: { type: "string" },
-        to:       { type: "string" },
-        subject:  { type: "string" },
+        to: { type: "string" },
+        subject: { type: "string" },
         attachments: { type: "array", items: { type: "string" } },
       },
     },
@@ -154,7 +163,7 @@ const TOOLS = [
       type: "object",
       required: ["threadId", "labelName"],
       properties: {
-        threadId:  { type: "string" },
+        threadId: { type: "string" },
         labelName: { type: "string" },
       },
     },
@@ -186,7 +195,7 @@ const TOOLS = [
       type: "object",
       required: ["key", "value"],
       properties: {
-        key:   { type: "string" },
+        key: { type: "string" },
         value: {},
       },
     },
@@ -197,10 +206,12 @@ const TOOLS = [
 
 const server = new Server(
   { name: "sauver", version: "0.0.0-test" },
-  { capabilities: { tools: {} } }
+  { capabilities: { tools: {} } },
 );
 
-server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
+server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  tools: TOOLS,
+}));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args = {} } = request.params;
@@ -211,7 +222,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     // ── Local / no-op tools ────────────────────────────────────────────────
 
     case "check_update":
-      result = { checked: false, skipped_reason: "test mode", updated: false, current_version: "0.0.0-test" };
+      result = {
+        checked: false,
+        skipped_reason: "test mode",
+        updated: false,
+        current_version: "0.0.0-test",
+      };
       break;
 
     case "get_preferences":
@@ -226,7 +242,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       break;
 
     case "set_preference":
-      result = { status: "ok (test mode — preference not persisted)", key: args.key, value: args.value };
+      result = {
+        status: "ok (test mode — preference not persisted)",
+        key: args.key,
+        value: args.value,
+      };
       break;
 
     case "get_profile":
@@ -242,32 +262,32 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case "scan_inbox":
     case "search_messages": {
       const limit = args.max_results ?? 10;
-      result = messages.slice(0, limit).map(m => ({
-        threadId:  m.threadId,
+      result = messages.slice(0, limit).map((m) => ({
+        threadId: m.threadId,
         messageId: m.messageId,
-        from:      m.from,
-        to:        m.to,
-        subject:   m.subject,
-        date:      m.date,
-        snippet:   m.snippet,
+        from: m.from,
+        to: m.to,
+        subject: m.subject,
+        date: m.date,
+        snippet: m.snippet,
       }));
       break;
     }
 
     case "get_message": {
-      const msg = messages.find(m => m.messageId === args.messageId);
+      const msg = messages.find((m) => m.messageId === args.messageId);
       if (!msg) {
         result = { error: `Message not found: ${args.messageId}` };
       } else {
         result = {
-          threadId:  msg.threadId,
+          threadId: msg.threadId,
           messageId: msg.messageId,
-          from:      msg.from,
-          to:        msg.to,
-          subject:   msg.subject,
-          date:      msg.date,
-          body:      msg.body,
-          htmlBody:  msg.htmlBody,
+          from: msg.from,
+          to: msg.to,
+          subject: msg.subject,
+          date: msg.date,
+          body: msg.body,
+          htmlBody: msg.htmlBody,
         };
       }
       break;
@@ -276,7 +296,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     // ── Write tools — log and return success ───────────────────────────────
 
     case "create_draft":
-      result = { draftId: `draft-test-${Date.now()}`, status: "Draft created (test mode)" };
+      result = {
+        draftId: `draft-test-${Date.now()}`,
+        status: "Draft created (test mode)",
+      };
       logCall(name, args, result);
       break;
 
