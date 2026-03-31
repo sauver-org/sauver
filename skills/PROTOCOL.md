@@ -94,10 +94,11 @@ Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; u
 | `yolo_mode`                           | bool   | `false`  | Auto-send replies instead of drafting                     |
 | `treat_job_offers_as_slop`            | bool   | `true`   | Treat recruiter outreach as slop                          |
 | `treat_unsolicited_investors_as_slop` | bool   | `true`   | Treat investor outreach as slop                           |
-| `slop_label`                        | string | `Sauver/Slop` | Gmail label applied to flagged emails when archiving      |
+| `slop_label`                          | string | `Sauver/Slop` | Gmail label applied to flagged emails when archiving      |
 | `engage_bots`                         | bool   | `false`  | Continue trap engagement even when bot-like behaviour is detected; if `false`, silently archive bot threads |
 | `bot_reply_threshold_seconds`         | int    | `120`    | Maximum seconds between our last reply and their next one to be considered bot-like |
 | `max_trap_exchanges`                  | int    | `3`      | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging |
+| `max_daily_replies`                   | int    | `10`     | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window         |
 | `reviewed_label`                      | string | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans |
 
 ## Preference Adherence

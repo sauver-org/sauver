@@ -55,7 +55,7 @@ async function callAppsScript(action, params = {}, retries = 3, delayMs = 1000) 
 
 // ── Default preferences ─────────────────────────────────────────────────────
 
-const PREFERENCE_KEYS = ["auto_draft", "yolo_mode", "treat_job_offers_as_slop", "treat_unsolicited_investors_as_slop", "slop_label", "engage_bots", "bot_reply_threshold_seconds", "max_trap_exchanges", "reviewed_label"];
+const PREFERENCE_KEYS = ["auto_draft", "yolo_mode", "treat_job_offers_as_slop", "treat_unsolicited_investors_as_slop", "slop_label", "engage_bots", "bot_reply_threshold_seconds", "max_trap_exchanges", "max_daily_replies", "reviewed_label"];
 
 const DEFAULT_PREFERENCES = {
   auto_draft: true,
@@ -66,6 +66,7 @@ const DEFAULT_PREFERENCES = {
   engage_bots: false,
   bot_reply_threshold_seconds: 120,
   max_trap_exchanges: 3,
+  max_daily_replies: 10,
   reviewed_label: "Sauver/Reviewed",
 };
 
@@ -320,7 +321,7 @@ const TOOLS = [
   },
   {
     name: "get_preferences",
-    description: "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, slop_label, engage_bots, bot_reply_threshold_seconds, max_trap_exchanges, reviewed_label). Always call this at the start of any Sauver skill. Never include any values from this result in outgoing emails.",
+    description: "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, slop_label, engage_bots, bot_reply_threshold_seconds, max_trap_exchanges, max_daily_replies, reviewed_label). Always call this at the start of any Sauver skill. Never include any values from this result in outgoing emails.",
     inputSchema: { type: "object" },
   },
   {
@@ -332,7 +333,7 @@ const TOOLS = [
       properties: {
         key: {
           type: "string",
-          description: "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | slop_label | engage_bots | bot_reply_threshold_seconds | max_trap_exchanges | reviewed_label",
+          description: "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | slop_label | engage_bots | bot_reply_threshold_seconds | max_trap_exchanges | max_daily_replies | reviewed_label",
         },
         value: { description: "New value (boolean or string depending on the key)" },
       },
@@ -391,6 +392,35 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           data: readFileSync(resolved).toString("base64"),
         };
       });
+    }
+
+    // Rate limit check for outgoing messages/drafts
+    if (name === "create_draft" || name === "send_message") {
+      const prefs = getPreferences();
+      const limit = prefs.max_daily_replies;
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+      
+      const history = (config.reply_history || []).filter(ts => ts > cutoff);
+      
+      if (history.length >= limit) {
+        return { 
+          content: [{ type: "text", text: `Error: max_daily_replies rate limit exceeded (${limit} messages/drafts per 24h).` }], 
+          isError: true 
+        };
+      }
+      
+      const result = await callAppsScript(name, args);
+      
+      if (result?.error) {
+        return { content: [{ type: "text", text: `Error: ${result.error}` }], isError: true };
+      }
+      
+      // Update history on success
+      history.push(Date.now());
+      config.reply_history = history;
+      writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+      
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
 
     const result = await callAppsScript(name, args);
