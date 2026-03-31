@@ -127,7 +127,7 @@ else
   npx --yes @google/clasp login
 
   echo ""
-  echo "  c) Generating and deploying the project..."
+  echo "  c) Generating and deploying the project... (may take a minute)"
   
   CLASP_WORK_DIR=$(mktemp -d)
   (
