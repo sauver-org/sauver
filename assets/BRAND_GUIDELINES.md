@@ -6,7 +6,7 @@
 
 ## 1. The Core Strategy
 
-Sauver is a digital sentry, an intelligent gatekeeper, and the initial resistance against automated inbox triage. We are moving from a developer's local utility toward an enterprise-ready inbox defense platform. Our visual identity must balance the raw energy of an open-source movement with the reliability, security, and precision expected from a professional security service.
+Sauver is a digital sentry, an intelligent gatekeeper, and the initial resistance against automated inbox triage. We are moving from a developer's local utility toward an enterprise-ready inbox defense platform. Our visual identity must balance the raw energy of an open-source resistance with the reliability, security, and precision expected from a professional security service.
 
 ### 2. The Sauver Shield (The Icon)
 
