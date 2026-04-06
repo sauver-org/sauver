@@ -1,6 +1,6 @@
 # Allow tools that are safe for automatic execution in this project
 [[rule]]
-toolName = "Read"
+tool = "Read"
 decision = "allow"
 priority = 100
 
