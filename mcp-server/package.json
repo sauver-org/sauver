@@ -1,6 +1,6 @@
 {
   "name": "sauver-mcp",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Sauver local MCP server — bridges Claude/Gemini to the Gmail Apps Script backend",
   "type": "module",
   "main": "index.js",
