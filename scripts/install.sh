@@ -455,12 +455,12 @@ mkdir -p "$GEMINI_POLICY_DIR"
 cat > "$GEMINI_POLICY_FILE" <<EOF
 # Sauver Policy — Allow tools required for autonomous operation
 [[rule]]
-tool = "Read"
+toolName = "Read"
 decision = "allow"
 priority = 100
 
 [[rule]]
-mcp = "sauver"
+mcpName = "sauver"
 decision = "allow"
 priority = 100
 EOF
