@@ -1,220 +1,390 @@
-# LinkedIn Support — Design Plan
+# LinkedIn Support — Design Plan (v3)
 
-## Core Insight: Zero API, Zero Cost
+## Honest Assessment First
 
-LinkedIn already emails users their inbox messages as Gmail notifications. These notification emails include the full message preview (~300 chars), sender name, and a link back to the LinkedIn thread. **No LinkedIn API, no browser automation, no paid services needed** — Sauver just reads what's already in Gmail.
+There are exactly three ways to access LinkedIn messages and feed programmatically:
 
----
+| Approach | Full messages | Auto-reply | Feed | Cost | Account risk |
+|---|---|---|---|---|---|
+| **Gmail notification emails** | No (300-char preview only) | No | No | Free | None |
+| **Browser automation (Playwright)** | Yes | Yes | Yes | Free | Low (looks like human) |
+| **LinkedIn Voyager API (unofficial)** | Yes | Yes | Yes | Free | Moderate (detectable HTTP patterns) |
+| **LinkedIn official API** | Requires partner approval | Requires partner approval | No | Free tier is useless | None |
 
-## What This Feature Does and Doesn't Do
+The official API is a dead end — LinkedIn does not expose personal inbox or personal feed to third-party apps.
 
-**Does:**
-- Detect LinkedIn notification emails (messages, InMail, connection requests) in Gmail
-- Classify them using the same slop signals as email (recruiter/sales/investor)
-- Label + archive slop in Gmail
-- Generate a reply trap as a **Gmail draft** with the reply text + LinkedIn thread URL at the top, so the user can open LinkedIn with one click and paste
+**Why DOM/Playwright over Voyager API:**
 
-**Doesn't:**
-- Automatically reply on LinkedIn (impossible without API or browser automation)
-- Read messages beyond what LinkedIn includes in the notification email
-- Access the LinkedIn inbox directly
-
-The reply limitation is honest and documented. The draft-as-template workflow preserves trap value while being achievable.
-
----
-
-## LinkedIn Notification Email Taxonomy
-
-| Sender address | Type | Action |
+| | Voyager API | Playwright DOM |
 |---|---|---|
-| `messages-noreply@linkedin.com` | Message / InMail | Classify → trap or pass |
-| `invitations@linkedin.com` | Connection request | Classify → trap or pass |
-| `jobalerts-noreply@linkedin.com` | Job alert | Skip (treat_job_offers_as_slop covers this) |
-| `notification-noreply@linkedin.com` | Generic notification | Skip |
+| Setup UX | Must extract cookies from browser DevTools (friction, error-prone) | Log in naturally in a visible browser window |
+| Detection risk | Moderate — crafted HTTP headers are a fingerprint | Low — it IS an actual browser, indistinguishable from a human |
+| 2FA / CAPTCHA | Flow breaks, requires manual cookie re-extraction | User just completes it in the headed window |
+| Maintenance | API endpoints change silently with no warning | DOM selectors change, but aria-labels and data attributes are stable |
+| Speed | Fast (HTTP calls) | Slower (page loads) — irrelevant at personal-use frequency |
+| Dependencies | Zero extra | `playwright-core` 10.5MB + system Chrome (already installed) |
+
+**Decision: DOM/Playwright for the full mode.** Same two-mode architecture — safe email mode as default, browser mode as opt-in.
+
+ToS status: Browser automation still violates LinkedIn's ToS (Section 8.2). The risk of enforcement is lower than Voyager API because the traffic is indistinguishable from a human user, but the legal exposure is the same. Disclose it in the installer.
+
+---
+
+## Two-Mode Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  SAFE MODE (default)                                    │
+│  Gmail receives LinkedIn notification emails            │
+│  → existing Apps Script + MCP handles them             │
+│  → classification from 300-char preview                 │
+│  → label + archive slop in Gmail                        │
+│  → draft with thread URL as copy-paste reply template   │
+│  → NO feed support                                      │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│  BROWSER MODE (opt-in, risk disclosed)                  │
+│  Playwright drives system Chrome to access LinkedIn     │
+│  → full message content (no 300-char limit)             │
+│  → auto-send trap replies directly on LinkedIn          │
+│  → read and filter the news feed                        │
+│  → mark conversations as read                           │
+│  → all LinkedIn actions without leaving the terminal    │
+└─────────────────────────────────────────────────────────┘
+```
+
+When browser mode is enabled, the safe-mode Gmail notification pass still runs — it catches anything missed during the browser scan (e.g. if a notification arrived before the last browser session). The two modes are additive, not exclusive.
+
+---
+
+## Playwright Implementation Details
+
+### Package strategy
+
+Use `playwright-core` (10.5MB npm package, no bundled browsers) + system Chrome via `channel: 'chrome'`. This avoids downloading ~120MB of Chromium. If the user doesn't have Chrome, the installer falls back to `npx playwright install chromium` as an optional step.
+
+```javascript
+const { chromium } = require('playwright-core');
+const browser = await chromium.launch({ channel: 'chrome', headless: true });
+```
+
+### Session persistence
+
+On first run: launch headed (visible window), user logs in manually, session saved as Playwright storageState.
+
+```
+~/.sauver/linkedin-session.json   ← Playwright storageState (cookies + localStorage)
+```
+
+On every subsequent run: restore session from file, launch headless. LinkedIn session cookies last months. When they expire, the MCP tool detects the redirect to the login page and prompts the user to re-authenticate via `sauver-linkedin-auth`.
+
+### Selector strategy
+
+LinkedIn obfuscates CSS class names and changes them frequently. Use stable selectors in priority order:
+
+1. **`data-control-name` attributes** — LinkedIn uses these for analytics; they're stable
+2. **`aria-label` attributes** — accessibility labels, semantically tied to function
+3. **URL-based routing** — navigate to known URLs (`/messaging/`, `/feed/`) rather than clicking nav elements
+4. **Visible text content** — last resort, via `page.getByText()` or `:has-text()`
+
+Never use class names like `.msg-conversation-listitem__link-to-overview` — these change silently.
+
+### Key pages and DOM targets
+
+**Inbox (`linkedin.com/messaging/`)**
+- Conversation list items: navigate to page, then query by `data-control-name="overlay_conversation_link"` or iterate `article` elements in the left panel
+- Each item: sender name from `[data-anonymize="person-name"]`, message preview from `[data-anonymize="message-preview"]`, timestamp from `time` element
+
+**Thread (`linkedin.com/messaging/thread/{id}/`)**
+- Messages: `article.msg-s-event-listitem` elements
+- Message body: `.msg-s-event__content` or `[data-anonymize="message-body"]`
+- Sender: `[data-anonymize="person-name"]` in each message
+- Reply box: `div[contenteditable="true"][role="textbox"]`
+- Send button: `button[data-control-name="send-message"]` or aria-label="Send"
+
+**Feed (`linkedin.com/feed/`)**
+- Posts: `div[data-id]` containers or `article` elements in feed
+- Post content: `.update-components-text` or `.feed-shared-update-v2__description`
+- "..." menu: `button[aria-label="Open control menu"]` on each post
+- "Hide" option: within dropdown, text match "Hide this post" or `[data-control-name="hide_post"]`
+
+**Graceful degradation:** If a selector fails (LinkedIn changed the DOM), the MCP tool returns a structured error: `{ error: "selector_stale", page: "messaging", hint: "LinkedIn may have updated their UI. Check for Sauver updates." }`. The skill surfaces this clearly rather than silently doing nothing.
 
 ---
 
 ## Components
 
-### 1. `mcp-server/index.js` — New Preference Keys
+### 1. `mcp-server/index.js` — Playwright Client + 6 New Tools
 
-Add to `PREFERENCE_KEYS` and `DEFAULT_PREFERENCES`:
+**New npm dependency:** `playwright-core` added to `mcp-server/package.json`.
 
+**New preference keys** (add to `PREFERENCE_KEYS` and `DEFAULT_PREFERENCES`):
 ```
-linkedin_enabled               bool    false    Master switch for LinkedIn filtering
+linkedin_enabled               bool    false    Master switch (either mode)
+linkedin_mode                  string  "email"  "email" | "browser"
 linkedin_slop_label            string  "Sauver/LinkedIn/Slop"
-filter_linkedin_connections    bool    false    Connection requests (opt-in, aggressive)
+linkedin_filter_connections    bool    false    Also filter connection requests (aggressive, opt-in)
+linkedin_filter_feed           bool    false    Enable feed filtering (browser mode only)
+linkedin_feed_slop_label       string  "Sauver/LinkedIn/FeedSlop"
 ```
 
-Small change — just adds 3 keys to two arrays.
+**New internal helpers:**
+
+```
+getLinkedInPage()
+  → restore ~/.sauver/linkedin-session.json as storageState
+  → launch headless Chrome via playwright-core + channel:'chrome'
+  → return { browser, page }
+  → if session expired (page.url() contains '/login'): throw SessionExpiredError
+
+saveLinkedInSession(context)
+  → context.storageState({ path: '~/.sauver/linkedin-session.json' })
+```
+
+**6 new MCP tools:**
+
+| Tool | LinkedIn page | What it does |
+|---|---|---|
+| `linkedin_scan_inbox` | `/messaging/` | List unread conversations (sender, preview, thread ID) |
+| `linkedin_get_conversation` | `/messaging/thread/{id}/` | Full thread — all messages, full text, timestamps |
+| `linkedin_send_reply` | `/messaging/thread/{id}/` | Type reply in contenteditable box, click Send |
+| `linkedin_mark_read` | `/messaging/thread/{id}/` | Open thread (marks as read automatically), close |
+| `linkedin_get_feed` | `/feed/` | Scrape N feed posts with content, author, post ID |
+| `linkedin_hide_post` | `/feed/` | Click "..." → "Hide this post" on a specific post |
+
+Each tool opens a fresh page, performs its action, saves session state, and closes the page. Browser instance is kept alive across calls within a single MCP session to avoid repeated startup cost.
+
+**Session expired handling:** All 6 tools catch `SessionExpiredError` and return `{ error: "linkedin_session_expired", action: "Run: /linkedin-auth to reconnect" }`. The skill surfaces this as a clear user-facing message.
 
 ---
 
-### 2. `skills/linkedin-shield/SKILL.md` — New Skill
+### 2. New standalone command: `/linkedin-auth`
 
-Handles a single LinkedIn notification email. Called by the orchestrator per-message, similar to how `slop-detector` is called today.
-
-**Workflow:**
+A new tiny skill (`skills/linkedin-auth/SKILL.md`) whose only job is re-authentication:
 
 ```
-Receive: messageId, threadId, email headers + HTML body
-
-Step 1 — Identify notification type
-  - Parse From: address to determine type (message / InMail / connection)
-  - If "jobalerts" or "notification-noreply": report SKIP
-
-Step 2 — Extract signal data from HTML body
-  - Parse sender's name and title from the email HTML
-  - Extract message preview text (the quoted LinkedIn message content)
-  - Extract LinkedIn thread URL (https://www.linkedin.com/comm/messaging/...)
-
-Step 3 — Classify
-
-  Recruiter/job slop signals:
-    - "I came across your profile" / "Your background caught my eye"
-    - Mentions of role, position, salary, opportunity, fit
-    - Title contains Recruiter / Talent Acquisition / HR
-
-  Sales slop signals:
-    - "I help companies like yours" / generic value props
-    - Vague ROI claims without specifics
-    - "Wanted to reach out" / "thought you'd be interested"
-
-  Investor slop signals:
-    - "family office" / "fund" / "early-stage"
-    - "I'd love to learn about what you're building" (generic)
-
-  Legitimate signals:
-    - References a specific project, post, or shared context the user would recognize
-    - Concrete collaboration proposal with specifics
-    - Personal connection (mutual acquaintance mentioned by name)
-    - Specific technical question showing domain knowledge
-
-Step 4 — Act on classification
-
-  SLOP path:
-    1. apply_label(threadId, linkedin_slop_label)
-    2. archive_thread(threadId)
-    3. If auto_draft AND linkedin_thread_url was found:
-       create_draft with body:
-         "--- LinkedIn thread: {url} ---\n\n{trap_reply_text}"
-       Subject: "Re: [LinkedIn] {original_subject}"
-       — This serves as a copy-paste template for manual LinkedIn reply
-
-  LEGITIMATE path:
-    apply_label(threadId, reviewed_label)
-    — Leave in inbox, no archive
-
-Step 5 — Report result
+Step 1 — Launch Chrome in headed mode (visible window)
+Step 2 — Navigate to linkedin.com/login
+Step 3 — Tell user: "Please log in to LinkedIn in the browser window that just opened.
+          Press Enter here when you're done."
+Step 4 — Wait for Enter
+Step 5 — Verify: check that current URL is not a login page
+Step 6 — Save session: saveLinkedInSession()
+Step 7 — Close browser
+Step 8 — Confirm: "LinkedIn session saved. Browser mode is ready."
 ```
 
-**Trap selection for LinkedIn slop:**
-- Recruiter/job → Info Vacuum (ask for company, role details, comp) → Expert-Domain Trap → NDA Trap
-- Sales → Time-Sink Trap (absurd requirements) → NDA Trap
+This replaces the cookie-extraction flow in the installer entirely. Called:
+- Once during install (if user opts into browser mode)
+- Any time thereafter when the session expires
+
+---
+
+### 3. `skills/linkedin-shield/SKILL.md` — Dual-Mode Skill
+
+**Email mode** (same as v2 plan — unchanged):
+```
+Receive Gmail messageId → parse notification email → classify from 300-char preview
+→ label + archive in Gmail → optionally create draft with thread URL + reply text
+```
+
+**Browser mode:**
+```
+Receive LinkedIn thread ID from linkedin_scan_inbox
+→ linkedin_get_conversation → read full thread, all messages
+→ count exchange depth from message count
+→ classify from full text (no truncation)
+→ select trap stage based on exchange count
+
+SLOP:
+  → generate trap reply
+  → if yolo_mode: linkedin_send_reply
+  → if not yolo_mode: create Gmail draft with reply text + thread URL
+  → linkedin_mark_read
+
+LEGIT:
+  → linkedin_mark_read
+  → report as legitimate, no action
+```
+
+**Classification signals** (both modes, identical):
+
+Recruiter/job slop:
+- "I came across your profile" / "your background caught my eye" / "great fit"
+- Mentions role, position, salary, equity without being asked
+- Sender title contains: Recruiter, Talent, HR, Staffing, Headhunter
+
+Sales slop:
+- "I help companies like yours" / generic value propositions
+- Vague ROI claims without specifics
+- "Wanted to connect to discuss" / "thought you'd be interested"
+- Follows an obvious template with blanks filled in
+
+Investor slop:
+- "family office" / "fund" / "early-stage" / "raise capital"
+- "I'd love to learn more about what you're building" (generic)
+- Calendly link or deck request without substantive prior exchange
+
+Legitimate:
+- References a specific post, project, or shared context the user would recognize
+- Concrete technical question showing domain knowledge
+- Named mutual connection or shared event
+- No detectable commercial intent
+
+**Trap selection:**
+- Recruiter → Info Vacuum → Expert-Domain Trap → NDA Trap
+- Sales → Time-Sink Trap → NDA Trap
 - Investor → Due Diligence Loop → NDA Trap
 
-The trap reply text is generated but stored as a draft, never auto-sent to LinkedIn.
+(Identical to email traps. The reply is either sent via `linkedin_send_reply` or stored as a Gmail draft depending on `yolo_mode`.)
 
-**Exchange counting for LinkedIn:**
-LinkedIn threads arrive as separate notification emails per message. Count prior emails in the thread using `search_messages(from:linkedin.com subject:"[sender name]")` to determine exchange depth before selecting trap stage.
+**Exchange counting (browser mode):** Count messages in the thread returned by `linkedin_get_conversation`. Odd-indexed messages are from sender, even-indexed from user (or vice versa) — identify by sender name vs profile name.
 
 ---
 
-### 3. `skills/sauver-inbox-assistant/SKILL.md` — Add LinkedIn Pass
+### 4. `skills/linkedin-feed/SKILL.md` — New Skill (Browser Mode Only)
+
+```
+Step 1 — linkedin_get_feed → fetch 10-20 feed posts (content + author + post ID)
+
+Step 2 — Classify each post:
+
+  Feed slop:
+    - Sponsored / promoted (label "Promoted" present)
+    - Hustle-culture: "I wake up at 4am", "rejection makes me stronger", "I failed 100 times"
+    - Engagement bait: "Comment YES if you agree", "Tag someone who...", "Like if you..."
+    - Stealth ads: product placed as a personal anecdote with a CTA at the end
+    - Generic inspirational filler: vague platitudes with no actionable or factual content
+    - Self-congratulatory posts with no insight ("Excited to announce I joined...")
+    - Job listings dressed as thought leadership
+
+  Legitimate:
+    - Technical content with concrete specifics
+    - Industry news or analysis with a named source
+    - Genuine project updates with details the user's network would care about
+    - Discussion with substantive debate, not engagement farming
+
+Step 3 — For each slop post: linkedin_hide_post
+
+Step 4 — Report: "Hid N posts. Categories: {breakdown}"
+```
+
+Adds `/linkedin-feed` slash command.
+
+---
+
+### 5. `skills/sauver-inbox-assistant/SKILL.md` — Add LinkedIn Pass
 
 Insert **Pass 0** before existing Pass 1:
 
 ```
-Pass 0 — LinkedIn Notifications (runs only if linkedin_enabled = true)
+Pass 0 — LinkedIn (runs only if linkedin_enabled = true)
 
-  search_messages("from:(linkedin.com) in:inbox")
-  For each result:
-    - get_message(messageId)
-    - Route to linkedin-shield
-    - Process result
-  Repeat until 0 results
+  EMAIL MODE:
+    search_messages("from:(linkedin.com) in:inbox")
+    For each result → linkedin-shield (email mode)
+    Repeat until 0 results
+
+  BROWSER MODE:
+    linkedin_scan_inbox → list unread conversations
+    For each conversation → linkedin-shield (browser mode)
+    If session expired → surface error, skip LinkedIn, continue with Gmail passes
+    If linkedin_filter_feed=true → linkedin-feed skill
 ```
-
-This keeps LinkedIn handling isolated and optional — if `linkedin_enabled` is false, Pass 0 is skipped entirely.
 
 ---
 
-### 4. `scripts/install.sh` — LinkedIn Setup Step
+### 6. `scripts/install.sh` — LinkedIn Setup Step
 
-Add as **Step 5** (after MCP server installation, before AI client registration), marked as optional:
+Add as **Step 5** (after MCP server installation):
 
 ```
 ── Step 5: LinkedIn spam filtering (optional) ──
 
-Explain:
-  "Sauver can filter LinkedIn message spam that arrives in your Gmail
-   as email notifications. This requires LinkedIn to send you email
-   notifications for messages and InMail — which most accounts have
-   enabled by default."
+"Sauver can filter LinkedIn spam — recruiters, sales outreach, InMail,
+ and connection requests. Two modes:
 
-Ask: "Enable LinkedIn spam filtering? [y/N]"
+ [1] Safe mode  — reads LinkedIn notification emails in your Gmail.
+     No LinkedIn risk. Cannot auto-reply. No feed filtering.
 
-If yes:
-  Show instructions:
-    1. Visit: linkedin.com/mypreferences/d/categories/notifications
-    2. Under "Messages" → ensure "Messages from connections" is ON
-    3. Under "InMail" → ensure "InMail messages" is ON
-    4. Optionally: "Connection requests" (more aggressive, opt-in)
+ [2] Browser mode — controls Chrome to access your LinkedIn directly.
+     Full messages, auto-reply on LinkedIn, feed filtering.
+     ⚠  Automates your browser. Violates LinkedIn ToS.
+        Risk of account suspension. Low in practice for personal use
+        at this frequency, but the risk is real."
 
-  Wait: "Press Enter when done..."
+Ask: "Enable LinkedIn? [1=safe / 2=browser / n=skip]"
 
-  Ask: "Also filter connection request spam? [y/N]"
+If 1:
+  → guide: linkedin.com/mypreferences/d/categories/notifications
+    Ensure Messages + InMail notifications are ON
+  → ask: "Filter connection requests too? [y/N]"
+  → write: linkedin_enabled=true, linkedin_mode="email"
+  → confirm: "✓ Safe mode enabled"
 
-  Write to config.json:
-    preferences.linkedin_enabled = true
-    preferences.filter_linkedin_connections = <yes/no>
-
-  Confirm: "✓ LinkedIn filtering enabled"
-
-If no:
-  Skip (linkedin_enabled stays false / not written)
+If 2:
+  → check: is playwright-core installed? If not: npm install playwright-core
+  → check: is Chrome available? (chromium.launch({ channel: 'chrome', headless: true }))
+    If not: offer "npx playwright install chromium" (~120MB) → ask consent
+  → run /linkedin-auth inline:
+    - launch Chrome headed
+    - user logs in (handles 2FA naturally)
+    - save session
+    - verify: navigate to /messaging/, confirm inbox loaded
+    - confirm: "✓ Connected to LinkedIn"
+  → ask: "Filter connection requests? [y/N]"
+  → ask: "Enable feed filtering? [y/N]"
+  → write: linkedin_enabled=true, linkedin_mode="browser",
+           linkedin_filter_connections=..., linkedin_filter_feed=...
+  → confirm: "✓ Browser mode enabled"
 
 Upgrade mode:
-  If linkedin_enabled already in config → offer to reconfigure, show current setting
+  → if linkedin already in config: show current mode, offer reconfigure
+  → if browser mode: test session (try linkedin_scan_inbox), warn if expired
 ```
-
-The step is entirely non-blocking — existing users skip it (default `false`). Running install in upgrade mode re-offers the step if not previously configured.
 
 ---
 
-### 5. `skills/PROTOCOL.md` — LinkedIn Addendum
+### 7. `skills/PROTOCOL.md` — LinkedIn Addendum
 
-Add a **LinkedIn Notification Handling** section:
-
-- List known LinkedIn sender addresses and what they mean
-- Document the draft-as-template pattern (reply text is for manual use on LinkedIn)
-- Note that LinkedIn replies are never auto-sent via `send_message` (would send to Gmail, not LinkedIn)
-- Add `linkedin_enabled`, `linkedin_slop_label`, `filter_linkedin_connections` to the config key reference table
+Add section **LinkedIn Integration**:
+- Document both modes (email vs browser)
+- List 6 new browser tools with usage notes
+- Note: `linkedin_send_reply` is only used in browser mode + yolo_mode; otherwise Gmail draft
+- Note: feed posts are hidden, never receive replies
+- Note: session expiry error handling — skip LinkedIn pass, continue
+- Add 6 new config keys to reference table
+- Security note: `~/.sauver/linkedin-session.json` contains LinkedIn session cookies — same sensitivity as `secret_key`; `chmod 600` applied during auth
 
 ---
 
-### 6. Tests — LinkedIn EML Fixtures
+### 8. Tests
 
-Add to `tests/fixtures/`:
+**Email mode:** Unchanged from v2 — EML fixtures work as-is.
+
+**Browser mode:** Cannot use the existing EML fixture system. Two-part approach:
+
+1. **Adapter abstraction:** The 6 LinkedIn browser tools call an internal `LinkedInBrowser` class (thin wrapper). In test environments, swap it with a `MockLinkedInBrowser` that returns fixture JSON without touching a real browser. Activated via `SAUVER_LINKEDIN_MOCK=1` env var.
+
+2. **Fixtures:** JSON files in `tests/fixtures/linkedin/` matching what `linkedin_get_conversation` returns for recruiter / sales / investor / legitimate cases.
 
 ```
-tests/fixtures/
+tests/fixtures/linkedin/
   slop/
-    linkedin-recruiter-inmail.eml          + .test.json
-    linkedin-sales-connection-request.eml  + .test.json
-    linkedin-investor-message.eml          + .test.json
+    recruiter-inmail.json          ← conversation fixture
+    sales-connection.json
+    investor-message.json
   legitimate/
-    linkedin-genuine-message.eml           + .test.json
-    linkedin-mutual-acquaintance.eml       + .test.json
+    genuine-message.json
+    technical-question.json
 ```
-
-Each EML is a realistic LinkedIn notification email with stripped SMTP routing headers (matching existing fixture convention). The `.test.json` for slop cases should assert `archived: true`, `draft_created: (depends on auto_draft)`, `label_applied: "Sauver/LinkedIn/Slop"`.
 
 ---
 
-### 7. Sync
+### 9. Sync
 
-Run `make sync` after adding `linkedin-shield/SKILL.md` — the existing `scripts/sync_commands.py` auto-generates `.claude/commands/linkedin-shield.md` and `.gemini/skills/linkedin-shield/SKILL.md` shims. No changes to sync tooling needed.
+Run `make sync` after adding `linkedin-shield/`, `linkedin-feed/`, and `linkedin-auth/` skills. Auto-generates 3 new command shims. No tooling changes.
 
 ---
 
@@ -222,32 +392,40 @@ Run `make sync` after adding `linkedin-shield/SKILL.md` — the existing `script
 
 | Component | Reason |
 |---|---|
-| `apps-script/Code.gs` | LinkedIn notifications are plain Gmail emails — all 9 existing handlers work |
-| MCP transport / stdio | No new tools, just new preference keys |
-| `scripts/sync_commands.py` | Picks up new skill automatically |
-| NDA attachment mechanism | Reused as-is in the LinkedIn NDA Trap |
+| `apps-script/Code.gs` | LinkedIn notifications are Gmail emails; existing handlers untouched |
+| MCP stdio transport | New tools added alongside existing ones |
+| `scripts/sync_commands.py` | Picks up new skills automatically |
+| NDA attachment mechanism | Reused in LinkedIn NDA Trap |
+| Rate limiting | Shared `max_daily_replies` counter — LinkedIn replies count against it too |
 
 ---
 
 ## Implementation Order
 
-1. `mcp-server/index.js` — add 3 preference keys (trivial)
-2. `skills/linkedin-shield/SKILL.md` — the core new skill
-3. `skills/sauver-inbox-assistant/SKILL.md` — add Pass 0
-4. `skills/PROTOCOL.md` — LinkedIn addendum + config table update
-5. `scripts/install.sh` — LinkedIn setup step
-6. `make sync` — regenerate command shims
-7. Test fixtures — EML samples + `.test.json`
-8. Version bump: `make version V=2.0.0`
+1. `mcp-server/package.json` — add `playwright-core`
+2. `mcp-server/index.js` — 6 preference keys + `getLinkedInPage()` + `saveLinkedInSession()` + 6 new MCP tools + `MockLinkedInBrowser` stub
+3. `skills/linkedin-auth/SKILL.md` — auth skill
+4. `skills/linkedin-shield/SKILL.md` — dual-mode shield skill
+5. `skills/linkedin-feed/SKILL.md` — feed filtering skill
+6. `skills/sauver-inbox-assistant/SKILL.md` — add Pass 0
+7. `skills/PROTOCOL.md` — LinkedIn addendum + config table
+8. `scripts/install.sh` — LinkedIn setup step
+9. `make sync` — regenerate command shims
+10. `tests/fixtures/linkedin/` — JSON conversation fixtures
+11. Version bump: `make version V=2.0.0`
 
 ---
 
 ## Key Trade-offs
 
-**Reply gap is explicit, not hidden.** The draft-as-template approach is honest. Trying to "send" via the Gmail compose window to `messages-noreply@linkedin.com` would silently fail. The draft tells the user exactly what to do.
+**DOM selectors will break eventually.** LinkedIn changes their UI. The mitigation is using stable attributes (`data-control-name`, `aria-label`, URL routing) and returning a clear `selector_stale` error rather than silently failing. When it breaks, it breaks loudly, and a selector update is a one-line fix.
 
-**Exchange tracking is approximate.** Without access to the LinkedIn inbox itself, exchange counting relies on Gmail notification history for that sender. It's good enough to gate the NDA Trap correctly but may miscount if notifications were deleted.
+**Speed is acceptable.** Opening LinkedIn, scraping 10 conversations, sending 2-3 replies and closing takes ~15-30 seconds. For a tool that runs a few times per day, this is fine. The Gmail passes run in parallel (Apps Script, not Playwright) so they're unaffected.
 
-**Connection requests are off by default.** Many legitimate connection requests would be caught if `filter_linkedin_connections` were on by default. It's opt-in and clearly labeled as aggressive.
+**Session lifetime is long.** LinkedIn's session cookies persist for months. Re-auth is an edge case, not a routine. The `/linkedin-auth` command makes it trivial when needed.
 
-**Message preview truncation.** LinkedIn truncates notification emails at ~300 chars. For very long messages, the LLM classifies on the preview only. In practice, slop is identifiable within the first sentence — this is rarely a problem.
+**No LinkedIn archive.** LinkedIn doesn't have an archive feature. "Archiving" on the LinkedIn side means marking the conversation read — it stays in the inbox but is dealt with. The Gmail notification email for it is archived normally. This is acceptable.
+
+**Feed filtering is one-way.** `linkedin_hide_post` removes a post from your feed; it doesn't notify or penalize the poster. Personal curation tool, not a trap.
+
+**Reply tone calibration.** LinkedIn DMs are more casual than email. The linkedin-shield skill should note this and generate slightly shorter, less formal trap replies than the email skills produce.
