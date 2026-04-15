@@ -350,6 +350,7 @@ const GEMINI_WORKFLOWS = join(homedir(), ".gemini", "skills");
 
 const SKILL_MAP = [
   ["sauver-inbox-assistant", "sauver"],
+  ["sauver-report",          "sauver-report"],
   ["slop-detector",          "slop-detector"],
   ["investor-trap",          "investor-trap"],
   ["bouncer-reply",          "bouncer-reply"],

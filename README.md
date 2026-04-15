@@ -75,6 +75,7 @@ The installer writes slash commands to `~/.claude/commands/`, so they are availa
 | Command           | What it does                                                                                        |
 | ----------------- | --------------------------------------------------------------------------------------------------- |
 | `/sauver`         | Full triage — scans inbox, strips trackers, classifies intent, and drafts or sends counter-measures |
+| `/sauver-report`  | Generates a weekly digest of trackers blocked, traps deployed, and time saved                       |
 | `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.                                          |
 | `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap                                 |
 | `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop                                        |
@@ -88,6 +89,7 @@ The installer writes skills to `~/.gemini/skills/` and registers the MCP server 
 | Command           | What it does                                                        |
 | ----------------- | ------------------------------------------------------------------- |
 | `/sauver`         | Full triage — runs the orchestrator skill                           |
+| `/sauver-report`  | Generates a weekly digest of trackers blocked, traps deployed, and time saved |
 | `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.          |
 | `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap |
 | `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop        |
