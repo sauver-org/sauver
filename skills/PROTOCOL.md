@@ -90,7 +90,9 @@ Retrieve the user's name with the `get_profile` tool before drafting any reply.
 
 After generating a reply, check `yolo_mode` from the result of `get_preferences`:
 
-- **`yolo_mode: true`** — Call `send_message` to send immediately.
+- **`yolo_mode: true`** — You must first evaluate your confidence that this email is truly slop or spam.
+  - If you are **≥ 95% confident**, call `send_message` to send immediately. Include your confidence rating in the final report.
+  - If you are **< 95% confident**, fallback to calling `create_draft` to save for review, and note in the report that confidence was too low for auto-send.
 - **`yolo_mode: false`** — Call `create_draft` to save for review.
 
 Always confirm which path was taken.
