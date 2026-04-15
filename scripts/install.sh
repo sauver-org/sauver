@@ -60,111 +60,86 @@ fi
 echo -e "${GREEN}✅ Node.js $(node --version)${NC}"
 
 if ! command -v claude &>/dev/null && ! command -v gemini &>/dev/null; then
-  echo -e "${YELLOW}⚠️  Neither 'claude' nor 'gemini' found in PATH.${NC}"
-  echo "  Sauver requires one of these to work:"
+  echo -e "${YELLOW}⚠️  Claude Code or Gemini CLI not found in PATH.${NC}"
+  echo "  Sauver works best when integrated with these AI assistants."
+  echo "  Install your assistant first:"
   echo -e "    Claude Code: $(link 'https://claude.ai/code')"
   echo -e "    Gemini CLI:  $(link 'https://github.com/google-gemini/gemini-cli')"
-  echo "  Continuing install anyway..."
   echo ""
+  # We proceed because some users might want the MCP server for other tools
 fi
 
-# ── Generate secret key ─────────────────────────────────────────────────────
+# ── Step 1: Create the Apps Script backend ──────────────────────────────────
 
 SECRET_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
 
-# ── Detect existing install ──────────────────────────────────────────────────
-
-UPGRADE_MODE=false
 if [ -f "$CONFIG_FILE" ]; then
-  EXISTING_URL=$(node -e "try{const c=require('$CONFIG_FILE');if(c.apps_script_url)console.log(c.apps_script_url)}catch(e){}" 2>/dev/null || true)
+  echo -e "${GREEN}✅ Existing install detected — upgrading MCP server and skills${NC}"
+  APPS_SCRIPT_URL=$(node -e "try{const c=require('$CONFIG_FILE');if(c.apps_script_url)console.log(c.apps_script_url)}catch(e){}" 2>/dev/null || true)
   EXISTING_KEY=$(node -e "try{const c=require('$CONFIG_FILE');if(c.secret_key)console.log(c.secret_key)}catch(e){}" 2>/dev/null || true)
-  if [ -n "$EXISTING_URL" ] && [ -n "$EXISTING_KEY" ]; then
-    APPS_SCRIPT_URL="$EXISTING_URL"
-    SECRET_KEY="$EXISTING_KEY"
-    UPGRADE_MODE=true
-    echo ""
-    echo -e "${GREEN}✅ Existing install detected — upgrading MCP server and skills${NC}"
-    echo "   (Apps Script backend and config preserved)"
-  fi
-fi
-
-# ── Step 1: Apps Script Backend ───────────────────────────────────────────────
-
-if [ "$UPGRADE_MODE" = true ]; then
-  : # skip — existing backend preserved
-elif [ -n "${SAUVER_APPS_SCRIPT_URL:-}" ]; then
-  echo ""
-  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-  echo -e "${BOLD}  Step 1 of 2 — Apps Script (Skipped)${NC}"
-  echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-  echo ""
-  echo "  Using SAUVER_APPS_SCRIPT_URL from environment:"
-  echo "  $SAUVER_APPS_SCRIPT_URL"
-  APPS_SCRIPT_URL="$SAUVER_APPS_SCRIPT_URL"
+  if [ -n "$EXISTING_KEY" ]; then SECRET_KEY="$EXISTING_KEY"; fi
+  echo "   (Apps Script backend and config preserved)"
 else
   echo ""
   echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-  echo -e "${BOLD}  Step 1 of 2 — Create the Gmail backend (2 min)${NC}"
+  if [ -n "$1" ]; then
+    # Provided a URL directly (for dev or manual recovery)
+    APPS_SCRIPT_URL="$1"
+    echo -e "${BOLD}  Step 1 of 2 — Apps Script (Skipped)${NC}"
+  else
+    echo -e "${BOLD}  Step 1 of 2 — Create the Gmail backend (2 min)${NC}"
+  fi
   echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   echo ""
-  echo "  We will now securely and automatically deploy your Gmail backend."
-  echo ""
-  echo "  a) First, you must enable the Google Apps Script API:"
-  printf "     Open %s\n" "$(link 'https://script.google.com/home/usersettings')"
-  echo "     and toggle 'Google Apps Script API' to ON."
 
-  # Try to open the URL automatically (best-effort)
-  SETTINGS_URL="https://script.google.com/home/usersettings"
-  if command -v open &>/dev/null; then
-    open "$SETTINGS_URL" 2>/dev/null || true
-  elif command -v xdg-open &>/dev/null; then
-    xdg-open "$SETTINGS_URL" 2>/dev/null || true
-  fi
-  echo ""
-  read -rp "  ↵  Press Enter when you have done this..." < /dev/tty
-  echo ""
-  echo "  b) Logging into Google via clasp (a browser window will open)..."
-  npx --yes @google/clasp login
+  if [ -z "$APPS_SCRIPT_URL" ]; then
+    echo "  Sauver needs a tiny 'bridge' in your Google account to talk to Gmail."
+    echo "  We'll use 'clasp' to deploy it automatically."
+    echo ""
+    echo "  a) Checking Google Apps Script API status..."
+    printf "     Open %s\n" "$(link 'https://script.google.com/home/usersettings')"
+    echo "     Ensure 'Google Apps Script API' is set to 'ON' at the bottom."
+    echo ""
 
-  echo ""
-  echo "  c) Generating and deploying the project... (may take a minute)"
-  
-  CLASP_WORK_DIR=$(mktemp -d)
-  (
-    cd "$CLASP_WORK_DIR" || exit 1
-    
-    # Determine user's name for a more personalized backend
-    USER_NAME=$(id -F 2>/dev/null | cut -d' ' -f1)
-    if [ -z "$USER_NAME" ]; then USER_NAME=$(whoami); fi
-    
-    # If the name is generic or missing, use a more personal default
-    if [[ -z "$USER_NAME" || "$USER_NAME" =~ ^(root|admin|guest|user|node|docker)$ ]]; then
-      BACKEND_NAME="My Sauver Backend"
-    else
-      BACKEND_NAME="${USER_NAME}'s Sauver Backend"
+    # Try to open the URL automatically (best-effort)
+    if [ -z "${CI:-}" ] && [ -t 0 ]; then
+      if command -v open &>/dev/null; then
+        open "https://script.google.com/home/usersettings" 2>/dev/null || true
+      elif command -v xdg-open &>/dev/null; then
+        xdg-open "https://script.google.com/home/usersettings" 2>/dev/null || true
+      fi
     fi
 
-    # Create the project
-    npx --yes @google/clasp create --type standalone --title "$BACKEND_NAME" >/dev/null
-
-    # Download source (prefer local if available during development)
-    if [ -f "../../apps-script/Code.gs" ]; then
-      cp "../../apps-script/Code.gs" Code.gs
+    if [ -z "${CI:-}" ] && [ -t 0 ] && { true < /dev/tty; } 2>/dev/null; then
+      read -rp "  ↵  Press Enter once it is 'ON'..." < /dev/tty
     else
+      echo "  Non-interactive environment — assuming API is 'ON'."
+    fi
+    echo ""
+
+    echo "  b) Logging into Google via clasp (a browser window will open)..."
+    npx --yes @google/clasp login --logout 2>/dev/null || true
+    npx --yes @google/clasp login
+
+    echo "  c) Generating and deploying the project... (may take a minute)"
+    CLASP_WORK_DIR=$(mktemp -d)
+    (
+      cd "$CLASP_WORK_DIR"
+      npx --yes @google/clasp create --title "Sauver Backend" --type webapp >/dev/null
+
+      # Detect if it's a personal or workspace account to label the backend correctly
+      USER_NAME=$(id -F 2>/dev/null | cut -d' ' -f1)
+      if [ -z "$USER_NAME" ]; then USER_NAME=$(whoami); fi
+      BACKEND_NAME="Sauver ($USER_NAME)"
+      if [[ -z "$USER_NAME" || "$USER_NAME" =~ ^(root|admin|guest|user|node|docker)$ ]]; then
+        BACKEND_NAME="Sauver Backend"
+      fi
+
+      # Download source (prefer local if available during development)
       curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/apps-script/Code.gs" -o Code.gs
-    fi
-    
-    # Inject user's unique secret key and backend name
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
-      sed -i '' "s/const BACKEND_NAME = \"Sauver Backend\";/const BACKEND_NAME = \"${BACKEND_NAME}\";/" Code.gs
-    else
-      sed -i "s/const SECRET_KEY = \"CHANGE_ME\";/const SECRET_KEY = \"${SECRET_KEY}\";/" Code.gs
-      sed -i "s/const BACKEND_NAME = \"Sauver Backend\";/const BACKEND_NAME = \"${BACKEND_NAME}\";/" Code.gs
-    fi
-
-    # Create appsscript.json required for 'Anyone' access webapp
-    cat > appsscript.json <<EOF
+      
+      # Configure appsscript.json
+      cat > appsscript.json <<EOF
 {
   "timeZone": "America/New_York",
   "dependencies": {},
@@ -177,54 +152,37 @@ else
 }
 EOF
 
-    # Push and deploy
-    npx --yes @google/clasp push -f >/dev/null
-    DEPLOY_OUTPUT=$(npx --yes @google/clasp deploy --description "Auto-deployed by Sauver")
+      # Push and deploy
+      npx --yes @google/clasp push -f >/dev/null
+      DEPLOY_OUTPUT=$(npx --yes @google/clasp deploy --description "Auto-deployed by Sauver")
+      
+      # Extract deployment ID
+      DEPLOYMENT_ID=$(echo "$DEPLOY_OUTPUT" | grep -oE '[A-Za-z0-9_-]{40,}')
+      
+      if [ -z "$DEPLOYMENT_ID" ]; then
+        echo -e "${RED}❌ Failed to extract Deployment ID from clasp output.${NC}"
+        echo "Output was: $DEPLOY_OUTPUT"
+        exit 1
+      fi
+      
+      # Export it out of the subshell by writing to temp files
+      echo "$DEPLOYMENT_ID" > deployment_id
+      node -e "console.log(JSON.parse(require('fs').readFileSync('.clasp.json','utf8')).scriptId)" > script_id
+    )
     
-    # Extract deployment ID — clasp outputs either "- <id> @1" or "Deployed <id> @1"
-    # The deployment ID is always a long alphanumeric string (40+ chars)
-    DEPLOYMENT_ID=$(echo "$DEPLOY_OUTPUT" | grep -oE '[A-Za-z0-9_-]{40,}')
+    DEPLOYMENT_ID=$(cat "$CLASP_WORK_DIR/deployment_id")
+    SCRIPT_ID=$(cat "$CLASP_WORK_DIR/script_id")
+    APPS_SCRIPT_URL="https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec"
     
-    if [ -z "$DEPLOYMENT_ID" ]; then
-      echo -e "${RED}❌ Failed to extract Deployment ID from clasp output.${NC}"
-      echo "Output was: $DEPLOY_OUTPUT"
-      exit 1
-    fi
-    
-    # Export it out of the subshell by writing to temp files
-    echo "$DEPLOYMENT_ID" > "$CLASP_WORK_DIR/deployment_id"
-    node -e "console.log(JSON.parse(require('fs').readFileSync('.clasp.json','utf8')).scriptId)" \
-      > "$CLASP_WORK_DIR/script_id"
-  )
-  
-  DEPLOYMENT_ID=$(cat "$CLASP_WORK_DIR/deployment_id")
-  SCRIPT_ID=$(cat "$CLASP_WORK_DIR/script_id")
-  APPS_SCRIPT_URL="https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec"
-  rm -rf "$CLASP_WORK_DIR"
-  
-  echo -e "  ✅ ${GREEN}Deployed successfully to:${NC}"
-  echo -e "     $(link "$APPS_SCRIPT_URL")"
-  echo ""
-fi
+    echo -e "${GREEN}✅ Backend deployed!${NC}"
+    echo "     URL: $APPS_SCRIPT_URL"
+    echo ""
 
-# Validate
-if [[ ! "$APPS_SCRIPT_URL" =~ ^https://script\.google\.com/macros/s/ ]]; then
-  echo ""
-  echo -e "${RED}❌ That doesn't look right. The URL should start with:${NC}"
-  echo "   https://script.google.com/macros/s/"
-  echo ""
-  echo "Re-run the installer and try again."
-  exit 1
-fi
+    mkdir -p "$(dirname "$CONFIG_FILE")"
 
-# ── Write config ────────────────────────────────────────────────────────────
-
-if [ "$UPGRADE_MODE" = false ]; then
-  mkdir -p "$(dirname "$CONFIG_FILE")"
-
-  # Build config — include script_id only when we have it (auto-deploy path)
-  if [ -n "${SCRIPT_ID:-}" ]; then
-  cat > "$CONFIG_FILE" <<EOF
+    # Build config
+    if [ -n "$SCRIPT_ID" ]; then
+      cat > "$CONFIG_FILE" <<EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "script_id": "${SCRIPT_ID}",
@@ -241,8 +199,8 @@ if [ "$UPGRADE_MODE" = false ]; then
   }
 }
 EOF
-  else
-  cat > "$CONFIG_FILE" <<EOF
+    else
+    cat > "$CONFIG_FILE" <<EOF
 {
   "apps_script_url": "${APPS_SCRIPT_URL}",
   "secret_key": "${SECRET_KEY}",
@@ -258,11 +216,12 @@ EOF
   }
 }
 EOF
-  fi
+    fi
 
-  chmod 600 "$CONFIG_FILE"
-  echo ""
-  echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
+    chmod 600 "$CONFIG_FILE"
+    echo ""
+    echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
+  fi
 fi
 
 # ── Verify backend (trigger OAuth consent if needed) ────────────────────────
@@ -289,18 +248,20 @@ else
   echo ""
   echo "  1. Open this URL in your browser:"
   printf "     %s\n" "$(link "$APPS_SCRIPT_URL")"
-  # Try to open the URL automatically (best-effort; ignore errors in headless/CI environments)
-  if command -v open &>/dev/null; then
-    open "$APPS_SCRIPT_URL" 2>/dev/null || true
-  elif command -v xdg-open &>/dev/null; then
-    xdg-open "$APPS_SCRIPT_URL" 2>/dev/null || true
+  # Try to open the URL automatically
+  if [ -z "${CI:-}" ] && [ -t 0 ]; then
+    if command -v open &>/dev/null; then
+      open "$APPS_SCRIPT_URL" 2>/dev/null || true
+    elif command -v xdg-open &>/dev/null; then
+      xdg-open "$APPS_SCRIPT_URL" 2>/dev/null || true
+    fi
   fi
   echo ""
   echo "  2. If prompted, sign in with the Google account you want Sauver to manage."
   echo "  3. Click 'Review Permissions' → 'Allow' to grant Gmail access."
   echo "  4. Once the page loads (even if it shows an error), return here."
   echo ""
-  if { true < /dev/tty; } 2>/dev/null; then
+  if [ -z "${CI:-}" ] && [ -t 0 ] && { true < /dev/tty; } 2>/dev/null; then
     read -rp "  ↵  Press Enter once you have authorized in the browser..." < /dev/tty
     echo ""
 
@@ -339,7 +300,7 @@ echo -e "${GREEN}✅ MCP server installed${NC}"
 
 echo "  Downloading skills..."
 node --input-type=module << 'NODEEOF'
-import { mkdirSync, writeFileSync } from "fs";
+import { mkdirSync, writeFileSync, existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 
@@ -363,27 +324,36 @@ mkdirSync(CLAUDE_COMMANDS, { recursive: true });
 mkdirSync(GEMINI_WORKFLOWS, { recursive: true });
 
 const base = `https://raw.githubusercontent.com/${REPO}/main`;
+const localBase = process.cwd();
 
-async function fetchText(url) {
+async function fetchText(url, localPath) {
+  if (localPath && existsSync(localPath)) {
+    return readFileSync(localPath, 'utf8');
+  }
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
   return res.text();
 }
 
-const protocol = await fetchText(`${base}/skills/PROTOCOL.md`);
+const protocol = await fetchText(`${base}/skills/PROTOCOL.md`, join(localBase, 'skills/PROTOCOL.md'));
 writeFileSync(join(SKILLS_DIR, "PROTOCOL.md"), protocol);
 
 // Download binary assets
 const ASSETS_DIR = join(SKILLS_DIR, "assets");
 mkdirSync(ASSETS_DIR, { recursive: true });
-const ndaRes = await fetch(`${base}/skills/assets/NDA.pdf`);
-if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching NDA.pdf`);
-writeFileSync(join(ASSETS_DIR, "NDA.pdf"), Buffer.from(await ndaRes.arrayBuffer()));
+const ndaLocalPath = join(localBase, 'skills/assets/NDA.pdf');
+if (existsSync(ndaLocalPath)) {
+  writeFileSync(join(ASSETS_DIR, "NDA.pdf"), readFileSync(ndaLocalPath));
+} else {
+  const ndaRes = await fetch(`${base}/skills/assets/NDA.pdf`);
+  if (!ndaRes.ok) throw new Error(`HTTP ${ndaRes.status} fetching NDA.pdf`);
+  writeFileSync(join(ASSETS_DIR, "NDA.pdf"), Buffer.from(await ndaRes.arrayBuffer()));
+}
 
 for (const [skillName, commandName] of SKILL_MAP) {
   const skillDir = join(SKILLS_DIR, skillName);
   mkdirSync(skillDir, { recursive: true });
-  const content = await fetchText(`${base}/skills/${skillName}/SKILL.md`);
+  const content = await fetchText(`${base}/skills/${skillName}/SKILL.md`, join(localBase, `skills/${skillName}/SKILL.md`));
   writeFileSync(join(skillDir, "SKILL.md"), content);
 
   // Extract description from SKILL.md frontmatter for Gemini skills
@@ -403,7 +373,7 @@ for (const [skillName, commandName] of SKILL_MAP) {
   // Gemini: skill must be a directory containing SKILL.md with name + description frontmatter
   const geminiSkillDir = join(GEMINI_WORKFLOWS, commandName);
   mkdirSync(geminiSkillDir, { recursive: true });
-  const geminiShim = `---\nname: ${commandName}\ndescription: ${description}\n---\n\n${body}`;
+  const geminiShim = "---\nname: " + commandName + "\ndescription: " + description + "\n---\n\n" + body;
   writeFileSync(join(geminiSkillDir, "SKILL.md"), geminiShim);
 }
 NODEEOF
