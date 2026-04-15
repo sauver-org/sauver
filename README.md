@@ -26,6 +26,8 @@ Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies
 
 ## Installation
 
+**Windows users:** Sauver requires a Unix-like environment. Install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) (Windows Subsystem for Linux), open your WSL terminal, and follow the standard steps below.
+
 Run this verified command in your terminal to securely download and install Sauver:
 
 ```bash
