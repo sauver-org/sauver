@@ -19,7 +19,7 @@ fail() { echo "  ❌ $1"; FAIL=$((FAIL + 1)); }
 run_install() {
   local fake_home
   fake_home=$(mktemp -d)
-  SAUVER_APPS_SCRIPT_URL="${1:-}" HOME="$fake_home" bash "$INSTALL_SCRIPT"
+  HOME="$fake_home" CI=1 bash "$INSTALL_SCRIPT" "${1:-}"
   echo "$fake_home"   # caller captures this to inspect output
 }
 
@@ -32,14 +32,14 @@ VALID_URL_FOR_CHECK="https://script.google.com/macros/s/AKfycbxFAKEIDforTesting1
 
 # Build a fake PATH that has node/npm/curl/bash but not claude/gemini
 _fake_bin=$(mktemp -d)
-for _cmd in node npm curl bash grep sed stat mktemp; do
+for _cmd in node npm npx curl bash grep sed stat mktemp; do
   _src=$(command -v "$_cmd" 2>/dev/null) && ln -s "$_src" "$_fake_bin/$_cmd" 2>/dev/null || true
 done
 
 # When neither claude nor gemini is in PATH, warn but don't fail
 _tmp_home=$(mktemp -d)
-output=$(PATH="$_fake_bin:/usr/bin:/bin" SAUVER_APPS_SCRIPT_URL="$VALID_URL_FOR_CHECK" HOME="$_tmp_home" bash "$INSTALL_SCRIPT")
-if echo "$output" | grep -q "Neither 'claude' nor 'gemini' found"; then
+output=$(PATH="$_fake_bin:/usr/bin:/bin" HOME="$_tmp_home" CI=1 bash "$INSTALL_SCRIPT" "$VALID_URL_FOR_CHECK")
+if echo "$output" | grep -q "Claude Code or Gemini CLI not found"; then
   pass "warns when no AI assistant found"
 else
   fail "expected warning about missing AI assistant"
@@ -66,7 +66,7 @@ bad_urls=(
 )
 
 for url in "${bad_urls[@]}"; do
-  if SAUVER_APPS_SCRIPT_URL="$url" HOME="$(mktemp -d)" bash "$INSTALL_SCRIPT" 2>/dev/null; then
+  if HOME="$(mktemp -d)" CI=1 bash "$INSTALL_SCRIPT" "$url" 2>/dev/null; then
     fail "should have rejected: '${url:-<empty>}'"
   else
     pass "rejected: '${url:-<empty>}'"
@@ -81,7 +81,7 @@ echo "URL validation — valid URL"
 VALID_URL="https://script.google.com/macros/s/AKfycbxFAKEIDforTesting1234567890/exec"
 
 FAKE_HOME=$(mktemp -d)
-if SAUVER_APPS_SCRIPT_URL="$VALID_URL" HOME="$FAKE_HOME" bash "$INSTALL_SCRIPT" 2>/dev/null; then
+if HOME="$FAKE_HOME" CI=1 bash "$INSTALL_SCRIPT" "$VALID_URL" 2>/dev/null; then
   pass "accepted valid URL"
 else
   fail "rejected valid URL (exit code $?)"
