@@ -54,9 +54,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    2. **Select Trap:** Determine the appropriate trap from the thread context (recruiter → slop-detector, investor → investor-trap, other → bouncer-reply).
    3. **Generate Response:** Generate the next escalation following the specific trap rules (including exchange counting and NDA escalation from `max_trap_exchanges`).
    4. **Dispatch:**
-      - If `yolo_mode` is `true`: Call `send_message`.
-      - Else if `auto_draft` is `true`: Call `create_draft`.
-      - Else: Skip sending/drafting and report only.
+      - Follow the **Reply Dispatch (YOLO Mode)** rules in `skills/PROTOCOL.md`. Wait for the dispatch to complete.
    5. **Archive:** Call `archive_thread` (the `slop_label` is already applied).
 
    Report with status: "🚨 Slop (known)" in the summary.
@@ -93,9 +91,7 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    2. **Select Trap:** Use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
    3. **Generate Response:** Generate the response content following the specific trap rules.
    4. **Dispatch:**
-      - If `yolo_mode` is `true`: Call `send_message`.
-      - Else if `auto_draft` is `true`: Call `create_draft`.
-      - Else: Skip sending/drafting and report only.
+      - Follow the **Reply Dispatch (YOLO Mode)** rules in `skills/PROTOCOL.md`. Wait for the dispatch to complete.
    5. **Archive:** Call `apply_label` with the **exact** `slop_label` value from preferences, then call `archive_thread`.
 
    Only after Step C is complete, move to Step A for the next message.
