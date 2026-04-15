@@ -1,0 +1,11 @@
+{
+  "description": "Marketing email from a noreply address",
+  "label": "slop",
+  "category": "sales_outreach",
+  "has_tracker": false,
+  "expected": {
+    "classified_as": "slop",
+    "draft_created": false,
+    "archived": true
+  }
+}

@@ -46,13 +46,18 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    **Step B — Purify:** Inspect the returned HTML body for trackers as usual.
 
    **Step C — Skip classification, go straight to trap:** This thread is already confirmed slop. Do **not** reclassify. Instead:
-   1. **Select Trap:** Determine the appropriate trap from the thread context (recruiter → slop-detector, investor → investor-trap, other → bouncer-reply).
-   2. **Generate Response:** Generate the next escalation following the specific trap rules (including exchange counting and NDA escalation from `max_trap_exchanges`).
-   3. **Dispatch:**
+   1. **Check No-Reply:** If the sender's email address contains `noreply`, `no-reply`, or `donotreply` (case-insensitive):
+      - Skip generating a response.
+      - Call `archive_thread` (the `slop_label` is already applied).
+      - Report "🚨 Slop (known)" and "No-reply address — skipping trap".
+      - Proceed to the next message.
+   2. **Select Trap:** Determine the appropriate trap from the thread context (recruiter → slop-detector, investor → investor-trap, other → bouncer-reply).
+   3. **Generate Response:** Generate the next escalation following the specific trap rules (including exchange counting and NDA escalation from `max_trap_exchanges`).
+   4. **Dispatch:**
       - If `yolo_mode` is `true`: Call `send_message`.
       - Else if `auto_draft` is `true`: Call `create_draft`.
       - Else: Skip sending/drafting and report only.
-   4. **Archive:** Call `archive_thread` (the `slop_label` is already applied).
+   5. **Archive:** Call `archive_thread` (the `slop_label` is already applied).
 
    Report with status: "🚨 Slop (known)" in the summary.
 
@@ -80,13 +85,18 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    If flagged as **legitimate**: call `apply_label` with the `reviewed_label` value from preferences (default `Sauver/Reviewed`). This marks it so future `/sauver` runs skip it. Do **not** archive — the email stays in the inbox.
 
    If flagged as **slop**, follow this **exact** sequence:
-   1. **Select Trap:** Use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
-   2. **Generate Response:** Generate the response content following the specific trap rules.
-   3. **Dispatch:**
+   1. **Check No-Reply:** If the sender's email address contains `noreply`, `no-reply`, or `donotreply` (case-insensitive):
+      - Skip generating a trap response.
+      - Call `apply_label` with the **exact** `slop_label` value from preferences, then call `archive_thread`.
+      - Report "🚨 Slop" and "No-reply address — skipping trap".
+      - Proceed to the next message.
+   2. **Select Trap:** Use **slop-detector** for recruiter/sales outreach, **investor-trap** for VC/fundraising, **bouncer-reply** for generic spam.
+   3. **Generate Response:** Generate the response content following the specific trap rules.
+   4. **Dispatch:**
       - If `yolo_mode` is `true`: Call `send_message`.
       - Else if `auto_draft` is `true`: Call `create_draft`.
       - Else: Skip sending/drafting and report only.
-   4. **Archive:** Call `apply_label` with the **exact** `slop_label` value from preferences, then call `archive_thread`.
+   5. **Archive:** Call `apply_label` with the **exact** `slop_label` value from preferences, then call `archive_thread`.
 
    Only after Step C is complete, move to Step A for the next message.
 
