@@ -98,6 +98,8 @@ if [ -f "$CONFIG" ]; then
   pass "config.json exists at ~/.sauver/config.json"
 else
   fail "config.json not found at $CONFIG"
+  echo "DEBUG: Contents of $FAKE_HOME:"
+  ls -R "$FAKE_HOME" || echo "Could not list $FAKE_HOME"
 fi
 
 if [ -f "$CONFIG" ]; then
