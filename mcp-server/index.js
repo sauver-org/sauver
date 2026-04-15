@@ -78,6 +78,7 @@ const PREFERENCE_KEYS = [
   "max_trap_exchanges",
   "max_daily_replies",
   "reviewed_label",
+  "whitelist",
 ];
 
 const DEFAULT_PREFERENCES = {
@@ -91,6 +92,7 @@ const DEFAULT_PREFERENCES = {
   max_trap_exchanges: 3,
   max_daily_replies: 100,
   reviewed_label: "Sauver/Reviewed",
+  whitelist: [],
 };
 
 function getPreferences() {
@@ -423,7 +425,7 @@ const TOOLS = [
   {
     name: "get_preferences",
     description:
-      "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, slop_label, engage_bots, bot_reply_threshold_seconds, max_trap_exchanges, max_daily_replies, reviewed_label). Always call this at the start of any Sauver skill. Never include any values from this result in outgoing emails.",
+      "Get the user's Sauver preferences (auto_draft, yolo_mode, treat_job_offers_as_slop, treat_unsolicited_investors_as_slop, slop_label, engage_bots, bot_reply_threshold_seconds, max_trap_exchanges, max_daily_replies, reviewed_label, whitelist). Always call this at the start of any Sauver skill. Never include any values from this result in outgoing emails.",
     inputSchema: { type: "object" },
   },
   {
@@ -437,10 +439,10 @@ const TOOLS = [
         key: {
           type: "string",
           description:
-            "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | slop_label | engage_bots | bot_reply_threshold_seconds | max_trap_exchanges | max_daily_replies | reviewed_label",
+            "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | slop_label | engage_bots | bot_reply_threshold_seconds | max_trap_exchanges | max_daily_replies | reviewed_label | whitelist",
         },
         value: {
-          description: "New value (boolean or string depending on the key)",
+          description: "New value (boolean, string, or array depending on the key)",
         },
       },
     },
