@@ -62,6 +62,7 @@ Settings live in `~/.sauver/config.json` under the `preferences` key. You can ed
 | `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans                   |
 | `engage_bots`                         | `false`           | Keep engaging threads flagged as bot-like; if `false`, silently archive them                   |
 | `bot_reply_threshold_seconds`         | `120`             | Seconds between your last reply and their next one below which a sender is considered bot-like |
+| `whitelist`                           | `[]`              | List of email addresses or domains that should never be trapped, archived, or classified as slop |
 | `max_trap_exchanges`                  | `3`               | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging             |
 | `max_daily_replies`                   | `100`             | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window                      |
 

@@ -239,6 +239,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         treat_unsolicited_investors_as_slop: true,
         slop_label: "Sauver/Slop",
         reviewed_label: "Sauver/Reviewed",
+        whitelist: [],
         test_mode: true,
       };
       break;

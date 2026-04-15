@@ -75,6 +75,9 @@ When asked to triage or clean the inbox, execute this pipeline in order:
    - If flagged as a bot **and** `engage_bots` is `true`: proceed to Step C as normal (keep engaging).
    - If not flagged: proceed to Step C as normal.
 
+   **Step B.7 — Whitelist Handling:** Check if the sender's email address or domain matches any entry in the `whitelist` array from preferences.
+   - If matched: call `apply_label` with the `reviewed_label` value, report "✅ Legitimate (Whitelisted)", and skip Step C entirely for this message.
+
    **Step C — Classify & Counter-measure:** Determine intent using slop-detector and investor-trap analysis. Use the `treat_job_offers_as_slop` and `treat_unsolicited_investors_as_slop` preference values when deciding whether to flag.
 
    > [!IMPORTANT]

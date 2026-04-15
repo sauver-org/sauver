@@ -118,6 +118,16 @@ Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; u
 | `max_trap_exchanges`                  | int    | `3`               | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging                          |
 | `max_daily_replies`                   | int    | `100`             | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window                                   |
 | `reviewed_label`                      | string | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans                                |
+| `whitelist`                           | array  | `[]`              | List of email addresses or domains that should never be trapped, archived, or classified as slop            |
+
+## Whitelist Handling
+
+Before any classification or trap generation, you **MUST** check if the sender's email address or domain matches any entry in the `whitelist` array from user preferences. 
+If there is a match:
+- Treat the email as **legitimate**.
+- Call `apply_label` with the `reviewed_label`.
+- Do **not** generate a response or archive the thread.
+- Report "✅ Legitimate (Whitelisted)" and proceed to the next message.
 
 ## Preference Adherence
 
