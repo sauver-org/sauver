@@ -227,6 +227,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         skipped_reason: "test mode",
         updated: false,
         current_version: "0.0.0-test",
+        test_mode: true,
       };
       break;
 
@@ -238,6 +239,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         treat_unsolicited_investors_as_slop: true,
         slop_label: "Sauver/Slop",
         reviewed_label: "Sauver/Reviewed",
+        test_mode: true,
       };
       break;
 
