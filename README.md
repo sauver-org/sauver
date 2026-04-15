@@ -54,19 +54,19 @@ This removes `~/.sauver/`, all command shims from `~/.claude/commands/` and `~/.
 
 Settings live in `~/.sauver/config.json` under the `preferences` key. You can edit that file directly, or ask Claude/Gemini to change a setting for you (e.g. "turn on yolo mode").
 
-| Option                                | Default           | Meaning                                                                                        |
-| ------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------- |
-| `auto_draft`                          | `true`            | Automatically create draft replies to slop                                                     |
-| `yolo_mode`                           | `false`           | Auto-send replies (use with caution)                                                           |
-| `treat_job_offers_as_slop`            | `true`            | Trigger Expert-Domain Trap for recruiters                                                      |
-| `treat_unsolicited_investors_as_slop` | `true`            | Trigger Due Diligence Loop for investors                                                       |
-| `slop_label`                          | `Sauver/Slop`     | Gmail label applied to flagged emails when archiving                                           |
-| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans                   |
-| `engage_bots`                         | `false`           | Keep engaging threads flagged as bot-like; if `false`, silently archive them                   |
-| `bot_reply_threshold_seconds`         | `120`             | Seconds between your last reply and their next one below which a sender is considered bot-like |
+| Option                                | Default           | Meaning                                                                                          |
+| ------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------ |
+| `auto_draft`                          | `true`            | Automatically create draft replies to slop                                                       |
+| `yolo_mode`                           | `false`           | Auto-send replies (use with caution)                                                             |
+| `treat_job_offers_as_slop`            | `true`            | Trigger Expert-Domain Trap for recruiters                                                        |
+| `treat_unsolicited_investors_as_slop` | `true`            | Trigger Due Diligence Loop for investors                                                         |
+| `slop_label`                          | `Sauver/Slop`     | Gmail label applied to flagged emails when archiving                                             |
+| `reviewed_label`                      | `Sauver/Reviewed` | Gmail label applied to legitimate emails so they are skipped on future scans                     |
+| `engage_bots`                         | `false`           | Keep engaging threads flagged as bot-like; if `false`, silently archive them                     |
+| `bot_reply_threshold_seconds`         | `120`             | Seconds between your last reply and their next one below which a sender is considered bot-like   |
 | `whitelist`                           | `[]`              | List of email addresses or domains that should never be trapped, archived, or classified as slop |
-| `max_trap_exchanges`                  | `3`               | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging             |
-| `max_daily_replies`                   | `100`             | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window                      |
+| `max_trap_exchanges`                  | `3`               | Maximum back-and-forth exchanges before escalating to the NDA Trap and disengaging               |
+| `max_daily_replies`                   | `100`             | Maximum number of replies (sent or drafted) by Sauver in a 24-hour window                        |
 
 ## Usage
 
@@ -88,15 +88,15 @@ The installer writes slash commands to `~/.claude/commands/`, so they are availa
 
 The installer writes skills to `~/.gemini/skills/` and registers the MCP server in `~/.gemini/settings.json`, so all slash commands are available globally:
 
-| Command           | What it does                                                        |
-| ----------------- | ------------------------------------------------------------------- |
-| `/sauver`         | Full triage — runs the orchestrator skill                           |
+| Command           | What it does                                                                  |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `/sauver`         | Full triage — runs the orchestrator skill                                     |
 | `/sauver-report`  | Generates a weekly digest of trackers blocked, traps deployed, and time saved |
-| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.          |
-| `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap |
-| `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop        |
-| `/bouncer-reply`  | Reply to generic spam with the Time-Sink Trap                       |
-| `/archiver`       | Label and archive a specific thread on demand, without full triage  |
+| `/tracker-shield` | Strip tracking pixels and spy-links from a specific email.                    |
+| `/slop-detector`  | Classify recruiter/sales slop and reply with the Expert-Domain Trap           |
+| `/investor-trap`  | Classify investor slop and reply with the Due Diligence Loop                  |
+| `/bouncer-reply`  | Reply to generic spam with the Time-Sink Trap                                 |
+| `/archiver`       | Label and archive a specific thread on demand, without full triage            |
 
 You can also ask Gemini in plain English: _"Sauver, triage my last 10 unread emails"_ or _"Archive this thread under the Sauver label"_.
 

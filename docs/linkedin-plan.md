@@ -4,25 +4,25 @@
 
 There are exactly three ways to access LinkedIn messages and feed programmatically:
 
-| Approach | Full messages | Auto-reply | Feed | Cost | Account risk |
-|---|---|---|---|---|---|
-| **Gmail notification emails** | No (300-char preview only) | No | No | Free | None |
-| **Browser automation (Playwright)** | Yes | Yes | Yes | Free | Low (looks like human) |
-| **LinkedIn Voyager API (unofficial)** | Yes | Yes | Yes | Free | Moderate (detectable HTTP patterns) |
-| **LinkedIn official API** | Requires partner approval | Requires partner approval | No | Free tier is useless | None |
+| Approach                              | Full messages              | Auto-reply                | Feed | Cost                 | Account risk                        |
+| ------------------------------------- | -------------------------- | ------------------------- | ---- | -------------------- | ----------------------------------- |
+| **Gmail notification emails**         | No (300-char preview only) | No                        | No   | Free                 | None                                |
+| **Browser automation (Playwright)**   | Yes                        | Yes                       | Yes  | Free                 | Low (looks like human)              |
+| **LinkedIn Voyager API (unofficial)** | Yes                        | Yes                       | Yes  | Free                 | Moderate (detectable HTTP patterns) |
+| **LinkedIn official API**             | Requires partner approval  | Requires partner approval | No   | Free tier is useless | None                                |
 
 The official API is a dead end — LinkedIn does not expose personal inbox or personal feed to third-party apps.
 
 **Why DOM/Playwright over Voyager API:**
 
-| | Voyager API | Playwright DOM |
-|---|---|---|
-| Setup UX | Must extract cookies from browser DevTools (friction, error-prone) | Log in naturally in a visible browser window |
-| Detection risk | Moderate — crafted HTTP headers are a fingerprint | Low — it IS an actual browser, indistinguishable from a human |
-| 2FA / CAPTCHA | Flow breaks, requires manual cookie re-extraction | User just completes it in the headed window |
-| Maintenance | API endpoints change silently with no warning | DOM selectors change, but aria-labels and data attributes are stable |
-| Speed | Fast (HTTP calls) | Slower (page loads) — irrelevant at personal-use frequency |
-| Dependencies | Zero extra | `playwright-core` 10.5MB + system Chrome (already installed) |
+|                | Voyager API                                                        | Playwright DOM                                                       |
+| -------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| Setup UX       | Must extract cookies from browser DevTools (friction, error-prone) | Log in naturally in a visible browser window                         |
+| Detection risk | Moderate — crafted HTTP headers are a fingerprint                  | Low — it IS an actual browser, indistinguishable from a human        |
+| 2FA / CAPTCHA  | Flow breaks, requires manual cookie re-extraction                  | User just completes it in the headed window                          |
+| Maintenance    | API endpoints change silently with no warning                      | DOM selectors change, but aria-labels and data attributes are stable |
+| Speed          | Fast (HTTP calls)                                                  | Slower (page loads) — irrelevant at personal-use frequency           |
+| Dependencies   | Zero extra                                                         | `playwright-core` 10.5MB + system Chrome (already installed)         |
 
 **Decision: DOM/Playwright for the full mode.** Same two-mode architecture — safe email mode as default, browser mode as opt-in.
 
@@ -65,8 +65,8 @@ When browser mode is enabled, the safe-mode Gmail notification pass still runs �
 Use `playwright-core` (10.5MB npm package, no bundled browsers) + system Chrome via `channel: 'chrome'`. This avoids downloading ~120MB of Chromium. If the user doesn't have Chrome, the installer falls back to `npx playwright install chromium` as an optional step.
 
 ```javascript
-const { chromium } = require('playwright-core');
-const browser = await chromium.launch({ channel: 'chrome', headless: true });
+const { chromium } = require("playwright-core");
+const browser = await chromium.launch({ channel: "chrome", headless: true });
 ```
 
 ### Session persistence
@@ -93,10 +93,12 @@ Never use class names like `.msg-conversation-listitem__link-to-overview` — th
 ### Key pages and DOM targets
 
 **Inbox (`linkedin.com/messaging/`)**
+
 - Conversation list items: navigate to page, then query by `data-control-name="overlay_conversation_link"` or iterate `article` elements in the left panel
 - Each item: sender name from `[data-anonymize="person-name"]`, message preview from `[data-anonymize="message-preview"]`, timestamp from `time` element
 
 **Thread (`linkedin.com/messaging/thread/{id}/`)**
+
 - Messages: `article.msg-s-event-listitem` elements
 - Message body: `.msg-s-event__content` or `[data-anonymize="message-body"]`
 - Sender: `[data-anonymize="person-name"]` in each message
@@ -104,6 +106,7 @@ Never use class names like `.msg-conversation-listitem__link-to-overview` — th
 - Send button: `button[data-control-name="send-message"]` or aria-label="Send"
 
 **Feed (`linkedin.com/feed/`)**
+
 - Posts: `div[data-id]` containers or `article` elements in feed
 - Post content: `.update-components-text` or `.feed-shared-update-v2__description`
 - "..." menu: `button[aria-label="Open control menu"]` on each post
@@ -120,6 +123,7 @@ Never use class names like `.msg-conversation-listitem__link-to-overview` — th
 **New npm dependency:** `playwright-core` added to `mcp-server/package.json`.
 
 **New preference keys** (add to `PREFERENCE_KEYS` and `DEFAULT_PREFERENCES`):
+
 ```
 linkedin_enabled               bool    false    Master switch (either mode)
 linkedin_mode                  string  "email"  "email" | "browser"
@@ -144,14 +148,14 @@ saveLinkedInSession(context)
 
 **6 new MCP tools:**
 
-| Tool | LinkedIn page | What it does |
-|---|---|---|
-| `linkedin_scan_inbox` | `/messaging/` | List unread conversations (sender, preview, thread ID) |
-| `linkedin_get_conversation` | `/messaging/thread/{id}/` | Full thread — all messages, full text, timestamps |
-| `linkedin_send_reply` | `/messaging/thread/{id}/` | Type reply in contenteditable box, click Send |
-| `linkedin_mark_read` | `/messaging/thread/{id}/` | Open thread (marks as read automatically), close |
-| `linkedin_get_feed` | `/feed/` | Scrape N feed posts with content, author, post ID |
-| `linkedin_hide_post` | `/feed/` | Click "..." → "Hide this post" on a specific post |
+| Tool                        | LinkedIn page             | What it does                                           |
+| --------------------------- | ------------------------- | ------------------------------------------------------ |
+| `linkedin_scan_inbox`       | `/messaging/`             | List unread conversations (sender, preview, thread ID) |
+| `linkedin_get_conversation` | `/messaging/thread/{id}/` | Full thread — all messages, full text, timestamps      |
+| `linkedin_send_reply`       | `/messaging/thread/{id}/` | Type reply in contenteditable box, click Send          |
+| `linkedin_mark_read`        | `/messaging/thread/{id}/` | Open thread (marks as read automatically), close       |
+| `linkedin_get_feed`         | `/feed/`                  | Scrape N feed posts with content, author, post ID      |
+| `linkedin_hide_post`        | `/feed/`                  | Click "..." → "Hide this post" on a specific post      |
 
 Each tool opens a fresh page, performs its action, saves session state, and closes the page. Browser instance is kept alive across calls within a single MCP session to avoid repeated startup cost.
 
@@ -176,6 +180,7 @@ Step 8 — Confirm: "LinkedIn session saved. Browser mode is ready."
 ```
 
 This replaces the cookie-extraction flow in the installer entirely. Called:
+
 - Once during install (if user opts into browser mode)
 - Any time thereafter when the session expires
 
@@ -184,12 +189,14 @@ This replaces the cookie-extraction flow in the installer entirely. Called:
 ### 3. `skills/linkedin-shield/SKILL.md` — Dual-Mode Skill
 
 **Email mode** (same as v2 plan — unchanged):
+
 ```
 Receive Gmail messageId → parse notification email → classify from 300-char preview
 → label + archive in Gmail → optionally create draft with thread URL + reply text
 ```
 
 **Browser mode:**
+
 ```
 Receive LinkedIn thread ID from linkedin_scan_inbox
 → linkedin_get_conversation → read full thread, all messages
@@ -211,28 +218,33 @@ LEGIT:
 **Classification signals** (both modes, identical):
 
 Recruiter/job slop:
+
 - "I came across your profile" / "your background caught my eye" / "great fit"
 - Mentions role, position, salary, equity without being asked
 - Sender title contains: Recruiter, Talent, HR, Staffing, Headhunter
 
 Sales slop:
+
 - "I help companies like yours" / generic value propositions
 - Vague ROI claims without specifics
 - "Wanted to connect to discuss" / "thought you'd be interested"
 - Follows an obvious template with blanks filled in
 
 Investor slop:
+
 - "family office" / "fund" / "early-stage" / "raise capital"
 - "I'd love to learn more about what you're building" (generic)
 - Calendly link or deck request without substantive prior exchange
 
 Legitimate:
+
 - References a specific post, project, or shared context the user would recognize
 - Concrete technical question showing domain knowledge
 - Named mutual connection or shared event
 - No detectable commercial intent
 
 **Trap selection:**
+
 - Recruiter → Info Vacuum → Expert-Domain Trap → NDA Trap
 - Sales → Time-Sink Trap → NDA Trap
 - Investor → Due Diligence Loop → NDA Trap
@@ -349,6 +361,7 @@ Upgrade mode:
 ### 7. `skills/PROTOCOL.md` — LinkedIn Addendum
 
 Add section **LinkedIn Integration**:
+
 - Document both modes (email vs browser)
 - List 6 new browser tools with usage notes
 - Note: `linkedin_send_reply` is only used in browser mode + yolo_mode; otherwise Gmail draft
@@ -390,13 +403,13 @@ Run `make sync` after adding `linkedin-shield/`, `linkedin-feed/`, and `linkedin
 
 ## What Doesn't Need to Change
 
-| Component | Reason |
-|---|---|
-| `apps-script/Code.gs` | LinkedIn notifications are Gmail emails; existing handlers untouched |
-| MCP stdio transport | New tools added alongside existing ones |
-| `scripts/sync_commands.py` | Picks up new skills automatically |
-| NDA attachment mechanism | Reused in LinkedIn NDA Trap |
-| Rate limiting | Shared `max_daily_replies` counter — LinkedIn replies count against it too |
+| Component                  | Reason                                                                     |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `apps-script/Code.gs`      | LinkedIn notifications are Gmail emails; existing handlers untouched       |
+| MCP stdio transport        | New tools added alongside existing ones                                    |
+| `scripts/sync_commands.py` | Picks up new skills automatically                                          |
+| NDA attachment mechanism   | Reused in LinkedIn NDA Trap                                                |
+| Rate limiting              | Shared `max_daily_replies` counter — LinkedIn replies count against it too |
 
 ---
 

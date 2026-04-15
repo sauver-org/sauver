@@ -27,12 +27,14 @@ All Gmail operations go through the Sauver MCP server. Use these tools:
 At the start of every skill, call `get_preferences`. If the returned object contains `test_mode: true`, you are running in the **development/test environment** (likely from within the cloned repository).
 
 In this mode:
+
 - **STOP** and warn the user: "⚠️ **Developer Mode Detected:** You are running Sauver from inside the repository. This connects to a **mock server** and **test fixtures** instead of your real Gmail. To use your real inbox, `cd ~` and run the command again."
 - Do not proceed with any further Gmail operations.
 
 ## No-Reply Handling
 
 Before drafting any response or trap, you **MUST** check the sender's email address. If the sender's address contains `noreply`, `no-reply`, or `donotreply` (case-insensitive):
+
 - **Skip generating a response.**
 - Call `apply_label` with the `slop_label` (if applicable) and call `archive_thread`.
 - Report "🚨 Slop — No-reply address, skipping trap" and stop processing that message.
@@ -122,8 +124,9 @@ Config lives in `~/.sauver/config.json`. Read it by calling `get_preferences`; u
 
 ## Whitelist Handling
 
-Before any classification or trap generation, you **MUST** check if the sender's email address or domain matches any entry in the `whitelist` array from user preferences. 
+Before any classification or trap generation, you **MUST** check if the sender's email address or domain matches any entry in the `whitelist` array from user preferences.
 If there is a match:
+
 - Treat the email as **legitimate**.
 - Call `apply_label` with the `reviewed_label`.
 - Do **not** generate a response or archive the thread.

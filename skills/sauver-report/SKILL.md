@@ -31,8 +31,9 @@ You generate a weekly digest of Sauver's actions to provide tangible ROI to the 
    **Estimated Time Saved:** [Total count * 5] minutes ⏳
 
    ### Top Spamming Domains:
+
    - @domain1.com
    - @domain2.com
 
-   *Keep your inbox clean. — Sauver*
+   _Keep your inbox clean. — Sauver_
    ```
