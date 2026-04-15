@@ -7,6 +7,9 @@
 ![Environment: Node.js 18+](https://img.shields.io/badge/Node-18+-green.svg)
 ![Platform: Gmail](https://img.shields.io/badge/Platform-Gmail-red.svg)
 
+> [!IMPORTANT]
+> **Not sure where to start?** Do **not** clone this repo to use Sauver. Run the installer instead: `curl -fsSL https://sauver.org/install.sh | bash`. Clone this repo only if you want to contribute to the codebase.
+
 Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies recruiter/sales/investor "slop," and wastes spammers' time with automated traps. It runs inside Claude Code and Gemini CLI.
 
 ## What it does
@@ -91,6 +94,9 @@ The installer writes skills to `~/.gemini/skills/` and registers the MCP server 
 | `/archiver`       | Label and archive a specific thread on demand, without full triage  |
 
 You can also ask Gemini in plain English: _"Sauver, triage my last 10 unread emails"_ or _"Archive this thread under the Sauver label"_.
+
+> [!CAUTION]
+> **Developer Trap:** If you clone this repository, do **not** run `gemini` from inside the `sauver/` folder. Gemini CLI prioritizes local configuration, and this repo contains a `.gemini/settings.json` that connects to a **mock server** and **test fixtures** for development. If `/sauver` starts scanning emails that aren't yours, `cd ~` and try again.
 
 ### How Claude finds Sauver
 
