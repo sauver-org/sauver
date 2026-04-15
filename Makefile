@@ -2,7 +2,7 @@
 
 # Core generation script for AI CLI shims
 sync:
-	@echo "Regenerating extension shims (.claude/ & .agent/) from skills/..."
+	@echo "Regenerating extension shims (.claude/ & .gemini/) from skills/..."
 	python3 scripts/sync_commands.py
 
 # Verify if shims are up-to-date (useful for CI/CD checks)
