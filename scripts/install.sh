@@ -178,9 +178,22 @@ EOF
     echo "     URL: $APPS_SCRIPT_URL"
     echo ""
 
-    mkdir -p "$(dirname "$CONFIG_FILE")"
+  fi
 
-    # Build config
+  # Validate
+  VALID_PATTERN="^https://script\.google\.com/macros/s/[A-Za-z0-9_-]{20,}/exec$"
+  if [[ ! "$APPS_SCRIPT_URL" =~ $VALID_PATTERN ]]; then
+    echo ""
+    echo -e "${RED}❌ That doesn't look right. The URL should be a Google Apps Script web app URL ending in /exec${NC}"
+    echo "   Example: https://script.google.com/macros/s/AKfycb.../exec"
+    echo ""
+    echo "Re-run the installer and try again."
+    exit 1
+  fi
+
+  mkdir -p "$(dirname "$CONFIG_FILE")"
+
+  # Build config
     if [ -n "$SCRIPT_ID" ]; then
       cat > "$CONFIG_FILE" <<EOF
 {
@@ -221,9 +234,7 @@ EOF
     chmod 600 "$CONFIG_FILE"
     echo ""
     echo -e "${GREEN}✅ Config saved to ${CONFIG_FILE}${NC}"
-  fi
 fi
-
 # ── Verify backend (trigger OAuth consent if needed) ────────────────────────
 
 echo ""
