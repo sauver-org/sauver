@@ -33,7 +33,7 @@ function doGet(e) {
   `;
   return HtmlService.createHtmlOutput(html)
     .setTitle(`Sauver | ${BACKEND_NAME} Authorized`)
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DENY);
 }
 
 function doPost(e) {

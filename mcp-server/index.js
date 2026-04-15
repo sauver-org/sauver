@@ -443,7 +443,8 @@ const TOOLS = [
             "Preference key: auto_draft | yolo_mode | treat_job_offers_as_slop | treat_unsolicited_investors_as_slop | slop_label | engage_bots | bot_reply_threshold_seconds | max_trap_exchanges | max_daily_replies | reviewed_label | whitelist",
         },
         value: {
-          description: "New value (boolean, string, or array depending on the key)",
+          description:
+            "New value (boolean, string, or array depending on the key)",
         },
       },
     },
@@ -490,6 +491,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     // Resolve file-path attachments to base64 for Apps Script
     if (args.attachments && Array.isArray(args.attachments)) {
+      const ALLOWED_ROOT = join(homedir(), ".sauver");
       const MIME_TYPES = {
         ".pdf": "application/pdf",
         ".docx":
@@ -501,6 +503,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
       args.attachments = args.attachments.map((filePath) => {
         const resolved = filePath.replace(/^~/, homedir());
+        if (!resolved.startsWith(ALLOWED_ROOT)) {
+          throw new Error(
+            `Security Violation: Attachment path "${filePath}" is outside the allowed directory (${ALLOWED_ROOT}).`,
+          );
+        }
         if (!existsSync(resolved)) {
           throw new Error(`Attachment not found: ${filePath}`);
         }

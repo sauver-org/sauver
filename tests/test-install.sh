@@ -38,7 +38,7 @@ done
 
 # When neither claude nor gemini is in PATH, warn but don't fail
 _tmp_home=$(mktemp -d)
-output=$(PATH="$_fake_bin:/usr/bin:/bin" SAUVER_APPS_SCRIPT_URL="$VALID_URL_FOR_CHECK" HOME="$_tmp_home" bash "$INSTALL_SCRIPT" 2>/dev/null)
+output=$(PATH="$_fake_bin:/usr/bin:/bin" SAUVER_APPS_SCRIPT_URL="$VALID_URL_FOR_CHECK" HOME="$_tmp_home" bash "$INSTALL_SCRIPT")
 if echo "$output" | grep -q "Neither 'claude' nor 'gemini' found"; then
   pass "warns when no AI assistant found"
 else
