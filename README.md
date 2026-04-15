@@ -26,10 +26,10 @@ Sauver is a cyber-defense layer for Gmail. It strips tracking pixels, identifies
 
 ## Installation
 
-Run this one command in your terminal:
+Run this verified command in your terminal to securely download and install Sauver:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sauver-org/sauver/main/scripts/install.sh -o install.sh && echo "8c2bb9f1eff317c91dd03cdca4de78e41f7c8f70dc8e7047465ae64520b43d1e  install.sh" | shasum -a 256 -c - && bash install.sh && rm install.sh
 ```
 
 The installer automates the setup process (~3 minutes total) using `clasp`:
